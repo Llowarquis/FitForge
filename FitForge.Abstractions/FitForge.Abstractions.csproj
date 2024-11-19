@@ -10,4 +10,8 @@
     <Folder Include="Interfaces\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FitForge.Domain\FitForge.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
