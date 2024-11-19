@@ -11,4 +11,8 @@
     <Folder Include="Dto\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FitForge.Data\FitForge.Data.csproj" />
+  </ItemGroup>
+
 </Project>
