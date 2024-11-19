@@ -11,4 +11,8 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FitForge.Abstractions\FitForge.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>
