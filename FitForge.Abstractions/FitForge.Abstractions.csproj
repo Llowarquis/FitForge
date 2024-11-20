@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\FitForge.Domain\FitForge.Domain.csproj" />
 
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
