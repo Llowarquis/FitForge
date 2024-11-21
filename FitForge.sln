@@ -5,13 +5,13 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitForge", "FitForge\FitForge.csproj", "{3681569A-79CC-43DC-BCE2-280B455CBE96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitForge.Abstractions", "FitForge.Abstractions\FitForge.Abstractions.csproj", "{39D7BEBD-79AD-4B77-A48B-FF841C3E9830}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitForge.Abstractions", "FitForge.Abstractions\FitForge.Abstractions.csproj", "{39D7BEBD-79AD-4B77-A48B-FF841C3E9830}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitForge.Services", "FitForge.Services\FitForge.Services.csproj", "{89AC3AD2-BED9-4CEE-8D5C-3DE8DF1BDF04}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitForge.Services", "FitForge.Services\FitForge.Services.csproj", "{89AC3AD2-BED9-4CEE-8D5C-3DE8DF1BDF04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitForge.Data", "FitForge.Data\FitForge.Data.csproj", "{3AF0E7E1-23AA-4496-A144-6FCB617ED132}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitForge.Data", "FitForge.Data\FitForge.Data.csproj", "{3AF0E7E1-23AA-4496-A144-6FCB617ED132}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitForge.Domain", "FitForge.Domain\FitForge.Domain.csproj", "{A830BA34-CE19-4A07-8D56-3428037B4772}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitForge.Domain", "FitForge.Domain\FitForge.Domain.csproj", "{A830BA34-CE19-4A07-8D56-3428037B4772}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
