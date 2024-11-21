@@ -49,14 +49,3 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
-
-main {
-    background-image: url('images/fondo-letras.jpg'); /* Ruta de tu imagen */
-    background-size: cover; /* Asegura que la imagen cubra todo el espacio */
-    background-position: center; /* Centra la imagen */
-    background-repeat: no-repeat; /* Evita que la imagen se repita */
-    min-height: 100vh; /* Asegura que el área cubra al menos el 100% de la altura de la ventana */
-    display: flex; /* Opcional: si necesitas centrar contenido */
-    justify-content: center; /* Opcional: centrar horizontalmente */
-    align-items: center; /* Opcional: centrar verticalmente */
-}
