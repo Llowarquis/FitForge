@@ -10,6 +10,11 @@
     --vine-red: #96150c;
     --beige: #f5f5dc;
     --dark-blue: #1e2460;
+    --rosita1: #ca678e; /* clarito */
+    --rosita2: #96305a; /* oscurito */
+    --beige1: #f5e1ce; /* clarito */
+    --beige2: #e8c39e;
+    --beige3: #b08e6b; /* oscurito */
 }
 
 
@@ -19,10 +24,13 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.65)), url(/images/fondo-register-login.jpg);
+    background-size: initial;
+    background-position: center;
 }
 
 letras-con-fondo {
-    background-image: url("images/fondo.png");
+    background-image: url("images/fondo-register-login.jpg");
     -webkit-text-fill-color: white;
     -webkit-background-clip: text;
 }
@@ -39,7 +47,7 @@ letras-con-fondo {
 
     .wrapper .welcome-section {
         width: 50%;
-        background: linear-gradient(to bottom, var(--vine-red), var(--beige));
+        background: linear-gradient(to bottom, var(--rosita2), var(--beige2));
         color: var(--white);
         display: flex;
         flex-direction: column;
@@ -47,7 +55,7 @@ letras-con-fondo {
         align-items: center;
         padding: 20px;
         text-align: center;
-        -webkit-text-fill-color: #96150c;
+        -webkit-text-fill-color: #000000;
     }
 
         .wrapper .welcome-section h1 {
