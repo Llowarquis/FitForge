@@ -22,14 +22,15 @@ public class Clientes : Usuarios
     public long Cedula { get; set; }
 
 
-    // Este campo se debe asignar automaticamente cuando se cree en la DB y debe empezar en 1000 e ira de 1 en 1
+    // Este campo se debe asignar automaticamente cuando se cree en la DB y debe empezar en 1000 e ira de 1 en 1,
+    // no se como se hara pero debe hacerse XD (cuando se logre se borra este comentario)
     public int Pin { get; set; }
 
 
 
 	[ForeignKey("Tarjetas")]
 	public Tarjetas? TarjetaId { get; set; }
-    public ICollection<Tarjetas> Tarjeta { get; set; } = new List<Tarjetas>();
+    public ICollection<Tarjetas>? Tarjeta { get; set; } = new List<Tarjetas>();
 
 
 
@@ -47,9 +48,9 @@ public class Clientes : Usuarios
 
 
     [Required(ErrorMessage = "Este campo es obligatorio")]
-    [ForeignKey("Pagos")]
-	public int PagoId { get; set; }
-	public ICollection<Pagos> Pago { get; set; } = new List<Pagos>();
+    [ForeignKey("PagosEfectivo")]
+	public int PagoEfectivoId { get; set; }
+	public ICollection<PagosEfectivo> PagoEfectivo { get; set; } = new List<PagosEfectivo>();
 
 
 
