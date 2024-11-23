@@ -2,10 +2,10 @@
 
 namespace FitForge.Data.Models;
 
-public class Pagos
+public class PagosEfectivo
 {
 	[Key]
-	public int PagoId { get; set; }
+	public int PagoEfectivoId { get; set; }
 
 
 	[RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
