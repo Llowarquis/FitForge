@@ -20,4 +20,8 @@ public class Contexto : DbContext
 	public DbSet<Tarjetas> Tarjetas { get; set; }
 
 	public DbSet<Usuarios> Usuarios { get; set; }
+
+	public DbSet<PagosEfectivo> PagosEfectivo { get; set; }
+
+	public DbSet<PagosTarjeta> PagosTarjeta { get; set; }
 }
