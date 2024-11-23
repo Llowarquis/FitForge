@@ -13,7 +13,12 @@ public class Cajas
     public double BalanceBanco { get; set; } 
 
 
-    [ForeignKey("Pagos")]
-    public int PagoId { get; set; }
-    public ICollection<Pagos> Pagos { get; set; } = new List<Pagos>();
+    [ForeignKey("PagosEfectivo")]
+    public int PagoEfectivoId { get; set; }
+    public ICollection<PagosEfectivo> PagosEfectivo { get; set; } = new List<PagosEfectivo>();
+
+
+	[ForeignKey("PagosTarjeta")]
+	public int PagoTarjetaId { get; set; }
+	public ICollection<PagosTarjeta> PagoTarjeta { get; set; } = new List<PagosTarjeta>();
 }
