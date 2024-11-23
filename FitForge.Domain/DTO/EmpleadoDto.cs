@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace FitForge.Domain.DTO;
 
-namespace FitForge.Domain.DTO
+public class EmpleadoDto
 {
-	internal class EmpleadoDto
-	{
-	}
+	public int EmpleadoId { get; set; }
+	public int Nombres { get; set; }
+	public string Cargo { get; set; } = string.Empty;
+	public double Sueldo { get; set; }
 }

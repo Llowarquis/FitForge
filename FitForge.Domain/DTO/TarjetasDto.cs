@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace FitForge.Domain.DTO;
 
-namespace FitForge.Domain.DTO
+public class TarjetasDto
 {
-	internal class TarjetasDto
-	{
-	}
+	public int TarjetaId { get; set; }
+	public int NumeroTarjeta { get; set; }
+	public int Cvv { get; set; }
+	public DateOnly? FechaVencimiento { get; set; } = null;
 }
