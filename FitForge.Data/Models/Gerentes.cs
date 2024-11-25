@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FitForge.Data.Models;
 
-public class Gerentes
+public class Gerentes : Usuarios
 {
 	[Key]
 	public int GerenteId { get; set; }
