@@ -19,5 +19,7 @@ public class Tarjetas
 
 	[RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
 	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public DateOnly? FechaVencimiento { get; set; } = null; 
+	public DateOnly? FechaVencimiento { get; set; } = null;
+
+	public ICollection<PagosTarjeta> PagoTarjeta { get; set; } = new List<PagosTarjeta>();
 }
