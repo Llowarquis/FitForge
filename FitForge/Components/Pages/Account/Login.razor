@@ -1,0 +1,42 @@
+﻿@page "/login"
+
+<PageTitle>Iniciar sesi&oacute;n</PageTitle>
+<div class="wrapper">
+	<div class="form-section">
+		<form>
+			<div class="text-black text-center">
+				<h3><strong>Iniciar Sesi&oacute;n</strong></h3>
+				<p>Inicie en FitForge.</p>
+			</div>
+			<div class="input-box">
+				<input type="email" placeholder="" required />
+				<label>E-mail</label>
+			</div>
+			<div class="input-box">
+				<input type="password" placeholder="" required />
+				<label>Contraseña</label>
+			</div>
+			<button type="submit" class="btn">Iniciar sesi&oacute;n</button>
+			<div class="switch-link">
+				¿No tienes una cuenta? <a href="/register">Cree una</a>
+			</div>
+			<div class="switch-link">
+				<a href="/#">¿Olvidaste tu contraseña?</a>
+			</div>
+		</form>
+	</div>
+	<div class="welcome-section">
+		<img src="images/fitforge-logo.png" alt="FirForge" width="200" height="auto">
+		<br />
+		<h1><strong>¡BIENVENIDO/A DE NUEVO!</strong></h1>
+		<p>¡Hola, Ingresa tus datos para continuar tu camino hacia tu figura ideal!</p>
+	</div>
+</div>
+
+<head>
+	<link href="css/Login.css" rel="stylesheet" />
+</head>
+
+@code {
+
+}
