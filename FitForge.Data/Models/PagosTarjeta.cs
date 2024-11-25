@@ -17,7 +17,10 @@ public class PagosTarjeta
 	public DateTime FechaPago { get; set; } = DateTime.UtcNow;
 
 
-    [ForeignKey("PagosTarjeta")]
-    public int TarjetaId { get; set; }
+    [ForeignKey("TarjetaId")]
     public Tarjetas Tarjetas { get; set; }
+
+
+	[ForeignKey("CajaId")]
+	public Cajas Caja { get; set; }
 }
