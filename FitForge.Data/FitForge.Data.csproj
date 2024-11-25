@@ -17,7 +17,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\FitForge.Domain\FitForge.Domain.csproj" />
-		<ProjectReference Include="..\FitForge\FitForge.csproj" />
 	</ItemGroup>
 
 </Project>
