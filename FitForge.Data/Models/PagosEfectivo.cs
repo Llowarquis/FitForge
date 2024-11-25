@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitForge.Data.Models;
 
@@ -15,4 +16,11 @@ public class PagosEfectivo
 
 	[Required(ErrorMessage = "Este campo es obligatorio")]
 	public DateTime FechaPago { get; set; } = DateTime.UtcNow;
+
+
+	[ForeignKey("CajasId")]
+	public Cajas Caja { get; set; }
+
+    [ForeignKey("ClienteId")]
+    public Clientes Cliente { get; set; }
 }
