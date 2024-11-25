@@ -10,11 +10,9 @@ public class Clientes : Usuarios
     public int ClienteId { get; set; }
 
 
-
     [RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
     [Required(ErrorMessage = "Este campo es obligatorio")]
     public string Nombres { get; set; } = string.Empty;
-
 
 
     [RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
@@ -27,36 +25,27 @@ public class Clientes : Usuarios
     public int Pin { get; set; }
 
 
-
-	[ForeignKey("Tarjetas")]
-	public Tarjetas? TarjetaId { get; set; }
     public ICollection<Tarjetas>? Tarjeta { get; set; } = new List<Tarjetas>();
-
 
 
     public string? FotoPerfilUrl { get; set; } // Se guarda la URL de la imagen para que ocupe menos espacio y sea mas rapida su accesibilidad
 
 
-
     public int? Telefono { get; set; }
 
 
-
     [Required]
+    [ForeignKey("DomicilioId")]
     public Domicilios Domicilio { get; set; }
 
 
-
-    [Required(ErrorMessage = "Este campo es obligatorio")]
     [ForeignKey("PagosEfectivo")]
 	public int PagoEfectivoId { get; set; }
 	public ICollection<PagosEfectivo> PagoEfectivo { get; set; } = new List<PagosEfectivo>();
 
 
-
     [Required(ErrorMessage = "Este campo es obligatorio")]
     public DateOnly FechaNacimiento { get; set; }
-
 
 
     public EstadoMembresia Membresia { get; set; }
