@@ -3,10 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitForge.Data.DAL;
 
-public class Contexto : DbContext
+public class Contexto(DbContextOptions<Contexto> options) : DbContext(options)
 {
-	Contexto(DbContextOptions<Contexto> options) : base(options) { }
-
     public DbSet<Cajas> Cajas { get; set; }
 
 	public DbSet<Clientes> Clientes { get; set; }
@@ -18,8 +16,6 @@ public class Contexto : DbContext
 	public DbSet<Gerentes> Gerentes { get; set; }
 
 	public DbSet<Tarjetas> Tarjetas { get; set; }
-
-	public DbSet<Usuarios> Usuarios { get; set; }
 
 	public DbSet<PagosEfectivo> PagosEfectivo { get; set; }
 
