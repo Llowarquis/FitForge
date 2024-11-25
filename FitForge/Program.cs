@@ -1,10 +1,16 @@
 using FitForge.Components;
+using FitForge.Services.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
+
+// Inyectando contexto
+builder.Services.InyectarServicios();
+
+
 
 var app = builder.Build();
 
