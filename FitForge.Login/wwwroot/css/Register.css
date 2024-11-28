@@ -145,3 +145,8 @@ letras-con-fondo {
         font-weight: bold;
         cursor: pointer;
     }
+
+.validation-message {
+    min-height: 1.5rem; /* Reserva espacio para mensajes */
+    display: block; /* Asegura que ocupe el espacio */
+}

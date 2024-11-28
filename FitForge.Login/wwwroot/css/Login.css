@@ -119,7 +119,7 @@ letras-con-fondo {
     }
 
 .btn {
-    background-color: var(--green);
+    background-color: var(--primary);
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -130,7 +130,7 @@ letras-con-fondo {
 }
 
     .btn:hover {
-        background-color: var(--dark-green);
+        background-color: var(--primary-dark);
     }
 
 .switch-link {
@@ -145,3 +145,17 @@ letras-con-fondo {
         font-weight: bold;
         cursor: pointer;
     }
+
+.center-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+.validation-message {
+    min-height: 1.5rem; /* Reserva espacio para mensajes */
+    display: block; /* Asegura que ocupe el espacio */
+}
+
