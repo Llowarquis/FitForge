@@ -17,5 +17,5 @@ public class ClientesDto
 	public int PagoEfectivoId { get; set; }
 	public ICollection<PagosEfectivoDto> PagoEfectivo { get; set; } = new List<PagosEfectivoDto>();
 	public DateOnly FechaNacimiento { get; set; }
-    public EstadoMembresia Membresia { get; set; }
+    public EstadoMembresiaDto Membresia { get; set; }
 }
