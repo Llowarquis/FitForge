@@ -1,6 +1,6 @@
 ﻿namespace FitForge.Domain.Enums;
 
-public enum EstadoMembresia
+public enum EstadoMembresiaDto
 {
 	activa = 1,
 	inactiva = 2,

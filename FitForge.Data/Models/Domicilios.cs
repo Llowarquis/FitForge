@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitForge.Data.Models;
 
@@ -8,14 +9,9 @@ public class Domicilios
     public int DomicilioId { get; set; }
 
 
-	[RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
+	[RegularExpression(@"^[a-zA-Z0-9-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras, números, y símbolos comunes.")]
 	[Required(ErrorMessage = "Este campo es obligatorio")]
     public string Calle { get; set; } = string.Empty;
-
-
-	[RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
-	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public int NumCalle { get; set; }
 
 
 	[RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
@@ -23,22 +19,17 @@ public class Domicilios
 	public int NumCasa { get; set; }
 
 
-	[RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
-	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public string Provincia { get; set; } = string.Empty;
-
-
-	[RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
-	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public string Municipio { get; set; } = string.Empty;
-
-
-	[RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
+	[RegularExpression(@"^[a-zA-Z0-9-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras, números, y símbolos comunes.")]
 	[Required(ErrorMessage = "Este campo es obligatorio")]
 	public string Sector { get; set; } = string.Empty;
 
 
-	[RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
+	[RegularExpression(@"^[a-zA-Z0-9-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras, números, y símbolos comunes.")]
 	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public string CodigoPostal { get; set; } = string.Empty;
+	public string Provincia { get; set; } = string.Empty;
+
+
+	[ForeignKey("Clientes")]
+    public int ClienteId { get; set; }
+    public Clientes Cliente { get; set; }
 }
