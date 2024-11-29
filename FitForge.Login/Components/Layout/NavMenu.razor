@@ -2,85 +2,103 @@
 
 @inject NavigationManager NavigationManager
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">FitForge.Login</a>
-    </div>
-</div>
-
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+<nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top" style="background-color: #ca678e;">
+	<div class="container-fluid">
+		<a class="navbar-brand">
+			<img src="\images\fitforge-logo.png" height="65">
+		</a>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				@*Btn home*@
+				<li></li>
+				<li class="nav-item px-1">
+					<NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+						<span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
+					</NavLink>
+				</li>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="auth">
-                <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth Required
-            </NavLink>
-        </div>
+				@*Btn*@
+				<li class="nav-item px-1">
+					<NavLink class="nav-link" href="weather">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+					</NavLink>
+				</li>
 
-        <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Manage">
-                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <form action="Account/Logout" method="post">
-                        <AntiforgeryToken />
-                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                        <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                        </button>
-                    </form>
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Register">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Login">
-                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </nav>
+				@*Btn*@
+				<li class="nav-item px-1">
+					<NavLink class="nav-link" href="auth">
+						<span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth
+					</NavLink>
+				</li>
+			</ul>
+			<ul class="navbar-nav">
+				@*VISTA AUTORIZADA*@
+				<AuthorizeView>
+					<Authorized>
+						<li class="nav-item px-1">
+							<NavLink class="nav-link" href="Account/Manage">
+								<span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Mi cuenta
+							</NavLink>
+						</li>
+						<li class="nav-item px-1">
+							<form action="Account/Logout" method="post">
+								<AntiforgeryToken />
+								<input type="hidden" name="ReturnUrl" value="@currentUrl" />
+								<button type="submit" class="nav-link">
+									<span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Cerrar Sesi&oacute;n
+								</button>
+							</form>
+						</li>
+					</Authorized>
+					<NotAuthorized>
+						@*Btn register*@
+						<li></li>
+						<li class="nav-item px-3">
+							<NavLink class="nav-link" href="Account/Register">
+								<span class="bi bi-person-nav-menu" aria-hidden="true"></span> Registrarse
+							</NavLink>
+						</li>
+
+						@*Btn login*@
+						<li class="nav-item px-3">
+							<NavLink class="nav-link" href="Account/Login">
+								<span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Iniciar Sesi&oacute;n
+							</NavLink>
+						</li>
+					</NotAuthorized>
+				</AuthorizeView>
+			</ul>
+		</div>
+	</div>
+</nav>
+<div style="width: 100%; height: 25px; background-color: #96305a; position: fixed; top: 86px; left: 0; z-index: 1030;">
+	<div style="white-space: nowrap; position: absolute; animation: moveText 15s linear infinite; color: white;">
+		🔥¡Forjando tu mejor forma!🏋️‍♂️ ------- 🏆¡No pain No gain!🥇 ------- 🏅¡Cada repetición cuenta!💪
+	</div>
 </div>
 
+<link href="/css/NavMenu.css" rel="stylesheet" />
 @code {
-    private string? currentUrl;
+	private string? currentUrl;
 
-    protected override void OnInitialized()
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
-    }
+	protected override void OnInitialized()
+	{
+		currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+		NavigationManager.LocationChanged += OnLocationChanged;
+	}
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-        StateHasChanged();
-    }
+	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+	{
+		currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+		StateHasChanged();
+	}
 
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-    }
+	public void Dispose()
+	{
+		NavigationManager.LocationChanged -= OnLocationChanged;
+	}
 }
 
