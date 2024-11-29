@@ -16,16 +16,61 @@
 				<li></li>
 				<li class="nav-item px-1">
 					<NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
-						<span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
+						<span aria-hidden="true">
+							<img src="/images/icons/home.png" alt="Icono" style="width: 20px; height: 20px; margin-right: 5px;">
+						</span> Inicio
 					</NavLink>
 				</li>
+				<AuthorizeView>
+					<Authorized>
+						@*Btn Explora nuestras membresias*@
+						<li class="nav-item px-1">
+							<NavLink class="nav-link" href="weather">
+								<span aria-hidden="true">
+									<img src="/images/icons/membresia.png" alt="Icono" style="width: 20px; height: 20px; margin-right: 5px;">
+								</span> Membres&iacute;as
+							</NavLink>
+						</li>
 
-				@*Btn*@
-				<li class="nav-item px-1">
-					<NavLink class="nav-link" href="weather">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-					</NavLink>
-				</li>
+						@*Btn Inscripciones*@
+						<li class="nav-item px-1">
+							<NavLink class="nav-link" href="#">
+								<span aria-hidden="true">
+									<img src="/images/icons/inscripciones.png" alt="Icono" style="width: 20px; height: 20px; margin-right: 5px;">
+								</span> Inscripciones
+							</NavLink>
+						</li>
+
+						@*Btn clases*@
+						<li class="nav-item px-1">
+							<NavLink class="nav-link" href="#">
+								<span aria-hidden="true">
+									<img src="/images/icons/clases-disponibles.png" alt="Icono" style="width: 30px; height: 30px; margin-right: 5px;">
+								</span> Clases disponibles
+							</NavLink>
+						</li>
+
+						@*Btn Mis Pagos*@
+						<li class="nav-item px-1">
+							<NavLink class="nav-link" href="#">
+								<span aria-hidden="true">
+									<img src="/images/icons/pagos.png" alt="Icono" style="width: 25px; height: 25px; margin-right: 5px;">
+								</span> Mis Pagos
+							</NavLink>
+						</li>
+					</Authorized>
+					<NotAuthorized>
+						@*Btn Explora nuestras membresias*@
+						<li class="nav-item px-1">
+							<NavLink class="nav-link" href="weather">
+								<span aria-hidden="true">
+									<img src="/images/icons/membresia.png" alt="Icono" style="width: 20px; height: 20px; margin-right: 5px;">
+								</span> Explora nuestras Membres&iacute;as
+							</NavLink>
+						</li>
+					</NotAuthorized>
+				</AuthorizeView>
+				
 
 				@*Btn*@
 				<li class="nav-item px-1">
@@ -38,9 +83,12 @@
 				@*VISTA AUTORIZADA*@
 				<AuthorizeView>
 					<Authorized>
+						<li></li>
 						<li class="nav-item px-1">
 							<NavLink class="nav-link" href="Account/Manage">
-								<span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Mi cuenta
+								<span aria-hidden="true">
+									<img src="/images/icons/mi-cuenta.png" alt="Icono" style="width: 30px; height: 30px; margin-right: 5px;">
+								</span> Mi cuenta
 							</NavLink>
 						</li>
 						<li class="nav-item px-1">
@@ -48,7 +96,9 @@
 								<AntiforgeryToken />
 								<input type="hidden" name="ReturnUrl" value="@currentUrl" />
 								<button type="submit" class="nav-link">
-									<span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Cerrar Sesi&oacute;n
+									<span aria-hidden="true">
+										<img src="/images/icons/logout.png" alt="Icono" style="width: 30px; height: 30px; margin-right: 5px;">
+									</span> Cerrar Sesi&oacute;n
 								</button>
 							</form>
 						</li>
@@ -58,14 +108,18 @@
 						<li></li>
 						<li class="nav-item px-3">
 							<NavLink class="nav-link" href="Account/Register">
-								<span class="bi bi-person-nav-menu" aria-hidden="true"></span> Registrarse
+								<span aria-hidden="true">
+									<img src="/images/icons/registrarse.png" alt="Icono" style="width: 30px; height: 30px; margin-right: 5px;">
+								</span>  Registrarse
 							</NavLink>
 						</li>
 
 						@*Btn login*@
 						<li class="nav-item px-3">
 							<NavLink class="nav-link" href="Account/Login">
-								<span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Iniciar Sesi&oacute;n
+								<span aria-hidden="true">
+									<img src="/images/icons/mi-cuenta.png" alt="Icono" style="width: 30px; height: 30px; margin-right: 5px;">
+								</span> Iniciar Sesi&oacute;n
 							</NavLink>
 						</li>
 					</NotAuthorized>
