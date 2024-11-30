@@ -347,7 +347,7 @@ namespace FitForge.Data.Migrations
                     b.Property<DateTime>("FechaVencimiento")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(8203));
+                        .HasDefaultValue(new DateTime(2024, 12, 30, 9, 39, 2, 888, DateTimeKind.Local).AddTicks(8264));
 
                     b.Property<decimal>("Precio")
                         .HasColumnType("decimal(18,2)");
@@ -364,7 +364,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 1,
                             Descripcion = "Membresía Estudiante",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9815),
+                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 39, 2, 888, DateTimeKind.Local).AddTicks(9788),
                             Precio = 500m
                         },
                         new
@@ -372,7 +372,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 2,
                             Descripcion = "Membresía Básica",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9819),
+                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 39, 2, 888, DateTimeKind.Local).AddTicks(9792),
                             Precio = 800m
                         },
                         new
@@ -380,7 +380,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 3,
                             Descripcion = "Membresía VIP",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9821),
+                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 39, 2, 888, DateTimeKind.Local).AddTicks(9793),
                             Precio = 1500m
                         });
                 });

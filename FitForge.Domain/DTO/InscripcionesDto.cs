@@ -1,4 +1,5 @@
 ﻿using FitForge.Data.Models;
+using FitForge.Domain.Dto;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitForge.Data.Modelsp;

@@ -336,7 +336,7 @@ namespace FitForge.Data.Migrations
                     EstadoMembresiaId = table.Column<int>(type: "int", nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(8203))
+                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2024, 12, 30, 9, 39, 2, 888, DateTimeKind.Local).AddTicks(8264))
                 },
                 constraints: table =>
                 {
@@ -486,9 +486,9 @@ namespace FitForge.Data.Migrations
                 columns: new[] { "MembresiaId", "Descripcion", "EstadoMembresiaId", "FechaVencimiento", "Precio" },
                 values: new object[,]
                 {
-                    { 1, "Membresía Estudiante", 1, new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9815), 500m },
-                    { 2, "Membresía Básica", 1, new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9819), 800m },
-                    { 3, "Membresía VIP", 1, new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9821), 1500m }
+                    { 1, "Membresía Estudiante", 1, new DateTime(2024, 12, 30, 9, 39, 2, 888, DateTimeKind.Local).AddTicks(9788), 500m },
+                    { 2, "Membresía Básica", 1, new DateTime(2024, 12, 30, 9, 39, 2, 888, DateTimeKind.Local).AddTicks(9792), 800m },
+                    { 3, "Membresía VIP", 1, new DateTime(2024, 12, 30, 9, 39, 2, 888, DateTimeKind.Local).AddTicks(9793), 1500m }
                 });
 
             migrationBuilder.CreateIndex(
