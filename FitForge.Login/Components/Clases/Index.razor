@@ -1,0 +1,47 @@
+﻿@page "/Clases/Index"
+
+@inject NavigationManager navigationManager
+
+<PageTitle>Clases disponibles</PageTitle>
+
+<div class="container">
+	<div class="card shadow-lg">
+		@*HEADER*@
+		<div class="card-header text-center">
+			<h3><b>Clases Disponibles</b></h3>
+			<p>¡Aqui te damos la posibilidad de poder asistir a todas nuestras clases!</p>
+		</div>
+
+		@*BODY*@
+		<div class="card-body">
+			<table class="table table-sm table-striped table-hover">
+				<thead>
+					<tr>
+						<th><b>Descripci&oacute;n</b></th>
+						<th><b>Precio</b></th>
+						<th><b>Cupos</b></th>
+						<th><b>Entrenador</b></th>
+					</tr>
+				</thead>
+				<tbody class="table-group-divider">
+					@foreach (var clases in numeros)
+					{
+						<tr>
+							<th>@clases</th>
+						</tr>
+					}
+				</tbody>
+				<caption>
+					Clases disponibles: @numeros.Count
+				</caption>
+			</table>
+		</div>
+	</div>
+</div>
+
+
+
+@code {
+	public List<int> numeros { get; set; } = new List<int>() { 1, 2, 3, 3, 5, 6 };
+
+}
