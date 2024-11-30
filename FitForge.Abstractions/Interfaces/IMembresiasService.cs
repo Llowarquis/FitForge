@@ -9,6 +9,6 @@ namespace FitForge.Abstractions.Interfaces
 {
     public interface IMembresiasService
     {
-        Task<List<MembresiasDto>> GetMembresiasAsync();
+        Task<List<MembresiasDto>> ObtenerMembresiasAsync();
     }
 }
