@@ -1,0 +1,41 @@
+﻿@page "/membresias"
+@inject IMembresiasService MembresiasService
+
+
+@if (membresias == null)
+{
+    <p><em>Cargando membresías...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Fecha de Vencimiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var membresia in membresias)
+            {
+                <tr>
+                    <td>@membresia.Descripcion</td>
+                    <td>@membresia.Precio.ToString("C")</td>
+                    <td>@Enum.GetName(typeof(EstadoMembresiaDto), membresia.EstadoMembresia)</td>
+                    <td>@membresia.FechaVencimiento.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<MembresiasDto> membresias;
+
+    protected override async Task OnInitializedAsync()
+    {
+        membresias = await MembresiasService.ObtenerMembresiasAsync();
+    }
+}
