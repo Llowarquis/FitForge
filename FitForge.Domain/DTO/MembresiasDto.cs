@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using FitForge.Domain.Enums;
 
-namespace FitForge.Data.Models;
+namespace FitForge.Domain.Dto;
 
 public class MembresiasDto
 {
@@ -8,7 +9,7 @@ public class MembresiasDto
 
 	[ForeignKey("EstadoMembresiaDto")]
     public int EstadoMembresiaId { get; set; }
-    public EstadosMembresiaDto EstadoMembresia { get; set; }
+    public EstadoMembresiaDto EstadoMembresia { get; set; }
 
     public string Descripcion { get; set; }
     public double Precio { get; set; }
