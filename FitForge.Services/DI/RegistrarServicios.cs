@@ -1,4 +1,5 @@
-﻿using FitForge.Abstractions.Interfaces;
+﻿using BlazorBootstrap;
+using FitForge.Abstractions.Interfaces;
 using FitForge.Data.DI;
 using FitForge.Services.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,8 @@ public static class RegistrarServicios
 		servicios.AddScoped<IEmpleadosService, EmpleadosService>();
 		servicios.AddScoped<IUsuariosService, UsuariosService>();
 		servicios.AddScoped<ITarjetasService, TarjetasService>();
+		servicios.AddBlazorBootstrap();
+		servicios.AddSingleton<ToastService>();
 		return servicios;
 	}
 }

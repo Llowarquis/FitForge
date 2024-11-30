@@ -30,19 +30,19 @@
 
 		@*Titulo*@
 		<div class="text-black text-center">
-			<h3 style ="margin-bottom: 1px;"><strong>Crear cuenta nueva</strong></h3>
+			<h3 style="margin-bottom: 1px;"><strong>Crear cuenta nueva</strong></h3>
 			<p>Es f&aacute;cil y r&aacute;pido.</p>
 		</div>
 
 		@*EDITFORM*@
-		<EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-			<DataAnnotationsValidator/>
+		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+			<DataAnnotationsValidator />
 
 			@*Campo Email*@
 			<div class="form-floating mb-3">
-				<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+				<InputText @bind-Value="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
 				<label for="email">Email</label>
-				<ValidationMessage For="() => Input.Email" class="text-danger" />
+				<ValidationMessage For="() => Input.Username" class="text-danger" />
 			</div>
 
 			@*Campo contraseña*@
@@ -58,10 +58,10 @@
 				<label for="confirm-password">Confirmar Contraseña</label>
 				<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger validation-message" />
 			</div>
-		</EditForm>
 
-		@*Btn Registrarse*@
-		<button type="submit" class="w-100 btn btn-lg btn-primary">Registrarse</button>
+			@*Btn Registrarse*@
+			<button type="submit" class="w-100 btn btn-lg btn-primary">Registrarse</button>
+		</EditForm>
 
 		@*Login*@
 		<div class="switch-link">
@@ -89,9 +89,9 @@
 	{
 		var user = CreateUser();
 
-		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+		await UserStore.SetUserNameAsync(user, Input.Username, CancellationToken.None);
 		var emailStore = GetEmailStore();
-		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+		await emailStore.SetEmailAsync(user, Input.Username, CancellationToken.None);
 		var result = await UserManager.CreateAsync(user, Input.Password);
 
 		if (!result.Succeeded)
@@ -109,13 +109,13 @@
 			NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
 			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
 
-		await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+		await EmailSender.SendConfirmationLinkAsync(user, Input.Username, HtmlEncoder.Default.Encode(callbackUrl));
 
 		if (UserManager.Options.SignIn.RequireConfirmedAccount)
 		{
 			RedirectManager.RedirectTo(
 				"Account/RegisterConfirmation",
-				new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+				new() { ["email"] = Input.Username, ["returnUrl"] = ReturnUrl });
 		}
 
 		await SignInManager.SignInAsync(user, isPersistent: false);
@@ -146,20 +146,21 @@
 
 	private sealed class InputModel
 	{
-		[Required]
+		[Required(ErrorMessage = "Este campo es obligatorio")]
 		[EmailAddress]
 		[Display(Name = "Email")]
-		public string Email { get; set; } = "";
+		public string Username { get; set; } = "";
 
-		[Required]
+		[Required(ErrorMessage = "Este campo es obligatorio")]
 		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
 		[DataType(DataType.Password)]
 		[Display(Name = "Password")]
 		public string Password { get; set; } = "";
 
 		[DataType(DataType.Password)]
-		[Display(Name = "Confirm password")]
-		[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+		[Display(Name = "Confirmar Contraseña")]
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[Compare("Password", ErrorMessage = "Las contraseñas deben coincidir")]
 		public string ConfirmPassword { get; set; } = "";
 	}
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitForge.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241129015458_AgregandoModelosNormalizados")]
-    partial class AgregandoModelosNormalizados
+    [Migration("20241129045611_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -8,6 +8,7 @@ public static class DbContextRegister
 {
 	public static IServiceCollection RegisterDbContextFactory(this IServiceCollection services)
 	{
+		
 		services.AddDbContextFactory<ApplicationDbContext>(x => x.UseSqlServer("Name=SqlConStr"));
 		return services;
 	}

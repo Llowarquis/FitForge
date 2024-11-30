@@ -1,0 +1,25 @@
+﻿.moving-text-bar {
+    width: 100%;
+    height: 5px;
+    background-color: #cccccc;
+    position: fixed;
+    top: 85px; /* Ajusta según la altura de tu navbar */
+    left: 0;
+    z-index: 1030;
+}
+
+@keyframes moveText {
+    0% {
+        left: -40%; /* Empieza fuera de la pantalla a la izquierda */
+    }
+
+    100% {
+        left: 100%; /* Termina fuera de la pantalla a la derecha */
+    }
+}
+
+.moving-text {
+    white-space: nowrap;
+    position: absolute;
+    animation: moveText 20s linear infinite; /* Animación infinita con tiempo ajustable */
+}

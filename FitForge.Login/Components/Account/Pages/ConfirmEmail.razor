@@ -6,6 +6,7 @@
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
+@inject NavigationManager navigationManager
 
 <PageTitle>Confirm email</PageTitle>
 
@@ -42,6 +43,8 @@
             var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
             var result = await UserManager.ConfirmEmailAsync(user, code);
             statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
+            Task.Delay(2500);
+            navigationManager.NavigateTo("/");
         }
     }
 }
