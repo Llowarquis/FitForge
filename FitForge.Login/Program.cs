@@ -1,7 +1,9 @@
+using FitForge.Abstractions.Interfaces;
 using FitForge.Data.DAL;
 using FitForge.Login.Components;
 using FitForge.Login.Components.Account;
 using FitForge.Services.DI;
+using FitForge.Services.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Identity;
@@ -29,6 +31,7 @@ builder.Services.AddAuthentication(options =>
 	})
 	.AddIdentityCookies();
 
+builder.Services.AddScoped<IMembresiasService, MembresiasService>();
 //var connectionString = builder.Configuration.GetConnectionString("SqlConStr") ?? throw new InvalidOperationException("Connection string 'SqlConStr' not found.");
 //builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //	options.UseSqlServer(connectionString));
