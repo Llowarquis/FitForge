@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace FitForge.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InsertMembresiasData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -332,9 +334,9 @@ namespace FitForge.Data.Migrations
                     MembresiaId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EstadoMembresiaId = table.Column<int>(type: "int", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Precio = table.Column<double>(type: "float", nullable: false),
-                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Descripcion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(8203))
                 },
                 constraints: table =>
                 {
@@ -344,7 +346,7 @@ namespace FitForge.Data.Migrations
                         column: x => x.EstadoMembresiaId,
                         principalTable: "EstadosMembresia",
                         principalColumn: "EstadoMembresiaId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -467,6 +469,26 @@ namespace FitForge.Data.Migrations
                         principalTable: "Membresias",
                         principalColumn: "MembresiaId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "EstadosMembresia",
+                columns: new[] { "EstadoMembresiaId", "Descripcion" },
+                values: new object[,]
+                {
+                    { 1, "Activo" },
+                    { 2, "Suspendido" },
+                    { 3, "Vencido" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Membresias",
+                columns: new[] { "MembresiaId", "Descripcion", "EstadoMembresiaId", "FechaVencimiento", "Precio" },
+                values: new object[,]
+                {
+                    { 1, "Membresía Estudiante", 1, new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9815), 500m },
+                    { 2, "Membresía Básica", 1, new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9819), 800m },
+                    { 3, "Membresía VIP", 1, new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9821), 1500m }
                 });
 
             migrationBuilder.CreateIndex(

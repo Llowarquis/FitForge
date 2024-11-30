@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitForge.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241129045611_Initial")]
-    partial class Initial
+    [Migration("20241130130736_InsertMembresiasData")]
+    partial class InsertMembresiasData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -253,6 +253,23 @@ namespace FitForge.Data.Migrations
                     b.HasKey("EstadoMembresiaId");
 
                     b.ToTable("EstadosMembresia");
+
+                    b.HasData(
+                        new
+                        {
+                            EstadoMembresiaId = 1,
+                            Descripcion = "Activo"
+                        },
+                        new
+                        {
+                            EstadoMembresiaId = 2,
+                            Descripcion = "Suspendido"
+                        },
+                        new
+                        {
+                            EstadoMembresiaId = 3,
+                            Descripcion = "Vencido"
+                        });
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.FormasPago", b =>
@@ -324,22 +341,51 @@ namespace FitForge.Data.Migrations
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("EstadoMembresiaId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("FechaVencimiento")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValue(new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(8203));
 
-                    b.Property<double>("Precio")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Precio")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("MembresiaId");
 
                     b.HasIndex("EstadoMembresiaId");
 
                     b.ToTable("Membresias");
+
+                    b.HasData(
+                        new
+                        {
+                            MembresiaId = 1,
+                            Descripcion = "Membresía Estudiante",
+                            EstadoMembresiaId = 1,
+                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9815),
+                            Precio = 500m
+                        },
+                        new
+                        {
+                            MembresiaId = 2,
+                            Descripcion = "Membresía Básica",
+                            EstadoMembresiaId = 1,
+                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9819),
+                            Precio = 800m
+                        },
+                        new
+                        {
+                            MembresiaId = 3,
+                            Descripcion = "Membresía VIP",
+                            EstadoMembresiaId = 1,
+                            FechaVencimiento = new DateTime(2024, 12, 30, 9, 7, 35, 833, DateTimeKind.Local).AddTicks(9821),
+                            Precio = 1500m
+                        });
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.Pagos", b =>
@@ -654,7 +700,7 @@ namespace FitForge.Data.Migrations
                     b.HasOne("FitForge.Data.Models.EstadosMembresia", "EstadoMembresia")
                         .WithMany()
                         .HasForeignKey("EstadoMembresiaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("EstadoMembresia");
