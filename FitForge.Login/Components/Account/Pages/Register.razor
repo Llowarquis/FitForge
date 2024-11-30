@@ -23,6 +23,10 @@
 		<br />
 		<h1><strong>BIENVENIDO/A!</strong></h1>
 		<p>¡Registrate para tener acceso a FitForge y lograr tu figura ideal!</p>
+		@if (!string.IsNullOrEmpty(errorMessage))
+		{
+			<p>@errorMessage</p>
+		}
 	</div>
 
 	@*Formulario*@
@@ -75,6 +79,12 @@
 </head>
 
 @code {
+	// AQUI SE DEBE UTILIZAR UNA NOTIFICACICON
+	private string errorMessage = string.Empty;
+
+	[Inject]
+	private RoleManager<IdentityRole> RoleManager { get; set; } = default!;
+
 	private IEnumerable<IdentityError>? identityErrors;
 
 	[SupplyParameterFromForm]
@@ -97,10 +107,33 @@
 		if (!result.Succeeded)
 		{
 			identityErrors = result.Errors;
+
+			// Este SEÑOR foreach escribe un log especificando los errores en la consola
+			foreach (var error in result.Errors) 
+			{
+				Logger.LogError($"Error al crear el usuario: {error.Description}");
+			}
+			errorMessage = "Este email ya esta ocupado";
+
 			return;
 		}
 
 		Logger.LogInformation("User created a new account with password.");
+
+		// **Asignar rol al usuario**
+		string nombreRol = "Cliente";
+		if (!await RoleManager.RoleExistsAsync(nombreRol))
+		{
+			await RoleManager.CreateAsync(new IdentityRole(nombreRol));
+		}
+		var roleResult = await UserManager.AddToRoleAsync(user, nombreRol);
+
+		if (!roleResult.Succeeded)
+		{
+			identityErrors = roleResult.Errors;
+			return;
+		}
+
 
 		var userId = await UserManager.GetUserIdAsync(user);
 		var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
