@@ -71,6 +71,10 @@
 		<br />
 		<h1><strong>¡BIENVENIDO/A DE NUEVO!</strong></h1>
 		<p>¡Hola, Ingresa tus datos para continuar tu camino hacia tu figura ideal!</p>
+		@if (!string.IsNullOrEmpty(errorMessage))
+		{
+			<p>@errorMessage</p>
+		}
 	</div>
 </div>
 
@@ -79,7 +83,8 @@
 </head>
 
 @code {
-	private string? errorMessage;
+	// AQUI SE DEBE UTILIZAR UNA NOTIFICACICON
+	private string errorMessage = string.Empty;
 
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
@@ -129,7 +134,7 @@
 	private sealed class InputModel
 	{
 		[Required(ErrorMessage = "Este campo es obligatorio")]
-		[EmailAddress]
+		[EmailAddress(ErrorMessage = "Debe introducir un email valido")]
 		public string Email { get; set; } = "";
 
 		[Required(ErrorMessage = "Este campo es obligatorio")]
