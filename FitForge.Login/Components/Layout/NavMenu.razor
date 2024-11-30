@@ -71,13 +71,16 @@
 					</NotAuthorized>
 				</AuthorizeView>
 				
-
-				@*Btn*@
-				<li class="nav-item px-1">
-					<NavLink class="nav-link" href="auth">
-						<span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth
-					</NavLink>
-				</li>
+				<AuthorizeView Roles="Admin, Cliente">
+					<Authorized>
+						@*Btn*@
+						<li class="nav-item px-1">
+							<NavLink class="nav-link" href="auth">
+								<span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth
+							</NavLink>
+						</li>
+					</Authorized>
+				</AuthorizeView>
 			</ul>
 			<ul class="navbar-nav">
 				@*VISTA AUTORIZADA*@

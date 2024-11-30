@@ -1,5 +1,6 @@
 ﻿@page "/weather"
 @attribute [StreamRendering]
+@attribute [Authorize(Roles = "admin")]
 
 <PageTitle>Weather</PageTitle>
 
