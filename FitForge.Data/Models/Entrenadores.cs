@@ -1,4 +1,4 @@
-﻿using FitForge.Domain.Enums;
+﻿using FitForge.Data.DAL;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -6,8 +6,10 @@ namespace FitForge.Data.Models;
 
 public class Entrenadores
 {
-    [Key]
-    public int EmpleadoId { get; set; }
+	[Key]
+	public int EmpleadoId { get; set; }
+
+	public ApplicationUser ApplicationUser { get; set; }
 
 
 	[RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
@@ -17,5 +19,5 @@ public class Entrenadores
 
 	[ForeignKey("Clases")]
 	public int? ClaseId { get; set; }
-    public Clases Clase { get; set; }
+	public Clases Clase { get; set; }
 }

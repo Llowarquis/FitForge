@@ -1,7 +1,6 @@
-﻿using FitForge.Data.Modelsp;
-using FitForge.Domain.Enums;
+﻿using FitForge.Data.DAL;
+using FitForge.Data.Modelsp;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitForge.Data.Models;
 
@@ -9,6 +8,9 @@ public class Clientes
 {
     [Key]
     public int ClienteId { get; set; }
+
+
+    public ApplicationUser ApplicationUser { get; set; }
 
 
     [RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
@@ -32,7 +34,7 @@ public class Clientes
     [Required(ErrorMessage = "Este campo es obligatorio")]
     public DateOnly FechaNacimiento { get; set; }
 
-    public ICollection<Tarjetas> Tarjetas { get; set; } = new List<Tarjetas>();
-	public ICollection<Telefonos> Telefonos { get; set; } = new List<Telefonos>();
-	public ICollection<Inscripciones> Inscripciones { get; set; } = new List<Inscripciones>();
+    public ICollection<Tarjetas>? Tarjetas { get; set; } = new List<Tarjetas>();
+	public ICollection<Telefonos>? Telefonos { get; set; } = new List<Telefonos>();
+	public ICollection<Inscripciones>? Inscripciones { get; set; } = new List<Inscripciones>();
 }
