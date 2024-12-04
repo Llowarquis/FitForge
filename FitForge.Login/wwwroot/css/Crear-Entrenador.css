@@ -37,13 +37,20 @@ letras-con-fondo {
 
 .wrapper {
     display: flex;
-    width: 950px;
-    height: 550px;
+    flex-wrap: wrap;
+    padding: 20px;
     background: var(--white);
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
+    gap: 15px;
+    max-width: 950px;
+    max-height: 450px;
+    overflow: auto; /* Habilita el scroll */
 }
+
+    .wrapper::-webkit-scrollbar {
+        display: inline; /* Oculta la barra en navegadores basados en WebKit (Chrome, Edge, etc.) */
+    }
 
     .wrapper .welcome-section {
         width: 50%;

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitForge.Data.Models;
 public class DiasHorarios
@@ -8,8 +7,8 @@ public class DiasHorarios
 	public int DiaHorarioId { get; set; }
 
     public int DiaId { get; set; }
-    public Dias Dia { get; set; }
+	public ICollection<Dias> Dias { get; set; } = new List<Dias>();
 
 	public int HorarioId { get; set; }
-	public Horarios Horario { get; set; }
+	public ICollection<Horarios> Horario { get; set; } = new List<Horarios>();
 }

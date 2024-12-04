@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FitForge.Data.Models;
+namespace FitForge.Domain.DTO;
 
 public class EstadosMembresiaDto
 {

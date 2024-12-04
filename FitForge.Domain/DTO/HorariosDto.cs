@@ -1,4 +1,4 @@
-﻿namespace FitForge.Data.Models;
+﻿namespace FitForge.Domain.DTO;
 
 public class HorariosDto
 {

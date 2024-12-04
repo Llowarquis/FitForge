@@ -17,15 +17,15 @@ public class Inscripciones
 	public int MembresiaId { get; set; }
 	public Membresias Membresia { get; set; }
 
-	[ForeignKey("HorariosDeClases")]
-	public int HorarioDeClaseId { get; set; }
-	public HorariosDeClases HorarioDeClase { get; set; }
+	[ForeignKey("Itinerarios")]
+	public int? ItinerarioId { get; set; }
+	public Itinerarios? Itinerario { get; set; }
 
 	public DateTime FechaInscripcion { get; set; } = DateTime.Now;
 
     public double Precio { get; set; }
 
 	[ForeignKey("Entrenadores")]
-	public int EntrenadorId { get; set; }
-	public Entrenadores Entrenador { get; set; }
+	public int? EntrenadorId { get; set; }
+	public Entrenadores? Entrenador { get; set; }
 }
