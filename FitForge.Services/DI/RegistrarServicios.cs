@@ -10,14 +10,15 @@ public static class RegistrarServicios
 {
 	public static IServiceCollection InyectarServicios(this IServiceCollection servicios)
 	{
+
 		servicios.RegisterDbContextFactory();
-		servicios.AddScoped<IClientesService, ClientesService>();
+		servicios.AddScoped<ClientesService>();
 		servicios.AddScoped<IPagosService, PagosService>();
-		servicios.AddScoped<IEmpleadosService, EmpleadosService>();
-		servicios.AddScoped<IUsuariosService, UsuariosService>();
+		servicios.AddScoped<EntrenadoresService>();
 		servicios.AddScoped<ITarjetasService, TarjetasService>();
 		servicios.AddBlazorBootstrap();
 		servicios.AddSingleton<ToastService>();
+		servicios.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 		return servicios;
 	}
 }
