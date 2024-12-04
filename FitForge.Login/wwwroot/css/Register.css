@@ -37,8 +37,8 @@ letras-con-fondo {
 
 .wrapper {
     display: flex;
-    width: 950px;
-    height: 550px;
+    width: 750px;
+    height: 450px;
     background: var(--white);
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);

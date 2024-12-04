@@ -6,7 +6,6 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 
-@inject ClientesService clientesService
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject SignInManager<ApplicationUser> SignInManager
@@ -43,38 +42,11 @@
 		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
 			<DataAnnotationsValidator />
 
-			<div class="row">
-				@*Campo Nombres*@
-				<div class="col">
-					<div class="form-floating mb-3">
-						<InputText @bind-Value="Input.Nombres" class="form-control" autocomplete="nombres" aria-required="true" placeholder="Nombres" />
-						<label for="nombres">Nombres y Apellidos</label>
-						<ValidationMessage For="() => Input.Nombres" class="text-danger" />
-					</div>
-				</div>
-
-				@*Campo fecha nacimiento*@
-				<div class="col">
-					<div class="form-floating mb-3">
-						<InputDate @bind-Value="Input.FechaNacimiento" class="form-control" />
-						<label for="fecha-de-nacimiento">Fecha de nacimiento</label>
-						<ValidationMessage For="() => Input.FechaNacimiento" class="text-danger" />
-					</div>
-				</div>
-			</div>
-
-			@*Campo Cedula*@
-			<div class="form-floating mb-3">
-				<InputText @bind-Value="Input.Cedula" class="form-control" autocomplete="cedula" aria-required="true" placeholder="000-0000000-0" />
-				<label for="cedula">Cedula</label>
-				<ValidationMessage For="() => Input.Cedula" class="text-danger" />
-			</div>
-
 			@*Campo Email*@
 			<div class="form-floating mb-3">
-				<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+				<InputText @bind-Value="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
 				<label for="email">Email</label>
-				<ValidationMessage For="() => Input.Email" class="text-danger" />
+				<ValidationMessage For="() => Input.Username" class="text-danger" />
 			</div>
 
 			@*Campo contraseña*@
@@ -123,36 +95,32 @@
 
 	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
-	private void ClearError(ChangeEventArgs e)
-	{
-		StateHasChanged(); // Forzar actualización de UI
-	}
-
 	public async Task RegisterUser(EditContext editContext)
 	{
 		var user = CreateUser();
 
-		// Set username and email
-		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+		await UserStore.SetUserNameAsync(user, Input.Username, CancellationToken.None);
 		var emailStore = GetEmailStore();
-		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-
-		// Crear el usuario en AspNetUsers
+		await emailStore.SetEmailAsync(user, Input.Username, CancellationToken.None);
 		var result = await UserManager.CreateAsync(user, Input.Password);
+
 		if (!result.Succeeded)
 		{
 			identityErrors = result.Errors;
 
-			foreach (var error in result.Errors)
+			// Este SEÑOR foreach escribe un log especificando los errores en la consola
+			foreach (var error in result.Errors) 
 			{
 				Logger.LogError($"Error al crear el usuario: {error.Description}");
 			}
+			errorMessage = "Este email ya esta ocupado";
 
-			errorMessage = "Este email ya está ocupado";
 			return;
 		}
 
-		// **Asignar el rol al usuario**
+		Logger.LogInformation("User created a new account with password.");
+
+		// **Asignar rol al usuario**
 		string nombreRol = "Cliente";
 		if (!await RoleManager.RoleExistsAsync(nombreRol))
 		{
@@ -166,24 +134,7 @@
 			return;
 		}
 
-		// Ahora que el usuario está creado, proceder con la creación del cliente
-		var clienteDto = new ClientesDto()
-			{
-				UserId = user.Id, // La FK de AspNetUsers
-				Nombres = Input.Nombres,
-				Cedula = Input.Cedula,
-				FechaNacimiento = Input.FechaNacimiento,
-			};
 
-		var clienteGuardado = await clientesService.Guardar(clienteDto);
-		if (!clienteGuardado)
-		{
-			errorMessage = "Error al guardar los datos del cliente.";
-			await UserManager.DeleteAsync(user);
-			return;
-		}
-
-		// Confirmación y login automático
 		var userId = await UserManager.GetUserIdAsync(user);
 		var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
 		code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -191,19 +142,18 @@
 			NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
 			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
 
-		await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+		await EmailSender.SendConfirmationLinkAsync(user, Input.Username, HtmlEncoder.Default.Encode(callbackUrl));
 
 		if (UserManager.Options.SignIn.RequireConfirmedAccount)
 		{
 			RedirectManager.RedirectTo(
 				"Account/RegisterConfirmation",
-				new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+				new() { ["email"] = Input.Username, ["returnUrl"] = ReturnUrl });
 		}
 
 		await SignInManager.SignInAsync(user, isPersistent: false);
 		RedirectManager.RedirectTo(ReturnUrl);
 	}
-
 
 	private ApplicationUser CreateUser()
 	{
@@ -231,29 +181,19 @@
 	{
 		[Required(ErrorMessage = "Este campo es obligatorio")]
 		[EmailAddress]
-		public string Email { get; set; } = "";
+		[Display(Name = "Email")]
+		public string Username { get; set; } = "";
 
 		[Required(ErrorMessage = "Este campo es obligatorio")]
-		[StringLength(100, ErrorMessage = "La contraseña debe contener al menos 6 caracteres", MinimumLength = 6)]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
 		[DataType(DataType.Password)]
+		[Display(Name = "Password")]
 		public string Password { get; set; } = "";
 
 		[DataType(DataType.Password)]
+		[Display(Name = "Confirmar Contraseña")]
 		[Required(ErrorMessage = "Este campo es obligatorio")]
 		[Compare("Password", ErrorMessage = "Las contraseñas deben coincidir")]
 		public string ConfirmPassword { get; set; } = "";
-
-		[Required(ErrorMessage = "Este campo es obligatorio")]
-		[StringLength(100, ErrorMessage = "Este campo debe contener al menos 3 caracteres", MinimumLength = 3)]
-		public string Nombres { get; set; } = "";
-
-		[Required(ErrorMessage = "Este campo es obligatorio")]
-		[DataType(DataType.Date)]
-		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
-		public DateOnly FechaNacimiento { get; set; }
-
-		[Required(ErrorMessage = "Este campo es obligatorio")]
-		[StringLength(100, ErrorMessage = "Este campo debe contener 10 caracteres", MinimumLength = 10)]
-		public string Cedula { get; set; } = "";
 	}
 }

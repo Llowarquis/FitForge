@@ -2,6 +2,6 @@
 
 namespace FitForge.Services.Services;
 
-public class ClientesService : IClientesService
+public class EmpleadosService : IEmpleadosService
 {
 }

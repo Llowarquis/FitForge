@@ -1,5 +1,5 @@
 ﻿namespace FitForge.Abstractions.Interfaces;
 
-public interface IEntrenadoresService
+public interface IUsuariosService
 {
 }

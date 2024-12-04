@@ -1,40 +1,40 @@
 ﻿using FitForge.Data.DAL;
 using FitForge.Data.Modelsp;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitForge.Data.Models;
 
 public class Clientes
 {
-	[Key]
-	public int ClienteId { get; set; }
+    [Key]
+    public int ClienteId { get; set; }
 
-    [ForeignKey("ApplicationUser")]
-    public string ApplicationUserId { get; set; }
+
     public ApplicationUser ApplicationUser { get; set; }
 
 
-	[Required(ErrorMessage = "Este campo es obligatorio")]
-	[RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$", ErrorMessage = "Este campo solo puede contener letras y espacios.")]
-	public string Nombres { get; set; }
+    [RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
+    [Required(ErrorMessage = "Este campo es obligatorio")]
+    public string Nombres { get; set; } = string.Empty;
 
 
-	[RegularExpression(@"(^\d{3}-\d{7}-\d$)|(^\d{1,10}$)", ErrorMessage = "El valor debe ser una cédula válida (000-0000000-0) o un número.")]
-	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public string Cedula { get; set; }
+    [RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
+    [Required(ErrorMessage = "Este campo es obligatorio")]
+    public int Cedula { get; set; }
 
 
-	public int Pin { get; set; }
+    // Este campo se debe asignar automaticamente cuando se cree en la DB y debe empezar en 1000 e ira de 1 en 1,
+    // no se como se hara pero debe hacerse XD (cuando se logre se borra este comentario)
+    public int Pin { get; set; }
 
 
-	public string? UrlFotoPerfil { get; set; }
+    public string? UrlFotoPerfil { get; set; }
 
 
-	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public DateOnly FechaNacimiento { get; set; }
+    [Required(ErrorMessage = "Este campo es obligatorio")]
+    public DateOnly FechaNacimiento { get; set; }
 
-	public ICollection<Tarjetas>? Tarjetas { get; set; } = new List<Tarjetas>();
+    public ICollection<Tarjetas>? Tarjetas { get; set; } = new List<Tarjetas>();
+	public ICollection<Telefonos>? Telefonos { get; set; } = new List<Telefonos>();
 	public ICollection<Inscripciones>? Inscripciones { get; set; } = new List<Inscripciones>();
-    public ICollection<Pagos>? PagosEfectivo { get; set; } = new List<Pagos>();
 }

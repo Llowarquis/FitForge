@@ -4,6 +4,7 @@ using FitForge.Data.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitForge.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241129045611_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,9 +121,6 @@ namespace FitForge.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClienteId"));
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("Cedula")
                         .HasColumnType("int");
 
@@ -138,8 +138,6 @@ namespace FitForge.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ClienteId");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Clientes");
                 });
@@ -225,9 +223,6 @@ namespace FitForge.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmpleadoId"));
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int?>("ClaseId")
                         .HasColumnType("int");
 
@@ -235,8 +230,6 @@ namespace FitForge.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("EmpleadoId");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("ClaseId")
                         .IsUnique()
@@ -598,15 +591,6 @@ namespace FitForge.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FitForge.Data.Models.Clientes", b =>
-                {
-                    b.HasOne("FitForge.Data.DAL.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.Navigation("ApplicationUser");
-                });
-
             modelBuilder.Entity("FitForge.Data.Models.DiasHorarios", b =>
                 {
                     b.HasOne("FitForge.Data.Models.Dias", "Dia")
@@ -639,15 +623,9 @@ namespace FitForge.Data.Migrations
 
             modelBuilder.Entity("FitForge.Data.Models.Entrenadores", b =>
                 {
-                    b.HasOne("FitForge.Data.DAL.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("FitForge.Data.Models.Clases", "Clase")
                         .WithOne("Entrenador")
                         .HasForeignKey("FitForge.Data.Models.Entrenadores", "ClaseId");
-
-                    b.Navigation("ApplicationUser");
 
                     b.Navigation("Clase");
                 });

@@ -1,4 +1,5 @@
-﻿namespace FitForge.Domain.DTO;
+﻿namespace FitForge.Data.Models;
+
 public class DiasDto
 {
 	public int DiaId { get; set; }

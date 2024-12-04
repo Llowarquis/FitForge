@@ -1,6 +1,5 @@
 ﻿namespace FitForge.Abstractions.Interfaces;
 
-public interface IClientesService
+public interface IEmpleadosService
 {
-
 }
