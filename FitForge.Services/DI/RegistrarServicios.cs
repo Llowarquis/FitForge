@@ -18,7 +18,6 @@ public static class RegistrarServicios
 		servicios.AddScoped<ITarjetasService, TarjetasService>();
 		servicios.AddBlazorBootstrap();
 		servicios.AddSingleton<ToastService>();
-		servicios.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 		return servicios;
 	}
 }
