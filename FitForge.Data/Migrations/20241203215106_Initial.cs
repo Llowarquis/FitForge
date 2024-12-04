@@ -11,6 +11,14 @@ namespace FitForge.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "dbo");
+
+            migrationBuilder.CreateSequence<int>(
+                name: "Pin",
+                schema: "dbo",
+                startValue: 1000L);
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -66,33 +74,17 @@ namespace FitForge.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Clientes",
+                name: "DiasHorarios",
                 columns: table => new
                 {
-                    ClienteId = table.Column<int>(type: "int", nullable: false)
+                    DiaHorarioId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombres = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Cedula = table.Column<int>(type: "int", nullable: false),
-                    Pin = table.Column<int>(type: "int", nullable: false),
-                    UrlFotoPerfil = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FechaNacimiento = table.Column<DateOnly>(type: "date", nullable: false)
+                    DiaId = table.Column<int>(type: "int", nullable: false),
+                    HorarioId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Clientes", x => x.ClienteId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Dias",
-                columns: table => new
-                {
-                    DiaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Dia = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Dias", x => x.DiaId);
+                    table.PrimaryKey("PK_DiasHorarios", x => x.DiaHorarioId);
                 });
 
             migrationBuilder.CreateTable(
@@ -119,20 +111,6 @@ namespace FitForge.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FormasPago", x => x.FormasPagoId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Horarios",
-                columns: table => new
-                {
-                    HorarioId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    HoraInicio = table.Column<TimeOnly>(type: "time", nullable: false),
-                    HoraFin = table.Column<TimeOnly>(type: "time", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Horarios", x => x.HorarioId);
                 });
 
             migrationBuilder.CreateTable(
@@ -242,22 +220,110 @@ namespace FitForge.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Entrenadores",
+                name: "Clientes",
                 columns: table => new
                 {
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false)
+                    ClienteId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombres = table.Column<int>(type: "int", nullable: false),
-                    ClaseId = table.Column<int>(type: "int", nullable: true)
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Nombres = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Cedula = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Pin = table.Column<int>(type: "int", nullable: false, defaultValueSql: "NEXT VALUE FOR Pin"),
+                    UrlFotoPerfil = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FechaNacimiento = table.Column<DateOnly>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Entrenadores", x => x.EmpleadoId);
+                    table.PrimaryKey("PK_Clientes", x => x.ClienteId);
                     table.ForeignKey(
-                        name: "FK_Entrenadores_Clases_ClaseId",
-                        column: x => x.ClaseId,
-                        principalTable: "Clases",
-                        principalColumn: "ClaseId");
+                        name: "FK_Clientes_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Entrenadores",
+                columns: table => new
+                {
+                    EntrenadorId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Nombres = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FechaIngreso = table.Column<DateOnly>(type: "date", nullable: false),
+                    UrlFotoPerfil = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Entrenadores", x => x.EntrenadorId);
+                    table.ForeignKey(
+                        name: "FK_Entrenadores_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Dias",
+                columns: table => new
+                {
+                    DiaId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Dia = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DiasHorariosDiaHorarioId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Dias", x => x.DiaId);
+                    table.ForeignKey(
+                        name: "FK_Dias_DiasHorarios_DiasHorariosDiaHorarioId",
+                        column: x => x.DiasHorariosDiaHorarioId,
+                        principalTable: "DiasHorarios",
+                        principalColumn: "DiaHorarioId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Horarios",
+                columns: table => new
+                {
+                    HorarioId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    HoraInicio = table.Column<TimeOnly>(type: "time", nullable: false),
+                    HoraFin = table.Column<TimeOnly>(type: "time", nullable: false),
+                    DiasHorariosDiaHorarioId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Horarios", x => x.HorarioId);
+                    table.ForeignKey(
+                        name: "FK_Horarios_DiasHorarios_DiasHorariosDiaHorarioId",
+                        column: x => x.DiasHorariosDiaHorarioId,
+                        principalTable: "DiasHorarios",
+                        principalColumn: "DiaHorarioId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Membresias",
+                columns: table => new
+                {
+                    MembresiaId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EstadoMembresiaId = table.Column<int>(type: "int", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Precio = table.Column<double>(type: "float", nullable: false),
+                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Membresias", x => x.MembresiaId);
+                    table.ForeignKey(
+                        name: "FK_Membresias_EstadosMembresia_EstadoMembresiaId",
+                        column: x => x.EstadoMembresiaId,
+                        principalTable: "EstadosMembresia",
+                        principalColumn: "EstadoMembresiaId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -306,70 +372,35 @@ namespace FitForge.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Telefonos",
+                name: "Itinerarios",
                 columns: table => new
                 {
-                    TelefonoId = table.Column<int>(type: "int", nullable: false)
+                    ItinerarioId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ClienteId = table.Column<int>(type: "int", nullable: false),
-                    Telefono = table.Column<int>(type: "int", nullable: false)
+                    ClaseId = table.Column<int>(type: "int", nullable: false),
+                    DiaHorarioId = table.Column<int>(type: "int", nullable: false),
+                    EntrenadorId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Telefonos", x => x.TelefonoId);
+                    table.PrimaryKey("PK_Itinerarios", x => x.ItinerarioId);
                     table.ForeignKey(
-                        name: "FK_Telefonos_Clientes_ClienteId",
-                        column: x => x.ClienteId,
-                        principalTable: "Clientes",
-                        principalColumn: "ClienteId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Membresias",
-                columns: table => new
-                {
-                    MembresiaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EstadoMembresiaId = table.Column<int>(type: "int", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Precio = table.Column<double>(type: "float", nullable: false),
-                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Membresias", x => x.MembresiaId);
-                    table.ForeignKey(
-                        name: "FK_Membresias_EstadosMembresia_EstadoMembresiaId",
-                        column: x => x.EstadoMembresiaId,
-                        principalTable: "EstadosMembresia",
-                        principalColumn: "EstadoMembresiaId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DiasHorarios",
-                columns: table => new
-                {
-                    DiaHorarioId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DiaId = table.Column<int>(type: "int", nullable: false),
-                    HorarioId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DiasHorarios", x => x.DiaHorarioId);
-                    table.ForeignKey(
-                        name: "FK_DiasHorarios_Dias_DiaId",
-                        column: x => x.DiaId,
-                        principalTable: "Dias",
-                        principalColumn: "DiaId",
+                        name: "FK_Itinerarios_Clases_ClaseId",
+                        column: x => x.ClaseId,
+                        principalTable: "Clases",
+                        principalColumn: "ClaseId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DiasHorarios_Horarios_HorarioId",
-                        column: x => x.HorarioId,
-                        principalTable: "Horarios",
-                        principalColumn: "HorarioId",
+                        name: "FK_Itinerarios_DiasHorarios_DiaHorarioId",
+                        column: x => x.DiaHorarioId,
+                        principalTable: "DiasHorarios",
+                        principalColumn: "DiaHorarioId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Itinerarios_Entrenadores_EntrenadorId",
+                        column: x => x.EntrenadorId,
+                        principalTable: "Entrenadores",
+                        principalColumn: "EntrenadorId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -381,12 +412,19 @@ namespace FitForge.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TarjetaId = table.Column<int>(type: "int", nullable: false),
                     FormasPagoId = table.Column<int>(type: "int", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
                     Monto = table.Column<double>(type: "float", nullable: false),
                     FechaPago = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pagos", x => x.PagoId);
+                    table.ForeignKey(
+                        name: "FK_Pagos_Clientes_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "ClienteId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Pagos_FormasPago_FormasPagoId",
                         column: x => x.FormasPagoId,
@@ -398,33 +436,7 @@ namespace FitForge.Data.Migrations
                         column: x => x.TarjetaId,
                         principalTable: "Tarjetas",
                         principalColumn: "TarjetaId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "HorariosDeClases",
-                columns: table => new
-                {
-                    HorarioDeClaseId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ClaseId = table.Column<int>(type: "int", nullable: false),
-                    DiaHorarioId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_HorariosDeClases", x => x.HorarioDeClaseId);
-                    table.ForeignKey(
-                        name: "FK_HorariosDeClases_Clases_ClaseId",
-                        column: x => x.ClaseId,
-                        principalTable: "Clases",
-                        principalColumn: "ClaseId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_HorariosDeClases_DiasHorarios_DiaHorarioId",
-                        column: x => x.DiaHorarioId,
-                        principalTable: "DiasHorarios",
-                        principalColumn: "DiaHorarioId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -435,10 +447,10 @@ namespace FitForge.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ClienteId = table.Column<int>(type: "int", nullable: false),
                     MembresiaId = table.Column<int>(type: "int", nullable: false),
-                    HorarioDeClaseId = table.Column<int>(type: "int", nullable: false),
+                    ItinerarioId = table.Column<int>(type: "int", nullable: true),
                     FechaInscripcion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Precio = table.Column<double>(type: "float", nullable: false),
-                    EntrenadorId = table.Column<int>(type: "int", nullable: false)
+                    EntrenadorId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -453,14 +465,12 @@ namespace FitForge.Data.Migrations
                         name: "FK_Inscripciones_Entrenadores_EntrenadorId",
                         column: x => x.EntrenadorId,
                         principalTable: "Entrenadores",
-                        principalColumn: "EmpleadoId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "EntrenadorId");
                     table.ForeignKey(
-                        name: "FK_Inscripciones_HorariosDeClases_HorarioDeClaseId",
-                        column: x => x.HorarioDeClaseId,
-                        principalTable: "HorariosDeClases",
-                        principalColumn: "HorarioDeClaseId",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Inscripciones_Itinerarios_ItinerarioId",
+                        column: x => x.ItinerarioId,
+                        principalTable: "Itinerarios",
+                        principalColumn: "ItinerarioId");
                     table.ForeignKey(
                         name: "FK_Inscripciones_Membresias_MembresiaId",
                         column: x => x.MembresiaId,
@@ -509,14 +519,14 @@ namespace FitForge.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DiasHorarios_DiaId",
-                table: "DiasHorarios",
-                column: "DiaId");
+                name: "IX_Clientes_ApplicationUserId",
+                table: "Clientes",
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DiasHorarios_HorarioId",
-                table: "DiasHorarios",
-                column: "HorarioId");
+                name: "IX_Dias_DiasHorariosDiaHorarioId",
+                table: "Dias",
+                column: "DiasHorariosDiaHorarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Domicilios_ClienteId",
@@ -524,21 +534,14 @@ namespace FitForge.Data.Migrations
                 column: "ClienteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Entrenadores_ClaseId",
+                name: "IX_Entrenadores_ApplicationUserId",
                 table: "Entrenadores",
-                column: "ClaseId",
-                unique: true,
-                filter: "[ClaseId] IS NOT NULL");
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_HorariosDeClases_ClaseId",
-                table: "HorariosDeClases",
-                column: "ClaseId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_HorariosDeClases_DiaHorarioId",
-                table: "HorariosDeClases",
-                column: "DiaHorarioId");
+                name: "IX_Horarios_DiasHorariosDiaHorarioId",
+                table: "Horarios",
+                column: "DiasHorariosDiaHorarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Inscripciones_ClienteId",
@@ -551,9 +554,9 @@ namespace FitForge.Data.Migrations
                 column: "EntrenadorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Inscripciones_HorarioDeClaseId",
+                name: "IX_Inscripciones_ItinerarioId",
                 table: "Inscripciones",
-                column: "HorarioDeClaseId");
+                column: "ItinerarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Inscripciones_MembresiaId",
@@ -561,9 +564,29 @@ namespace FitForge.Data.Migrations
                 column: "MembresiaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Itinerarios_ClaseId",
+                table: "Itinerarios",
+                column: "ClaseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Itinerarios_DiaHorarioId",
+                table: "Itinerarios",
+                column: "DiaHorarioId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Itinerarios_EntrenadorId",
+                table: "Itinerarios",
+                column: "EntrenadorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Membresias_EstadoMembresiaId",
                 table: "Membresias",
                 column: "EstadoMembresiaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Pagos_ClienteId",
+                table: "Pagos",
+                column: "ClienteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pagos_FormasPagoId",
@@ -578,11 +601,6 @@ namespace FitForge.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Tarjetas_ClienteId",
                 table: "Tarjetas",
-                column: "ClienteId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Telefonos_ClienteId",
-                table: "Telefonos",
                 column: "ClienteId");
         }
 
@@ -605,7 +623,13 @@ namespace FitForge.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Dias");
+
+            migrationBuilder.DropTable(
                 name: "Domicilios");
+
+            migrationBuilder.DropTable(
+                name: "Horarios");
 
             migrationBuilder.DropTable(
                 name: "Inscripciones");
@@ -614,19 +638,10 @@ namespace FitForge.Data.Migrations
                 name: "Pagos");
 
             migrationBuilder.DropTable(
-                name: "Telefonos");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Entrenadores");
-
-            migrationBuilder.DropTable(
-                name: "HorariosDeClases");
+                name: "Itinerarios");
 
             migrationBuilder.DropTable(
                 name: "Membresias");
@@ -644,16 +659,20 @@ namespace FitForge.Data.Migrations
                 name: "DiasHorarios");
 
             migrationBuilder.DropTable(
+                name: "Entrenadores");
+
+            migrationBuilder.DropTable(
                 name: "EstadosMembresia");
 
             migrationBuilder.DropTable(
                 name: "Clientes");
 
             migrationBuilder.DropTable(
-                name: "Dias");
+                name: "AspNetUsers");
 
-            migrationBuilder.DropTable(
-                name: "Horarios");
+            migrationBuilder.DropSequence(
+                name: "Pin",
+                schema: "dbo");
         }
     }
 }

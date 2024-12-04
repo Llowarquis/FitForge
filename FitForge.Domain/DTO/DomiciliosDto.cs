@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FitForge.Data.Models;
+namespace FitForge.Domain.DTO;
 
 public class DomiciliosDto
 {
@@ -10,8 +9,5 @@ public class DomiciliosDto
 	public int NumCasa { get; set; }
 	public string Sector { get; set; }
 	public string Provincia { get; set; }
-
-	[ForeignKey("ClientesDto")]
-    public int ClienteId { get; set; }
     public ClientesDto Cliente { get; set; }
 }

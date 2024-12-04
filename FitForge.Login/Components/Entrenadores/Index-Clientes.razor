@@ -1,0 +1,225 @@
+﻿@page "/Clientes/Index"
+
+@inject NavigationManager navigationManager
+@inject ClientesService clientesService
+@inject IJSRuntime JS
+
+@* @attribute [Authorize(Roles = "Admin")] *@
+
+<PageTitle>Listado Clientes</PageTitle>
+<body style="background-color: #F5E1CE">
+	<div class="container">
+		<div class="card shadow-lg">
+			@*HEADER*@
+			<div class="card-header text-center" style="background-color: #CA678E">
+				<h3><b>Consulta de Clientes</b></h3>
+			</div>
+
+			@*BODY*@
+			<div class="card-body" style="background-color: #F5E1E8">
+				<div class="row">
+					<div class="col-4">
+						<div class="input-group" style="width: 250px">
+							<div class="form-floating d-flex align-items-center">
+								<InputSelect class="form-select" id="floatingSelect" aria-label="Floating label select example" @bind-Value="@valorFiltro">
+									<option value="" selected disabled>--- Selecciona ---</option>
+									<option value="ID Cliente">ID Cliente</option>
+									<option value="ID Usuario">ID Usuario</option>
+									<option value="Nombre">Nombre</option>
+									<option value="Email">Email</option>
+									<option value="Cedula">C&eacute;dula</option>
+									<option value="Pin">Pin</option>
+								</InputSelect>
+								<label for="floatingSelect"><strong>Filtrar en base a...</strong></label>
+							</div>
+							@*btn restablecer*@
+							<button type="button0" class="btn custom-button bi bi-arrow-counterclockwise" @onclick="() => Restablecer()"></button>
+						</div>
+					</div>
+
+					@*Btn Buscar*@
+					<div class="col text-start">
+						<div class="input-group" style="width: 500px">
+							@*textbox buscar*@
+							<div class="form-floating d-flex align-items-center">
+								<InputText @bind-Value="@searchBarValue" class="form-control" placeholder="Buscar" id="floatingSearch" />
+								<label for="floatingSearch">Buscar</label>
+							</div>
+							<button @onclick="Buscar" class="btn custom-button bi bi-search" type="button"></button>
+						</div>
+					</div>
+
+					@*Btn crear*@
+					<div class="col-2 text-start">
+						<label></label>
+						<div>
+							<a class="btn custom-button bi bi-plus-circle" href="/Clientes/Create">    Crear</a>
+						</div>
+					</div>
+				</div>
+				<br />
+				<table class="table table-sm table-striped table-hover">
+					<thead>
+						<tr>
+							<th><b>ID Cliente</b></th>
+							<th><b>Nombre</b></th>
+							<th><b>Email</b></th>
+							<th><b>Tel&eacute;fono</b></th>
+							<th><b>C&eacute;dula</b></th>
+							<th><b>Pin</b></th>
+							<th><b>Fecha de Nacimiento</b></th>
+							<th><b>Acciones</b></th>
+						</tr>
+					</thead>
+					<tbody class="table-group-divider">
+						@foreach (var entrenador in ListaClientes)
+						{
+							<tr>
+								<th>@entrenador.ClienteId</th>
+								<th>@entrenador.Nombres</th>
+								<th>@entrenador.Email</th>
+								<th>@entrenador.Telefono</th>
+								<th>@entrenador.Cedula</th>
+								<th>@entrenador.Pin</th>
+								<th>@entrenador.FechaNacimiento</th>
+								<th>
+									<div class="btn-group">
+										<button class="btn custom-button btn-sm bi bi-eye dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+											Ver
+										</button>
+										<ul class="dropdown-menu">
+											<li><a class="dropdown-item" href="#">Pagos</a></li>
+											<li><a class="dropdown-item" href="#">Estado de Membres&iacute;a</a></li>
+											<li><a class="dropdown-item" href="#">Info de Usuario</a></li>
+										</ul>
+									</div>
+									<a href="/Edit/@entrenador.ClienteId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
+									<a href="/Delete/@entrenador.ClienteId" class="btn btn-sm custom-button bi bi-trash"> Eliminar</a>
+								</th>
+							</tr>
+						}
+					</tbody>
+					<caption>
+						Clientes: @ListaClientes.Count
+					</caption>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+
+@*Esto es para los btn eliminar y editar*@
+<style>
+	.custom-button {
+		background-color: #B08EDB;
+		color: black;
+	}
+
+		.custom-button:hover {
+			background-color: #9663AA;
+			color: white;
+		}
+</style>
+
+@code {
+	public string searchBarValue { get; set; } = string.Empty;
+	public string valorFiltro { get; set; } = string.Empty;
+	public DateOnly? Desde { get; set; } = null;
+	public DateOnly? Hasta { get; set; } = null;
+	public List<ClientesDto> ListaClientes { get; set; } = new List<ClientesDto>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		ListaClientes = await clientesService.Listar(x => true);
+	}
+
+	public async Task Buscar()
+	{
+		Console.WriteLine("Buscar función invocada");
+		if (string.IsNullOrEmpty(valorFiltro))
+		{
+			// Toast.Notify(new(ToastType.Warning, $"Debe seleccionar una opción en el fitro"));
+			ListaClientes = await clientesService.Listar(x => true);
+			return;
+		}
+
+		valorFiltro.Trim().ToLower();
+		searchBarValue.Trim().ToLower();
+
+		switch (valorFiltro)
+		{
+			case "ID Entrenador":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un ID para buscar"));
+					return;
+				}
+				if (!searchBarValue.All(char.IsDigit))
+				{
+					// Toast.Notify(new(ToastType.Warning, $"El criterio de búsqueda solo puede alojar numeros"));
+					return;
+				}
+				if (int.TryParse(searchBarValue, out int id))
+					ListaClientes = await clientesService.Listar(lt => lt.ClienteId == id);
+				break;
+
+			case "ID Usuario":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un ID para buscar"));
+					return;
+				}
+				ListaClientes = await clientesService.Listar(lt => lt.UserId.Trim().ToLower()
+																		== searchBarValue.Trim().ToLower());
+				break;
+
+			case "Email":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un email para buscar"));
+					return;
+				}
+				ListaClientes = await clientesService.Listar(lt => lt.Email.Trim().ToLower()
+															.Contains(searchBarValue));
+				break;
+
+			case "Nombres":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
+					return;
+				}
+				ListaClientes = await clientesService.Listar(lt => lt.Nombres.Trim().ToLower()
+															.Contains(searchBarValue));
+				break;
+
+			case "Cedula":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
+					return;
+				}
+				ListaClientes = await clientesService.Listar(lt => lt.Cedula.Trim().ToLower()
+															.Contains(searchBarValue));
+				break;
+
+			case "Pin":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
+					return;
+				}
+				ListaClientes = await clientesService.Listar(lt => lt.Pin.ToString().Trim().ToLower()
+															.Contains(searchBarValue));
+				break;
+		}
+		return;
+	}
+
+	public async Task Restablecer()
+	{
+		ListaClientes = await clientesService.Listar(x => true);
+		searchBarValue = string.Empty;
+		valorFiltro = string.Empty;
+	}
+}
