@@ -38,36 +38,50 @@
 			</div>
 		</div>
 	</main>
-
-	@*FOOTER*@
-	<footer style="background-color: #96305a; padding: 20px; color: white; width: 100vw; margin-left: calc(-50vw + 50%);">
-		<div class="row">
-			<div class="col text-start">
-				<p style="margin-bottom: 2px;">&copy; 2024 FitForge | Todos los derechos reservados</p>
-				<p style="margin-bottom: 2px;">
-					<a style="color: cornflowerblue;" href="/#">Política de privacidad</a> |
-					<a style="color: cornflowerblue;" href="/#">Términos de uso</a>
-				</p>
-				<p style="margin-bottom: 2px;">
-					<i class="bi bi-github"></i> :
-					<a style="color: cornflowerblue;" href="https://github.com/Llowarquis/FitForge.git">Repositorio del proyecto</a>
-				</p>
-			</div>
-
-			<div class="col text-end">
-				<h3>Contactanos</h3>
-				<p> <i class="bi bi-envelope-at-fill" style="font-size: 1.5em;"></i>: Yohualkis99@gmail.com | Frailyndes@gmail.com</p>
-			</div>
-		</div>
-	</footer>
 </body>
+@*FOOTER*@
+<footer style="background-color: #96305a; padding: 20px; color: white;">
+	<div class="row">
+		<div class="col text-start">
+			<p style="margin-bottom: 2px;">&copy; 2024 FitForge | Todos los derechos reservados</p>
+			<p style="margin-bottom: 2px;">
+				<a style="color: cornflowerblue;" href="/#">Política de privacidad</a> |
+				<a style="color: cornflowerblue;" href="/#">Términos de uso</a>
+			</p>
+			<p style="margin-bottom: 2px;">
+				<i class="bi bi-github"></i> :
+				<a style="color: cornflowerblue;" href="https://github.com/Llowarquis/FitForge.git">Repositorio del proyecto</a>
+			</p>
+		</div>
+
+		<div class="col text-end">
+			<h3>Contactanos</h3>
+			<p> <i class="bi bi-envelope-at-fill" style="font-size: 1.5em;"></i>: Yohualkis99@gmail.com | Frailyndes@gmail.com</p>
+		</div>
+	</div>
+</footer>
 
 <style>
 	/* Aseguramos que el contenedor ocupe toda la altura de la pantalla */
 	html, body {
+		font-family: Arial, sans-serif;
 		height: 100%;
 		margin: 0;
-		font-family: Arial, sans-serif;
+		overflow-x: hidden;
+		padding-right: 17px; /* Compensa la barra de desplazamiento */
+	}
+
+	footer {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		z-index: 9999; /* Asegura que esté por encima de otros elementos */
+	}
+
+	nav {
+		position: relative;
+		z-index: 1;
 	}
 
 	::-webkit-scrollbar {
