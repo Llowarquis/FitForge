@@ -7,17 +7,21 @@ namespace FitForge.Data.Models;
 public class Entrenadores
 {
 	[Key]
-	public int EmpleadoId { get; set; }
+	public int EntrenadorId { get; set; }
 
+
+	[ForeignKey("ApplicationUser")]
+	public string ApplicationUserId { get; set; }
 	public ApplicationUser ApplicationUser { get; set; }
 
 
-	[RegularExpression(@"^[a-zA-Z-ÁáÉéÍíÓóÚúÑñ\s]+$", ErrorMessage = "Este campo solo puede alojar letras/espacios.")]
 	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public int Nombres { get; set; }
+	[RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$", ErrorMessage = "Este campo solo puede contener letras y espacios.")]
+	public string Nombres { get; set; }
 
 
-	[ForeignKey("Clases")]
-	public int? ClaseId { get; set; }
-	public Clases Clase { get; set; }
+	[Required(ErrorMessage = "Este campo es obligatorio")]
+	public DateOnly FechaIngreso { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+
+    public string? UrlFotoPerfil { get; set; }
 }

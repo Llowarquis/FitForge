@@ -8,8 +8,6 @@ public class Clases
 	[Key]
 	public int ClaseId { get; set; }
 
-    public Entrenadores Entrenador { get; set; }
-
 
 	[Required(ErrorMessage = "Este campo es obligatorio")]
     public string Descripcion { get; set; }

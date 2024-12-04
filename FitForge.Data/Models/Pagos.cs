@@ -20,6 +20,11 @@ public class Pagos
     public FormasPago FormaPago { get; set; }
 
 
+	[ForeignKey("Clientes")]
+	public int ClienteId { get; set; }
+	public Clientes Cliente { get; set; }
+
+
 	[Required(ErrorMessage = "Este campo es obligatorio")]
     public double Monto { get; set; }
 
