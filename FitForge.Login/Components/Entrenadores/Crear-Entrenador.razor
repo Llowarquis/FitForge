@@ -3,14 +3,8 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
-@using FitForge.Data.DAL
-@using FitForge.Domain.DTO
 @using FitForge.Login.Components.Account
 @using FitForge.Login.Components.Account.Pages
-@using FitForge.Services.Services
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 
@@ -43,7 +37,7 @@
 						<div class="col">
 							<div class="form-floating mb-3">
 								<InputText @bind-Value="Input.Nombres" class="form-control" autocomplete="nombres" aria-required="true" placeholder="Nombres" />
-								<label for="nombres">Nombres y Apellidos</label>
+								<label for="nombres">Nombres/Apellidos</label>
 								<ValidationMessage For="() => Input.Nombres" class="text-danger" />
 							</div>
 						</div>
@@ -129,8 +123,17 @@
 				</div>
 			</div>
 
-			@*Btn Crear*@
-			<button type="submit" class="w-100 btn btn-lg btn-primary">Crear entrenador</button>
+
+			<div class="row">
+				@*Btn volver*@
+				<div class="col">
+					<a href="/Entrenadores/Index" class="w-100 btn btn-lg btn-primary">Volver</a>
+				</div>
+				@*Btn Crear*@
+				<div class="col">
+					<button type="submit" class="w-100 btn btn-lg btn-primary">Crear</button>
+				</div>
+			</div>
 		</EditForm>
 	</div>
 </div>
