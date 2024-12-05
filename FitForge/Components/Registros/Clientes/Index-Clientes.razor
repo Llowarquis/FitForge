@@ -4,6 +4,8 @@
 @inject ClientesService clientesService
 @inject IJSRuntime JS
 
+@rendermode InteractiveServer
+
 @* @attribute [Authorize(Roles = "Admin")] *@
 
 <PageTitle>Listado Clientes</PageTitle>
@@ -23,12 +25,12 @@
 							<div class="form-floating d-flex align-items-center">
 								<InputSelect class="form-select" id="floatingSelect" aria-label="Floating label select example" @bind-Value="@valorFiltro">
 									<option value="" selected disabled>--- Selecciona ---</option>
-									<option value="ID Cliente">ID Cliente</option>
-									<option value="ID Usuario">ID Usuario</option>
-									<option value="Nombre">Nombre</option>
-									<option value="Email">Email</option>
-									<option value="Cedula">C&eacute;dula</option>
-									<option value="Pin">Pin</option>
+									<option value="idcliente">ID Cliente</option>
+									<option value="idusuario">ID Usuario</option>
+									<option value="nombres">Nombre</option>
+									<option value="email">Email</option>
+									<option value="cedula">C&eacute;dula</option>
+									<option value="pin">Pin</option>
 								</InputSelect>
 								<label for="floatingSelect"><strong>Filtrar en base a...</strong></label>
 							</div>
@@ -108,15 +110,37 @@
 	</div>
 </body>
 
-@*Esto es para los btn eliminar y editar*@
+@*Esto es para todos los botones de este componente*@
 <style>
 	.custom-button {
-		background-color: #B08EDB;
-		color: black;
+		background-color: #96305a;
+		color: white;
 	}
 
 		.custom-button:hover {
-			background-color: #9663AA;
+			background-color: #ca678e;
+			color: white;
+		}
+
+	/* Estilo del fondo y texto del menú desplegable */
+	.dropdown-menu {
+		background-color: #96305a; /* Fondo del menú */
+	}
+
+	/* Color del texto de los elementos del menú */
+	.dropdown-item {
+		color: white; /* Texto blanco */
+	}
+
+		/* Hover: Mantener el texto blanco y cambiar el fondo */
+		.dropdown-item:hover {
+			background-color: #ca678e; /* Fondo al pasar el mouse */
+			color: white; /* Mantener texto blanco */
+		}
+
+		/* Opcional: Sin borde en los elementos del menú */
+		.dropdown-item:focus, .dropdown-item:active {
+			background-color: #ca678e; /* Fondo cuando está seleccionado */
 			color: white;
 		}
 </style>
@@ -135,7 +159,6 @@
 
 	public async Task Buscar()
 	{
-		Console.WriteLine("Buscar función invocada");
 		if (string.IsNullOrEmpty(valorFiltro))
 		{
 			// Toast.Notify(new(ToastType.Warning, $"Debe seleccionar una opción en el fitro"));
@@ -143,12 +166,11 @@
 			return;
 		}
 
-		valorFiltro.Trim().ToLower();
 		searchBarValue.Trim().ToLower();
 
 		switch (valorFiltro)
 		{
-			case "ID Entrenador":
+			case "idcliente":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
 					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un ID para buscar"));
@@ -163,17 +185,17 @@
 					ListaClientes = await clientesService.Listar(lt => lt.ClienteId == id);
 				break;
 
-			case "ID Usuario":
+			case "idusuario":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
 					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un ID para buscar"));
 					return;
 				}
 				ListaClientes = await clientesService.Listar(lt => lt.UserId.Trim().ToLower()
-																		== searchBarValue.Trim().ToLower());
+																		== searchBarValue);
 				break;
 
-			case "Email":
+			case "email":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
 					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un email para buscar"));
@@ -183,7 +205,7 @@
 															.Contains(searchBarValue));
 				break;
 
-			case "Nombres":
+			case "nombres":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
 					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
@@ -193,7 +215,7 @@
 															.Contains(searchBarValue));
 				break;
 
-			case "Cedula":
+			case "cedula":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
 					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
@@ -203,7 +225,7 @@
 															.Contains(searchBarValue));
 				break;
 
-			case "Pin":
+			case "pin":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
 					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
@@ -212,8 +234,11 @@
 				ListaClientes = await clientesService.Listar(lt => lt.Pin.ToString().Trim().ToLower()
 															.Contains(searchBarValue));
 				break;
+
+			default:
+				ListaClientes = await clientesService.Listar(x => true);
+				break;
 		}
-		return;
 	}
 
 	public async Task Restablecer()
