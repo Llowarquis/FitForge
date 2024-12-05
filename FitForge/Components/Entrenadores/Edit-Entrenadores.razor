@@ -1,0 +1,302 @@
+﻿@page "/Entrenadores/Edit/{EntrenadorID:int}"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using FitForge.Components.Account
+@using FitForge.Components.Account.Pages
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject EntrenadoresService entrenadoresService
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+@* @attribute [Authorize(Roles = "Admin")] *@
+
+<PageTitle>Crear Entrenador</PageTitle>
+<div class="wrapper">
+	<div class="container">
+		@*Titulo*@
+		<div class="text-black text-center">
+			<h3 style="margin-bottom: 1px;"><strong>Crear Entrenador</strong></h3>
+			<p>Aqui podr&aacute;s todos los entrenadores que sean necesarios.</p>
+		</div>
+		@*EDITFORM*@
+		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="Guardar" FormName="register">
+			<DataAnnotationsValidator />
+			<div class="row">
+				<div class="col">
+					<div class="row">
+						@*Campo Nombres*@
+						<div class="col">
+							<div class="form-floating mb-3">
+								<InputText @bind-Value="Input.Nombres" class="form-control" autocomplete="nombres" aria-required="true" placeholder="Nombres" />
+								<label for="nombres">Nombres/Apellidos</label>
+								<ValidationMessage For="() => Input.Nombres" class="text-danger" />
+							</div>
+						</div>
+
+						@*Campo fecha ingreso*@
+						<div class="col">
+							<div class="form-floating mb-3">
+								<InputDate @bind-Value="Input.FechaIngreso" class="form-control" />
+								<label for="fecha-de-nacimiento">Fecha de Ingreso</label>
+								<ValidationMessage For="() => Input.FechaIngreso" class="text-danger" />
+							</div>
+						</div>
+					</div>
+
+					@*Campo Email*@
+					<div class="form-floating mb-3">
+						<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+						<label for="email">Email</label>
+						<ValidationMessage For="() => Input.Email" class="text-danger" />
+					</div>
+
+					@*Campo contraseña*@
+					<div class="form-floating mb-3">
+						<InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<label for="password">Contraseña</label>
+						<ValidationMessage For="() => Input.Password" class="text-danger" />
+					</div>
+
+					@*Campo confirmar contraseña*@
+					<div class="form-floating mb-3">
+						<InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<label for="confirm-password">Confirmar Contraseña</label>
+						<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger validation-message" />
+					</div>
+				</div>
+
+				<div class="col">
+					@*Campo Descripcion de la clase*@
+					<div class="form-floating mb-3">
+						<InputSelect @bind-Value="Input.DescripcionClase" class="form-control" aria-required="true">
+							<option selected disabled>--- Selecciona una clase ---</option>
+							@foreach (var clase in ListaClases)
+							{
+								<option value="@clase.ClaseId">@clase.Descripcion</option>
+							}
+						</InputSelect>
+						<label for="descripcion-clase"><strong>Clase a impartir...</strong></label>
+						<ValidationMessage For="() => Input.DescripcionClase" class="text-danger validation-message" />
+					</div>
+
+					<div class="row">
+						<div class="col">
+							@*Campo hora inicio*@
+							<div class="form-floating mb-3">
+								<input type="time" @bind="Input.HoraInicio" class="form-control" />
+								<label for="hora-inicio">Hora Inicio</label>
+								<ValidationMessage For="() => Input.HoraInicio" class="text-danger validation-message" />
+							</div>
+						</div>
+
+						<div class="col">
+							@*Campo hora fin*@
+							<div class="form-floating mb-3">
+								<input type="time" @bind="Input.HoraFin" class="form-control" />
+								<label for="hora-fin">Hora Inicio</label>
+								<ValidationMessage For="() => Input.HoraInicio" class="text-danger validation-message" />
+							</div>
+						</div>
+					</div>
+
+					@*Campo Dia*@
+					<div class="form-floating mb-3">
+						<InputSelect @bind-Value="Input.Dia" class="form-control" aria-required="true">
+							<option selected disabled>--- Selecciona un dia ---</option>
+							@foreach (var dia in ListaDias)
+							{
+								<option value="@dia.DiaId">@dia.Dia</option>
+							}
+						</InputSelect>
+						<label for="dia"><strong>Dia de clase...</strong></label>
+						<ValidationMessage For="() => Input.Dia" class="text-danger validation-message" />
+					</div>
+				</div>
+			</div>
+
+			
+			<div class="row">
+				@*Btn volver*@
+				<div class="col">
+					<a href="/Entrenadores/Index" class="w-100 btn btn-lg btn-primary">Volver</a>
+				</div>
+				@*Btn guardar*@
+				<div class="col">
+					<button type="submit" class="w-100 btn btn-lg btn-primary">Guardar</button>
+				</div>
+			</div>
+			
+		</EditForm>
+	</div>
+</div>
+
+<head>
+	<link href="css/Crear-Entrenador.css" rel="stylesheet" />
+</head>
+
+@code {
+	// AQUI SE DEBE UTILIZAR UNA NOTIFICACICON
+	private string errorMessage = string.Empty;
+
+	[Parameter]
+	public int EntrenadorID { get; set; }
+
+	[Inject]
+	private RoleManager<IdentityRole> RoleManager { get; set; } = default!;
+
+	private IEnumerable<IdentityError>? identityErrors;
+
+	[SupplyParameterFromForm]
+	private InputModel Input { get; set; } = new();
+
+	[SupplyParameterFromQuery]
+	private string? ReturnUrl { get; set; }
+
+	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+	// Estas lista se mostrara inicializada en un combobox
+	public ICollection<ClasesDto> ListaClases { get; set; } = new List<ClasesDto>();
+	public ICollection<DiasDto> ListaDias { get; set; } = new List<DiasDto>();
+	public EntrenadoresDto entrenadorDto { get; set; } = new();
+
+	public int CantidadMaxDias { get; set; } = 0;
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (EntrenadorID != 0)
+		{
+			entrenadorDto = await entrenadoresService.Buscar(EntrenadorID);
+			if (entrenadorDto != null)
+			{
+				Input.Nombres = entrenadorDto.Nombres;
+				Input.FechaIngreso = entrenadorDto.FechaIngreso;
+				Input.Email = entrenadorDto.Email; // Asegúrate de que el DTO tenga esta propiedad
+				Input.DescripcionClase = entrenadorDto.DescripcionClase;
+				Input.Dia = entrenadorDto.DiasClase; // Asegúrate de que esto sea correcto según tu modelo
+				Input.HoraInicio = entrenadorDto.HoraInicioClase;
+				Input.HoraFin = entrenadorDto.HoraFinClase;
+			}
+		}
+		// ListaClases = await =  clasesService.Listar(d => true)
+		// ListaDias = await diasService.Listar(d => true);
+	}
+
+	public async Task Guardar(EditContext editContext)
+	{
+		var user = await UserManager.FindByEmailAsync(Input.Email);
+		if (user == null)
+		{
+			errorMessage = "Usuario no encontrado.";
+			return;
+		}
+
+		// Set username and email
+		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+		var emailStore = GetEmailStore();
+		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+		// Crear el usuario en AspNetUsers
+		var result = await UserManager.CreateAsync(user, Input.Password);
+		if (!result.Succeeded)
+		{
+			identityErrors = result.Errors;
+
+			foreach (var error in result.Errors)
+			{
+				Logger.LogError($"Error al crear el usuario: {error.Description}");
+			}
+
+			errorMessage = "Este email ya está ocupado";
+			return;
+		}
+
+		// Ahora que el usuario está creado, proceder con la creación del cliente
+
+		entrenadorDto.UserId = user.Id; // La FK de AspNetUsers
+		entrenadorDto.Nombres = Input.Nombres;
+		entrenadorDto.FechaIngreso = Input.FechaIngreso;
+		entrenadorDto.DescripcionClase = Input.DescripcionClase;
+		entrenadorDto.DiasClase = Input.Dia;
+		entrenadorDto.HoraInicioClase = Input.HoraInicio;
+		entrenadorDto.HoraFinClase = Input.HoraFin;
+
+		var clienteGuardado = await entrenadoresService.Guardar(entrenadorDto);
+		if (!clienteGuardado)
+		{
+			errorMessage = "Error al guardar los datos del entrenador.";
+			await UserManager.DeleteAsync(user);
+			return;
+		}
+
+		await SignInManager.SignInAsync(user, isPersistent: false);
+		RedirectManager.RedirectTo(ReturnUrl);
+	}
+
+
+	private ApplicationUser CreateUser()
+	{
+		try
+		{
+			return Activator.CreateInstance<ApplicationUser>();
+		}
+		catch
+		{
+			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+				$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+		}
+	}
+
+	private IUserEmailStore<ApplicationUser> GetEmailStore()
+	{
+		if (!UserManager.SupportsUserEmail)
+		{
+			throw new NotSupportedException("The default UI requires a user store with email support.");
+		}
+		return (IUserEmailStore<ApplicationUser>)UserStore;
+	}
+
+	private sealed class InputModel
+	{
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[EmailAddress]
+		public string Email { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[StringLength(100, ErrorMessage = "La contraseña debe contener al menos 6 caracteres", MinimumLength = 6)]
+		[DataType(DataType.Password)]
+		public string Password { get; set; } = "";
+
+		[DataType(DataType.Password)]
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[Compare("Password", ErrorMessage = "Las contraseñas deben coincidir")]
+		public string ConfirmPassword { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[StringLength(100, ErrorMessage = "Este campo debe contener al menos 3 caracteres", MinimumLength = 3)]
+		public string Nombres { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[DataType(DataType.Date)]
+		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
+		public DateOnly FechaIngreso { get; set; }
+
+		public string? DescripcionClase { get; set; }
+
+		public List<string>? Dia { get; set; }
+
+		public TimeOnly? HoraInicio { get; set; }
+
+		[RegularExpression("^(2[0-3]|[01]?[0-9])$")]
+		public TimeOnly? HoraFin { get; set; }
+	}
+}
+
