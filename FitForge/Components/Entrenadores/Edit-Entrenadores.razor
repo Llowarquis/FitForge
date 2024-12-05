@@ -150,9 +150,6 @@
 	[Parameter]
 	public int EntrenadorID { get; set; }
 
-	[Inject]
-	private RoleManager<IdentityRole> RoleManager { get; set; } = default!;
-
 	private IEnumerable<IdentityError>? identityErrors;
 
 	[SupplyParameterFromForm]
@@ -186,8 +183,8 @@
 				Input.HoraFin = entrenadorDto.HoraFinClase;
 			}
 		}
-		// ListaClases = await =  clasesService.Listar(d => true)
-		// ListaDias = await diasService.Listar(d => true);
+		// ListaClases = await =  clasesService.Listar(d => true) // TODAVIA NO SE HAN IMPLEMENTADO ESTOS SERVICIOS
+		// ListaDias = await diasService.Listar(d => true); // TODAVIA NO SE HAN IMPLEMENTADO ESTOS SERVICIOS
 	}
 
 	public async Task Guardar(EditContext editContext)
@@ -229,8 +226,8 @@
 		entrenadorDto.HoraInicioClase = Input.HoraInicio;
 		entrenadorDto.HoraFinClase = Input.HoraFin;
 
-		var clienteGuardado = await entrenadoresService.Guardar(entrenadorDto);
-		if (!clienteGuardado)
+		var entrenadoreGuardado = await entrenadoresService.Guardar(entrenadorDto);
+		if (!entrenadoreGuardado)
 		{
 			errorMessage = "Error al guardar los datos del entrenador.";
 			await UserManager.DeleteAsync(user);
