@@ -1,4 +1,4 @@
-using FitForge.Data;
+using FitForge.Data.DAL;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 

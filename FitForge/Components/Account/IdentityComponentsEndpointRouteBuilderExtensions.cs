@@ -1,6 +1,7 @@
 using FitForge.Components.Account.Pages;
 using FitForge.Components.Account.Pages.Manage;
 using FitForge.Data;
+using FitForge.Data.DAL;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;

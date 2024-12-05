@@ -1,4 +1,4 @@
-using FitForge.Data;
+using FitForge.Data.DAL;
 using Microsoft.AspNetCore.Identity;
 
 namespace FitForge.Components.Account
