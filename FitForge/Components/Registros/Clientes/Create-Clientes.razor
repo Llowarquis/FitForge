@@ -1,5 +1,257 @@
-﻿<h3>Create_Clientes</h3>
+﻿@page "/Clientes/Create"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using FitForge.Components.Account
+@using FitForge.Components.Account.Pages
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject ClientesService clientesService
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+@rendermode InteractiveServer
+
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Crear Cliente</PageTitle>
+<div class="wrapper">
+	<div class="container">
+		@*Titulo*@
+		<div class="text-black text-center">
+			<h3 style="margin-bottom: 1px;"><strong>Crear Cliente</strong></h3>
+			<p>Aqui podr&aacute;s todos los clientes que sean necesarios.</p>
+		</div>
+		@*EDITFORM*@
+		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+			<DataAnnotationsValidator />
+			<div class="row">
+				<div class="col">
+					<div class="row">
+						@*Campo Nombres*@
+						<div class="col">
+							<div class="form-floating mb-3">
+								<InputText @bind-Value="Input.Nombres" class="form-control" autocomplete="nombres" aria-required="true" placeholder="Nombres" />
+								<label for="nombres">Nombres/Apellidos</label>
+								<ValidationMessage For="() => Input.Nombres" class="text-danger" />
+							</div>
+						</div>
+
+						@*Campo fecha nacimiento*@
+						<div class="col">
+							<div class="form-floating mb-3">
+								<InputDate @bind-Value="Input.FechaNacimiento" class="form-control" />
+								<label for="fecha-de-nacimiento">Fecha de Nacimiento</label>
+								<ValidationMessage For="() => Input.FechaNacimiento" class="text-danger" />
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col">
+							@*Campo Cedula*@
+							<div class="form-floating mb-3">
+								<InputText @bind-Value="Input.Cedula" class="form-control" autocomplete="cedula" aria-required="true" placeholder="000-0000000-0" />
+								<label for="cedula">Cedula</label>
+								<ValidationMessage For="() => Input.Cedula" class="text-danger" />
+							</div>
+						</div>
+
+						<div class="col">
+							@*Campo Telefono*@
+							<div class="form-floating mb-3">
+								<InputText @bind-Value="Input.Telefono" class="form-control" autocomplete="telefono" aria-required="true" placeholder="555-555-5555" />
+								<label for="telefono">Telefono (opcional)</label>
+								<ValidationMessage For="() => Input.Telefono" class="text-danger" />
+							</div>
+						</div>
+					</div>
+
+
+
+					@*Campo Email*@
+					<div class="form-floating mb-3">
+						<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+						<label for="email">Email</label>
+						<ValidationMessage For="() => Input.Email" class="text-danger" />
+					</div>
+
+					@*Campo contraseña*@
+					<div class="form-floating mb-3">
+						<InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<label for="password">Contraseña</label>
+						<ValidationMessage For="() => Input.Password" class="text-danger" />
+					</div>
+
+					@*Campo confirmar contraseña*@
+					<div class="form-floating mb-3">
+						<InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<label for="confirm-password">Confirmar Contraseña</label>
+						<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger validation-message" />
+					</div>
+				</div>
+			</div>
+
+
+			<div class="row">
+				@*Btn volver*@
+				<div class="col">
+					<a href="/Clientes/Index" class="w-100 btn btn-lg btn-primary">Volver</a>
+				</div>
+				@*Btn Crear*@
+				<div class="col">
+					<button type="submit" class="w-100 btn btn-lg btn-primary">Crear</button>
+				</div>
+			</div>
+		</EditForm>
+	</div>
+</div>
+
+<head>
+	<link href="css/Crear-Entrenador.css" rel="stylesheet" />
+</head>
 
 @code {
+	// AQUI SE DEBE UTILIZAR UNA NOTIFICACICON
+	private string errorMessage = string.Empty;
 
+	[Inject]
+	private RoleManager<IdentityRole> RoleManager { get; set; } = default!;
+
+	private IEnumerable<IdentityError>? identityErrors;
+
+	[SupplyParameterFromForm]
+	private InputModel Input { get; set; } = new();
+
+	[SupplyParameterFromQuery]
+	private string? ReturnUrl { get; set; }
+
+	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+
+	public async Task RegisterUser(EditContext editContext)
+	{
+		var user = CreateUser();
+
+		// Set username and email
+		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+		var emailStore = GetEmailStore();
+		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+		user.PhoneNumber = Input.Telefono; // Se inserta el telefono en la tabla users
+		user.EmailConfirmed = true; // Se confirma el email automaticamente
+
+		// Crear el usuario en AspNetUsers
+		var result = await UserManager.CreateAsync(user, Input.Password);
+		if (!result.Succeeded)
+		{
+			identityErrors = result.Errors;
+
+			foreach (var error in result.Errors)
+			{
+				Logger.LogError($"Error al crear el usuario: {error.Description}");
+			}
+
+			errorMessage = "Este email ya está ocupado";
+			return;
+		}
+
+		// **Asignar el rol al usuario**
+		string nombreRol = "Cliente";
+		if (!await RoleManager.RoleExistsAsync(nombreRol))
+		{
+			await RoleManager.CreateAsync(new IdentityRole(nombreRol));
+		}
+		var roleResult = await UserManager.AddToRoleAsync(user, nombreRol);
+
+		if (!roleResult.Succeeded)
+		{
+			identityErrors = roleResult.Errors;
+			return;
+		}
+
+		// Ahora que el usuario está creado, proceder con la creación del cliente
+		var clienteDto = new ClientesDto()
+			{
+				UserId = user.Id, // La FK de AspNetUsers
+				Nombres = Input.Nombres,
+				FechaNacimiento = Input.FechaNacimiento,
+				Cedula = Input.Cedula,
+				Telefono = Input.Telefono,
+			};
+
+		var clienteGuardado = await clientesService.Guardar(clienteDto);
+		if (!clienteGuardado)
+		{
+			errorMessage = "Error al guardar los datos del cliente.";
+			await UserManager.DeleteAsync(user);
+			return;
+		}
+		NavigationManager.NavigateTo("/Clientes/Index");
+	}
+
+
+	private ApplicationUser CreateUser()
+	{
+		try
+		{
+			return Activator.CreateInstance<ApplicationUser>();
+		}
+		catch
+		{
+			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+				$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+		}
+	}
+
+	private IUserEmailStore<ApplicationUser> GetEmailStore()
+	{
+		if (!UserManager.SupportsUserEmail)
+		{
+			throw new NotSupportedException("The default UI requires a user store with email support.");
+		}
+		return (IUserEmailStore<ApplicationUser>)UserStore;
+	}
+
+	private sealed class InputModel
+	{
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[EmailAddress]
+		public string Email { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[StringLength(100, ErrorMessage = "La contraseña debe contener al menos 6 caracteres", MinimumLength = 6)]
+		[DataType(DataType.Password)]
+		public string Password { get; set; } = "";
+
+		[DataType(DataType.Password)]
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[Compare("Password", ErrorMessage = "Las contraseñas deben coincidir")]
+		public string ConfirmPassword { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[StringLength(100, ErrorMessage = "Este campo debe contener al menos 3 caracteres", MinimumLength = 3)]
+		public string Nombres { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[DataType(DataType.Date)]
+		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
+		public DateOnly FechaNacimiento { get; set; }
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[StringLength(100, ErrorMessage = "Este campo debe contener 10 caracteres", MinimumLength = 10)]
+		public string Cedula { get; set; } = "";
+
+		[RegularExpression(@"^\+?[0-9\s\-()]{7,15}$", ErrorMessage = "El número de teléfono debe ser válido.")]
+		[StringLength(15, ErrorMessage = "El número de teléfono no puede superar los 15 caracteres.")]
+		public string? Telefono { get; set; } = "";
+	}
 }
+
