@@ -167,4 +167,45 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 
 		return clientesDto;
 	}
+
+	// Validar Cedula
+	public async Task<bool> ValidarCedula(string cedula)
+	{
+		if (cedula.Length != 11)
+			return false;
+
+		if (await ExisteCedula(cedula))
+			return false;
+
+		int[] pesos = { 1, 2, 1, 2, 1, 2, 1, 2, 1, 2 };
+		int suma = 0;
+
+		for (int i = 0; i < 10; i++)
+		{
+			int multiplicacion = (cedula[i] - '0') * pesos[i]; // Convertir carácter a número y multiplicar
+			if (multiplicacion >= 10)
+			{
+				// Sumar los dígitos de un número mayor o igual a 10
+				multiplicacion = (multiplicacion / 10) + (multiplicacion % 10);
+			}
+			suma += multiplicacion;
+		}
+
+		int decenaSuperior = (int)Math.Ceiling(suma / 10.0) * 10; // Calcular la decena superior más cercana
+		int digitoVerificadorCalculado = decenaSuperior - suma;
+
+		int digitoVerificadorReal = cedula[10] - '0'; // Último dígito de la cédula
+
+		return digitoVerificadorCalculado == digitoVerificadorReal ? true : false;
+	}
+
+	private async Task<bool> ExisteCedula(string cedula)
+	{
+		if (string.IsNullOrWhiteSpace(cedula))
+			return true;
+
+		await using var _contexto = await DbFactory.CreateDbContextAsync();
+		return await _contexto.Clientes.AnyAsync(c => c.Cedula == cedula);
+
+	}
 }
