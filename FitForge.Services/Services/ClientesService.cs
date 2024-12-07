@@ -1,4 +1,5 @@
-﻿using FitForge.Abstractions.Interfaces;
+﻿using BlazorBootstrap;
+using FitForge.Abstractions.Interfaces;
 using FitForge.Data.DAL;
 using FitForge.Data.Models;
 using FitForge.Domain.DTO;
@@ -169,13 +170,13 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 	}
 
 	// Validar Cedula
-	public async Task<bool> ValidarCedula(string cedula)
+	public async Task<string> ValidarCedula(string cedula)
 	{
 		if (cedula.Length != 11)
-			return false;
+			return "muyLarga";
 
 		if (await ExisteCedula(cedula))
-			return false;
+			return "yaExiste";
 
 		int[] pesos = { 1, 2, 1, 2, 1, 2, 1, 2, 1, 2 };
 		int suma = 0;
@@ -196,7 +197,9 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 
 		int digitoVerificadorReal = cedula[10] - '0'; // Último dígito de la cédula
 
-		return digitoVerificadorCalculado == digitoVerificadorReal ? true : false;
+		if (digitoVerificadorCalculado != digitoVerificadorReal)
+			return "noValida";
+		return "valida";
 	}
 
 	private async Task<bool> ExisteCedula(string cedula)
