@@ -7,8 +7,8 @@ public class DiasHorarios
 	public int DiaHorarioId { get; set; }
 
     public int DiaId { get; set; }
-	public ICollection<Dias> Dias { get; set; } = new List<Dias>();
+	public Dias Dia { get; set; }
 
 	public int HorarioId { get; set; }
-	public ICollection<Horarios> Horario { get; set; } = new List<Horarios>();
+	public Horarios Horario { get; set; }
 }
