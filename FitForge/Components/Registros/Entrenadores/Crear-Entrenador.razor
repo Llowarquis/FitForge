@@ -21,6 +21,8 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Crear Entrenador</PageTitle>
 <div class="wrapper">
 	<div class="container">
@@ -174,6 +176,22 @@
 
 	public int CantidadMaxDias { get; set; } = 0;
 
+
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}",
+		};
+
 	protected override async Task OnInitializedAsync()
 	{
 		// ListaClases = await =  clasesService.Listar(d => true)
@@ -182,6 +200,14 @@
 
 	public async Task RegisterUser(EditContext editContext)
 	{
+		if (!await entrenadoresService.ValidarTelefono(Input.Telefono))
+		{
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "El número de teléfono ya existe o es inválido.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+			return;
+		}
 		var user = CreateUser();
 
 		// Set username and email
@@ -196,14 +222,10 @@
 		var result = await UserManager.CreateAsync(user, Input.Password);
 		if (!result.Succeeded)
 		{
-			identityErrors = result.Errors;
-
-			foreach (var error in result.Errors)
-			{
-				Logger.LogError($"Error al crear el usuario: {error.Description}");
-			}
-
-			errorMessage = "Este email ya está ocupado";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Este email ya existe.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			return;
 		}
 
@@ -237,10 +259,17 @@
 		var entrenadorGuardado = await entrenadoresService.Guardar(entrenadorDto);
 		if (!entrenadorGuardado)
 		{
-			errorMessage = "Error al guardar los datos del entrenador.";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Hubo un error al crear al entrenador.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			await UserManager.DeleteAsync(user);
 			return;
 		}
+		TipoNotificacion = ToastType.Success;
+		TituloNotificacion = "Enhorabuena";
+		MensajeNotificacion = "¡Se ha creado el entrenador exitosamente!";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 		NavigationManager.NavigateTo("/Entrenadores/Index");
 	}
 

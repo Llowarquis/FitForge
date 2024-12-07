@@ -8,6 +8,8 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Listado Entrenadores</PageTitle>
 <body style="background-color: #F5E1CE">
 	<div class="container">
@@ -63,13 +65,13 @@
 				{
 					@*Campo Fecha ingreso*@
 					<div class="row">
-						<div class="col-3 form-floating">
-							<InputDate class="form-control" @bind-Value="Desde" id="floatingDesde" />
-							<label for="floatingDesde"><strong>Desde:</strong></label>
+						<div class="form-floating col">
+							<InputDate @bind-Value="Desde" class="form-control" />
+							<label for="desde"><b>Desde...</b></label>
 						</div>
-						<div class="col-3 form-floating">
-							<InputDate class="form-control" @bind-Value="Hasta" id="floatingHasta" />
-							<label for="floatingHasta"><strong>Hasta:</strong></label>
+						<div class="form-floating col">
+							<InputDate @bind-Value="Hasta" class="form-control" />
+							<label for="hasta"><b>Hasta...</b></label>
 						</div>
 					</div>
 				}
@@ -111,7 +113,7 @@
 						}
 					</tbody>
 					<caption>
-						Clientes: @ListaEntrenadores.Count
+						Entrenadores: @ListaEntrenadores.Count
 					</caption>
 				</table>
 			</div>
@@ -161,14 +163,32 @@
 	public DateOnly? Hasta { get; set; } = null;
 	public List<EntrenadoresDto> ListaEntrenadores { get; set; } = new List<EntrenadoresDto>();
 
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}",
+		};
+
 	public async Task Restablecer()
 	{
+		TipoNotificacion = ToastType.Info;
+		TituloNotificacion = "Aviso";
+		MensajeNotificacion = "Se han restablecido los criterios de búsqueda.";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 		ListaEntrenadores = await entrenadoresService.Listar(x => true);
 		searchBarValue = string.Empty;
 		valorFiltro = string.Empty;
 		Desde = null;
 		Hasta = null;
-		StateHasChanged();
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -178,10 +198,12 @@
 
 	public async Task Buscar()
 	{
-		Console.WriteLine("Buscar función invocada");
 		if (string.IsNullOrEmpty(valorFiltro))
 		{
-			// Toast.Notify(new(ToastType.Warning, $"Debe seleccionar una opción en el fitro"));
+			TipoNotificacion = ToastType.Warning;
+			TituloNotificacion = "Aviso";
+			MensajeNotificacion = "Debe seleccionar una opción en el fitro.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			ListaEntrenadores = await entrenadoresService.Listar(x => true);
 			return;
 		}
@@ -193,12 +215,18 @@
 			case "identrenador":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un ID para buscar"));
+					TipoNotificacion = ToastType.Info;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un ID para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				if (!searchBarValue.All(char.IsDigit))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"El criterio de búsqueda solo puede alojar numeros"));
+					TipoNotificacion = ToastType.Info;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "El criterio de búsqueda solo puede alojar numeros.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				if (int.TryParse(searchBarValue, out int id))
@@ -208,7 +236,10 @@
 			case "idusuario":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un ID para buscar"));
+					TipoNotificacion = ToastType.Info;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un ID para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaEntrenadores = await entrenadoresService.Listar(lt => lt.UserId.Trim().ToLower()
@@ -218,7 +249,10 @@
 			case "email":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un email para buscar"));
+					TipoNotificacion = ToastType.Info;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un email para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaEntrenadores = await entrenadoresService.Listar(lt => lt.Email.Trim().ToLower()
@@ -228,7 +262,10 @@
 			case "nombres":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer el/los nombre/s y/o apellido/s para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaEntrenadores = await entrenadoresService.Listar(lt => lt.Nombres.Trim().ToLower()
@@ -236,9 +273,20 @@
 				break;
 
 			case "fechaIngreso":
-				if (string.IsNullOrEmpty(searchBarValue))
+				if (Desde > Hasta)
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer una cédula para buscar"));
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "La fecha inicial no puede ser mayor a la final.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+					return;
+				}
+				if(Desde == null || Hasta == null)
+				{
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Ambos campos de fecha deben estar llenos.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaEntrenadores = await entrenadoresService.Listar(f => f.FechaIngreso >= Desde && f.FechaIngreso <= Hasta);
