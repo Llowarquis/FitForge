@@ -4,6 +4,7 @@ using FitForge.Data.Models;
 using FitForge.Domain.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace FitForge.Services.Services;
 
@@ -133,5 +134,26 @@ public class EntrenadoresService(IDbContextFactory<ApplicationDbContext> DbFacto
 			.ToListAsync();
 
 		return entrenadorDto;
+	}
+
+	// Validar numero telefono
+	public async Task<bool> ValidarTelefono(string telefono)
+	{
+		if (await ExisteTelefono(telefono))
+			return false;
+
+		string pattern = @"^[(]?[0-9]{0,9}[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}[)]?$";
+		Regex regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+		return regex.IsMatch(telefono);
+	}
+
+	private async Task<bool> ExisteTelefono(string telefono)
+	{
+		if (string.IsNullOrWhiteSpace(telefono))
+			return true;
+
+		await using var _contexto = await DbFactory.CreateDbContextAsync();
+		return await _contexto.Users.AnyAsync(c => c.PhoneNumber == telefono);
 	}
 }
