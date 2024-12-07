@@ -6,7 +6,7 @@
 
 @rendermode InteractiveServer
 
-@* @attribute [Authorize(Roles = "Admin")] *@
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Listado Clientes</PageTitle>
 <body style="background-color: #F5E1CE">
@@ -74,16 +74,16 @@
 						</tr>
 					</thead>
 					<tbody class="table-group-divider">
-						@foreach (var entrenador in ListaClientes)
+						@foreach (var cliente in ListaClientes)
 						{
 							<tr>
-								<th>@entrenador.ClienteId</th>
-								<th>@entrenador.Nombres</th>
-								<th>@entrenador.Email</th>
-								<th>@entrenador.Telefono</th>
-								<th>@entrenador.Cedula</th>
-								<th>@entrenador.Pin</th>
-								<th>@entrenador.FechaNacimiento</th>
+								<th>@cliente.ClienteId</th>
+								<th>@cliente.Nombres</th>
+								<th>@cliente.Email</th>
+								<th>@cliente.Telefono</th>
+								<th>@cliente.Cedula</th>
+								<th>@cliente.Pin</th>
+								<th>@cliente.FechaNacimiento</th>
 								<th>
 									<div class="btn-group">
 										<button class="btn custom-button btn-sm bi bi-eye dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -95,8 +95,8 @@
 											<li><a class="dropdown-item" href="#">Info de Usuario</a></li>
 										</ul>
 									</div>
-									<a href="/Edit/@entrenador.ClienteId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
-									<a href="/Delete/@entrenador.ClienteId" class="btn btn-sm custom-button bi bi-trash"> Eliminar</a>
+									<a href="/Clientes/Edit/@cliente.ClienteId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
+									<a href="/Clientes/Delete/@cliente.ClienteId" class="btn btn-sm custom-button bi bi-trash"> Eliminar</a>
 								</th>
 							</tr>
 						}
