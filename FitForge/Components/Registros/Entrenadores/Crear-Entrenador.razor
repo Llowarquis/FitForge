@@ -19,7 +19,7 @@
 
 @rendermode InteractiveServer
 
-@* @attribute [Authorize(Roles = "Admin")] *@
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Crear Entrenador</PageTitle>
 <div class="wrapper">
@@ -27,7 +27,7 @@
 		@*Titulo*@
 		<div class="text-black text-center">
 			<h3 style="margin-bottom: 1px;"><strong>Crear Entrenador</strong></h3>
-			<p>Aqui podr&aacute;s todos los entrenadores que sean necesarios.</p>
+			<p>Aqui podr&aacute;s crear todos los entrenadores que sean necesarios.</p>
 		</div>
 		@*EDITFORM*@
 		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
@@ -38,7 +38,7 @@
 						@*Campo Nombres*@
 						<div class="col">
 							<div class="form-floating mb-3">
-								<InputText @bind-Value="Input.Nombres" class="form-control" autocomplete="nombres" aria-required="true" placeholder="Nombres" />
+								<InputText @bind-Value="Input.Nombres" class="form-control" aria-required="true" placeholder="Nombres" />
 								<label for="nombres">Nombres/Apellidos</label>
 								<ValidationMessage For="() => Input.Nombres" class="text-danger" />
 							</div>
@@ -56,21 +56,21 @@
 
 					@*Campo Email*@
 					<div class="form-floating mb-3">
-						<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+						<InputText @bind-Value="Input.Email" class="form-control" aria-required="true" placeholder="name@example.com" />
 						<label for="email">Email</label>
 						<ValidationMessage For="() => Input.Email" class="text-danger" />
 					</div>
 
 					@*Campo contraseña*@
 					<div class="form-floating mb-3">
-						<InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<InputText type="password" @bind-Value="Input.Password" class="form-control" aria-required="true" placeholder="password" />
 						<label for="password">Contraseña</label>
 						<ValidationMessage For="() => Input.Password" class="text-danger" />
 					</div>
 
 					@*Campo confirmar contraseña*@
 					<div class="form-floating mb-3">
-						<InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" aria-required="true" placeholder="password" />
 						<label for="confirm-password">Confirmar Contraseña</label>
 						<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger validation-message" />
 					</div>
@@ -121,6 +121,13 @@
 						</InputSelect>
 						<label for="dia"><strong>Dia de clase...</strong></label>
 						<ValidationMessage For="() => Input.Dia" class="text-danger validation-message" />
+					</div>
+
+					@*Campo Telefono*@
+					<div class="form-floating mb-3">
+						<InputText @bind-Value="Input.Telefono" class="form-control" aria-required="true" placeholder="555-555-5555" />
+						<label for="telefono">Telefono</label>
+						<ValidationMessage For="() => Input.Telefono" class="text-danger" />
 					</div>
 				</div>
 			</div>
@@ -182,6 +189,9 @@
 		var emailStore = GetEmailStore();
 		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
+		user.PhoneNumber = Input.Telefono;  // Se inserta el telefono en la tabla users
+		user.EmailConfirmed = true; // Se confirma el email automaticamente
+
 		// Crear el usuario en AspNetUsers
 		var result = await UserManager.CreateAsync(user, Input.Password);
 		if (!result.Succeeded)
@@ -220,36 +230,18 @@
 				DescripcionClase = Input.DescripcionClase,
 				DiasClase = Input.Dia,
 				HoraInicioClase = Input.HoraInicio,
-				HoraFinClase = Input.HoraFin
+				HoraFinClase = Input.HoraFin,
+				Telefono = Input.Telefono,
 			};
 
-		var clienteGuardado = await entrenadoresService.Guardar(entrenadorDto);
-		if (!clienteGuardado)
+		var entrenadorGuardado = await entrenadoresService.Guardar(entrenadorDto);
+		if (!entrenadorGuardado)
 		{
 			errorMessage = "Error al guardar los datos del entrenador.";
 			await UserManager.DeleteAsync(user);
 			return;
 		}
-
-		// Confirmación y login automático
-		var userId = await UserManager.GetUserIdAsync(user);
-		var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-		code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-		var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-			NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
-
-		await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
-
-		if (UserManager.Options.SignIn.RequireConfirmedAccount)
-		{
-			RedirectManager.RedirectTo(
-				"Account/RegisterConfirmation",
-				new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
-		}
-
-		await SignInManager.SignInAsync(user, isPersistent: false);
-		RedirectManager.RedirectTo(ReturnUrl);
+		NavigationManager.NavigateTo("/Entrenadores/Index");
 	}
 
 
@@ -298,7 +290,7 @@
 		[Required(ErrorMessage = "Este campo es obligatorio")]
 		[DataType(DataType.Date)]
 		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
-		public DateOnly FechaIngreso { get; set; }
+		public DateOnly FechaIngreso { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
 		public string? DescripcionClase { get; set; }
 
@@ -308,6 +300,10 @@
 
 		[RegularExpression("^(2[0-3]|[01]?[0-9])$")]
 		public TimeOnly? HoraFin { get; set; }
+
+		[RegularExpression(@"^\+?[0-9\s\-()]{7,15}$", ErrorMessage = "El número de teléfono debe ser válido.")]
+		[StringLength(15, ErrorMessage = "El número de teléfono no puede superar los 15 caracteres.")]
+		public string Telefono { get; set; } = "";
 	}
 }
 
