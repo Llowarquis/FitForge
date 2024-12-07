@@ -21,6 +21,8 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Editar Cliente</PageTitle>
 <div class="wrapper">
 	<div class="container">
@@ -95,9 +97,6 @@
 </head>
 
 @code {
-	// AQUI SE DEBE UTILIZAR UNA NOTIFICACICON
-	private string errorMessage = string.Empty;
-
 	[Parameter]
 	public int ClienteID { get; set; }
 
@@ -115,6 +114,22 @@
 	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
 	public ClientesDto ClienteDto { get; set; } = new();
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			AutoHide = true,
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}: {DateOnly.FromDateTime(DateTime.Now)}",
+		};
+
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -126,26 +141,54 @@
 		Input.Cedula = ClienteDto.Cedula;
 	}
 
+
 	public async Task RegisterUser(EditContext editContext)
 	{
-		if (!await clientesService.ValidarCedula(Input.Cedula))
-			return;
+		switch (await clientesService.ValidarCedula(Input.Cedula))
+		{
+			case "muyLarga":
+				TipoNotificacion = ToastType.Danger;
+				TituloNotificacion = "Error";
+				MensajeNotificacion = "La cédula debe tener unicamente 11 digitos.";
+				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+				return;
+
+			case "yaExiste":
+				TipoNotificacion = ToastType.Danger;
+				TituloNotificacion = "Error";
+				MensajeNotificacion = "Esta cédula ya existe.";
+				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+				return;
+
+			case "noValida":
+				TipoNotificacion = ToastType.Danger;
+				TituloNotificacion = "Error";
+				MensajeNotificacion = "La cédula es inválida.";
+				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+				return;
+		}
+
 
 		var user = await UserManager.FindByEmailAsync(Input.Email);
 		if (Input.Email != ClienteDto.Email)
 		{
 			if (user != null && user.Id != ClienteDto.UserId)
 			{
-				errorMessage = "Este email ya existe";
+				TipoNotificacion = ToastType.Danger;
+				TituloNotificacion = "Error";
+				MensajeNotificacion = "Este email ya existe.";
+				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 				return;
 			}
-			// Notificacion: este email esta disponible
 		}
 
 		user = await UserManager.FindByIdAsync(ClienteDto.UserId);
 		if (user == null)
 		{
-			errorMessage = "Usuario no encontrado.";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Usuario no encontrado.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			return;
 		}
 
@@ -157,12 +200,10 @@
 		var result = await UserManager.UpdateAsync(user);
 		if (!result.Succeeded)
 		{
-			identityErrors = result.Errors;
-
-			foreach (var error in result.Errors)
-			{
-				Logger.LogError($"Error al modificar el usuario: {error.Description}");
-			}
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Fallo al intentar modificar el cliente";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			return;
 		}
 
@@ -174,7 +215,12 @@
 		ClienteDto.Cedula = Input.Cedula;
 
 		await clientesService.Guardar(ClienteDto);
-		StateHasChanged();
+		TipoNotificacion = ToastType.Success;
+		TituloNotificacion = "Enhorabuena";
+		MensajeNotificacion = "¡Se ha modificado el cliente exitosamente!";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+
+		// Si se borra esta linea la notificacion se ve perfectamente, pero no se como solucionar eso ahora mismo
 		NavigationManager.NavigateTo("/Clientes/Index");
 	}
 

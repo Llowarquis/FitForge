@@ -123,15 +123,46 @@
 
 	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
-	private void ClearError(ChangeEventArgs e)
-	{
-		StateHasChanged(); // Forzar actualización de UI
-	}
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}: {DateTime.Now}",
+		};
 
 	public async Task RegisterUser(EditContext editContext)
 	{
-		if (!await clientesService.ValidarCedula(Input.Cedula))
-			return;
+		switch (await clientesService.ValidarCedula(Input.Cedula))
+		{
+			case "muyLarga":
+				TipoNotificacion = ToastType.Danger;
+				TituloNotificacion = "Error";
+				MensajeNotificacion = "La cédula debe tener unicamente 11 digitos.";
+				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+				break;
+
+			case "yaExiste":
+				TipoNotificacion = ToastType.Danger;
+				TituloNotificacion = "Error";
+				MensajeNotificacion = "Esta cédula ya existe.";
+				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+				break;
+
+			case "noValida":
+				TipoNotificacion = ToastType.Danger;
+				TituloNotificacion = "Error";
+				MensajeNotificacion = "La cédula es inválida.";
+				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+				break;
+		}
 
 		var user = CreateUser();
 
@@ -144,14 +175,10 @@
 		var result = await UserManager.CreateAsync(user, Input.Password);
 		if (!result.Succeeded)
 		{
-			identityErrors = result.Errors;
-
-			foreach (var error in result.Errors)
-			{
-				Logger.LogError($"Error al crear el usuario: {error.Description}");
-			}
-
-			errorMessage = "Este email ya está ocupado";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Este email ya existe.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			return;
 		}
 
@@ -181,7 +208,10 @@
 		var clienteGuardado = await clientesService.Guardar(clienteDto);
 		if (!clienteGuardado)
 		{
-			errorMessage = "Error al guardar los datos del cliente.";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Hubo un error al crear su cuenta.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			await UserManager.DeleteAsync(user);
 			return;
 		}
@@ -204,6 +234,10 @@
 		}
 
 		await SignInManager.SignInAsync(user, isPersistent: false);
+		TipoNotificacion = ToastType.Success;
+		TituloNotificacion = "Enhorabuena";
+		MensajeNotificacion = "¡Su cuenta se ha creado exitosamente! Por favor incie sesión para comenzar.";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 		RedirectManager.RedirectTo(ReturnUrl);
 	}
 

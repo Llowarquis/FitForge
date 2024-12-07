@@ -8,6 +8,9 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+
 <PageTitle>Listado Clientes</PageTitle>
 <body style="background-color: #F5E1CE">
 	<div class="container">
@@ -157,11 +160,30 @@
 		ListaClientes = await clientesService.Listar(x => true);
 	}
 
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			AutoHide = true,
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo} {DateOnly.FromDateTime(DateTime.Now)}",
+		};
+
 	public async Task Buscar()
 	{
 		if (string.IsNullOrEmpty(valorFiltro))
 		{
-			// Toast.Notify(new(ToastType.Warning, $"Debe seleccionar una opción en el fitro"));
+			TipoNotificacion = ToastType.Warning;
+			TituloNotificacion = "Aviso";
+			MensajeNotificacion = "Debe seleccionar una opción en el fitro.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			ListaClientes = await clientesService.Listar(x => true);
 			return;
 		}
@@ -173,12 +195,19 @@
 			case "idcliente":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un ID de cliente para buscar";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un ID para buscar"));
 					return;
 				}
 				if (!searchBarValue.All(char.IsDigit))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"El criterio de búsqueda solo puede alojar numeros"));
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "El criterio de búsqueda solo puede alojar numeros.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				if (int.TryParse(searchBarValue, out int id))
@@ -188,7 +217,10 @@
 			case "idusuario":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un ID para buscar"));
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un ID de usuario para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaClientes = await clientesService.Listar(lt => lt.UserId.Trim().ToLower()
@@ -198,7 +230,10 @@
 			case "email":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un email para buscar"));
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un email para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaClientes = await clientesService.Listar(lt => lt.Email.Trim().ToLower()
@@ -208,7 +243,10 @@
 			case "nombres":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un nombre y/o apellido/s para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaClientes = await clientesService.Listar(lt => lt.Nombres.Trim().ToLower()
@@ -218,7 +256,10 @@
 			case "cedula":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer una cédula para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaClientes = await clientesService.Listar(lt => lt.Cedula.Trim().ToLower()
@@ -228,7 +269,10 @@
 			case "pin":
 				if (string.IsNullOrEmpty(searchBarValue))
 				{
-					// Toast.Notify(new(ToastType.Warning, $"Debe proveer un nombre para buscar"));
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un pin para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
 				ListaClientes = await clientesService.Listar(lt => lt.Pin.ToString().Trim().ToLower()
@@ -246,5 +290,10 @@
 		ListaClientes = await clientesService.Listar(x => true);
 		searchBarValue = string.Empty;
 		valorFiltro = string.Empty;
+
+		TipoNotificacion = ToastType.Info;
+		TituloNotificacion = "Aviso";
+		MensajeNotificacion = "Se han restablecido los criterios de búsqueda.";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 	}
 }
