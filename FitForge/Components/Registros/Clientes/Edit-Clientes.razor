@@ -1,5 +1,226 @@
-﻿<h3>Edit_Clientes</h3>
+﻿@page "/Clientes/Edit/{ClienteID:int}"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using FitForge.Components.Account
+@using FitForge.Components.Account.Pages
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject ClientesService clientesService
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+@rendermode InteractiveServer
+
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Editar Cliente</PageTitle>
+<div class="wrapper">
+	<div class="container">
+		@*Titulo*@
+		<div class="text-black text-center">
+			<h3 style="margin-bottom: 1px;"><strong>Editar Cliente</strong></h3>
+			<p>Aqui podr&aacute;s editar el cliente seleccionado.</p>
+		</div>
+		@*EDITFORM*@
+		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+			<div class="row">
+				<div class="col">
+					<div class="row">
+						@*Campo Nombres*@
+						<div class="col">
+							<div class="form-floating mb-3">
+								<InputText @bind-Value="Input.Nombres" class="form-control" autocomplete="nombres" aria-required="true" placeholder="Nombres" />
+								<label for="nombres">Nombres/Apellidos</label>
+								<ValidationMessage For="() => Input.Nombres" class="text-danger" />
+							</div>
+						</div>
+
+						<div class="col">
+							@*Campo Cedula*@
+							<div class="form-floating mb-3">
+								<InputText @bind-Value="Input.Cedula" class="form-control" autocomplete="cedula" aria-required="true" placeholder="000-0000000-0" />
+								<label for="cedula">Cedula</label>
+								<ValidationMessage For="() => Input.Cedula" class="text-danger" />
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+
+						<div class="col">
+							@*Campo Telefono*@
+							<div class="form-floating mb-3">
+								<InputText @bind-Value="Input.Telefono" class="form-control" autocomplete="telefono" aria-required="true" placeholder="555-555-5555" />
+								<label for="telefono">Telefono (opcional)</label>
+								<ValidationMessage For="() => Input.Telefono" class="text-danger" />
+							</div>
+						</div>
+					</div>
+
+					@*Campo Email*@
+					<div class="form-floating mb-3">
+						<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+						<label for="email">Email</label>
+						<ValidationMessage For="() => Input.Email" class="text-danger" />
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				@*Btn volver*@
+				<div class="col">
+					<a href="/Clientes/Index" class="w-100 btn btn-lg btn-primary">Volver</a>
+				</div>
+				@*Btn Crear*@
+				<div class="col">
+					<button type="submit" class="w-100 btn btn-lg btn-primary">Guardar</button>
+				</div>
+			</div>
+		</EditForm>
+	</div>
+</div>
+
+<head>
+	<link href="css/Crear-Entrenador.css" rel="stylesheet" />
+</head>
 
 @code {
+	// AQUI SE DEBE UTILIZAR UNA NOTIFICACICON
+	private string errorMessage = string.Empty;
 
+	[Parameter]
+	public int ClienteID { get; set; }
+
+	[Inject]
+	private RoleManager<IdentityRole> RoleManager { get; set; } = default!;
+
+	private IEnumerable<IdentityError>? identityErrors;
+
+	[SupplyParameterFromForm]
+	private InputModel Input { get; set; } = new();
+
+	[SupplyParameterFromQuery]
+	private string? ReturnUrl { get; set; }
+
+	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+	public ClientesDto ClienteDto { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		ClienteDto = await clientesService.Buscar(ClienteID);
+
+		Input.Nombres = ClienteDto.Nombres;
+		Input.Email = ClienteDto.Email;
+		Input.Telefono = ClienteDto.Telefono;
+		Input.Cedula = ClienteDto.Cedula;
+	}
+
+	public async Task RegisterUser(EditContext editContext)
+	{
+
+		var user = await UserManager.FindByEmailAsync(Input.Email);
+		if (Input.Email != ClienteDto.Email)
+		{
+			if (user != null && user.Id != ClienteDto.UserId)
+			{
+				errorMessage = "Este email ya existe";
+				return;
+			}
+			// Notificacion: este email esta disponible
+		}
+
+		user = await UserManager.FindByIdAsync(ClienteDto.UserId);
+		if (user == null)
+		{
+			errorMessage = "Usuario no encontrado.";
+			return;
+		}
+
+		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+		var emailStore = GetEmailStore();
+		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+		// Crear el usuario en AspNetUsers
+		var result = await UserManager.UpdateAsync(user);
+		if (!result.Succeeded)
+		{
+			identityErrors = result.Errors;
+
+			foreach (var error in result.Errors)
+			{
+				Logger.LogError($"Error al modificar el usuario: {error.Description}");
+			}
+			return;
+		}
+
+		user = await UserManager.FindByIdAsync(user.Id);
+
+		ClienteDto.Nombres = Input.Nombres;
+		ClienteDto.Email = Input.Email;
+		ClienteDto.Telefono = Input.Telefono;
+		ClienteDto.Cedula = Input.Cedula;
+
+		await clientesService.Guardar(ClienteDto);
+		StateHasChanged();
+		NavigationManager.NavigateTo("/Clientes/Index");
+	}
+
+
+	private ApplicationUser CreateUser()
+	{
+		try
+		{
+			return Activator.CreateInstance<ApplicationUser>();
+		}
+		catch
+		{
+			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+				$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+		}
+	}
+
+	private IUserEmailStore<ApplicationUser> GetEmailStore()
+	{
+		if (!UserManager.SupportsUserEmail)
+		{
+			throw new NotSupportedException("The default UI requires a user store with email support.");
+		}
+		return (IUserEmailStore<ApplicationUser>)UserStore;
+	}
+
+	private sealed class InputModel
+	{
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[EmailAddress]
+		public string Email { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[StringLength(100, ErrorMessage = "Este campo debe contener al menos 3 caracteres", MinimumLength = 3)]
+		public string Nombres { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[DataType(DataType.Date)]
+		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
+		public DateOnly FechaNacimiento { get; set; }
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[StringLength(100, ErrorMessage = "Este campo debe contener 10 caracteres", MinimumLength = 10)]
+		public string Cedula { get; set; } = "";
+
+		[RegularExpression(@"^\+?[0-9\s\-()]{10,10}$", ErrorMessage = "El número de teléfono debe ser válido.")]
+		[StringLength(15, ErrorMessage = "El número de teléfono no puede superar los 15 caracteres.")]
+		public string? Telefono { get; set; } = "";
+	}
 }
+
