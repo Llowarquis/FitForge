@@ -128,6 +128,8 @@
 
 	public async Task RegisterUser(EditContext editContext)
 	{
+		if (!await clientesService.ValidarCedula(Input.Cedula))
+			return;
 
 		var user = await UserManager.FindByEmailAsync(Input.Email);
 		if (Input.Email != ClienteDto.Email)

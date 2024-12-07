@@ -99,7 +99,6 @@
 				</div>
 			</div>
 
-
 			<div class="row">
 				@*Btn volver*@
 				<div class="col">
@@ -138,6 +137,9 @@
 
 	public async Task RegisterUser(EditContext editContext)
 	{
+		if (!await clientesService.ValidarCedula(Input.Cedula))
+			return;
+
 		var user = CreateUser();
 
 		// Set username and email

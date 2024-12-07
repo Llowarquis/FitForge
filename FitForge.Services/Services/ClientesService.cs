@@ -83,14 +83,22 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 	{
 		await using var _contexto = await DbFactory.CreateDbContextAsync();
 
-		var cliente = await _contexto.Clientes.FindAsync(clienteDto.ClienteId);
+		var cliente = await _contexto.Clientes
+			.Include(c => c.ApplicationUser)
+			.FirstOrDefaultAsync(c => c.ClienteId == clienteDto.ClienteId);
+
 		if (cliente == null)
 			throw new KeyNotFoundException("El cliente no fue encontrado.");
+
+		if (cliente.ApplicationUser == null)
+			throw new KeyNotFoundException("El usuario asociado al cliente no fue encontrado.");
 
 		cliente.Nombres = clienteDto.Nombres;
 		cliente.Cedula = clienteDto.Cedula;
 		cliente.FechaNacimiento = clienteDto.FechaNacimiento;
 		cliente.UrlFotoPerfil = clienteDto.UrlFotoPerfil;
+		cliente.ApplicationUser.Email = clienteDto.Email;
+		cliente.ApplicationUser.PhoneNumber = clienteDto.Telefono;
 
 		return await _contexto.SaveChangesAsync() > 0;
 	}
@@ -159,21 +167,4 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 
 		return clientesDto;
 	}
-
-	//Listar Usuarios con rol de cliente
-	//   public async Task<List<ApplicationUser>> ListarUsers(Expression<Func<ApplicationUser, bool>> criterio)
-	//   {
-	//       await using var _contexto = await DbFactory.CreateDbContextAsync();
-
-	//	var userIdConRolCliente = await _contexto.UserRoles
-	//		.Where(user => user.RoleId.StartsWith("cba"))
-	//		.Select(user => user.UserId)
-	//		.ToListAsync();
-
-	//	return await _contexto.Users
-	//		.AsNoTracking()
-	//		.Where(user => userIdConRolCliente.Contains(user.Id))
-	//		.Where(criterio)
-	//		.ToListAsync();
-	//}
 }
