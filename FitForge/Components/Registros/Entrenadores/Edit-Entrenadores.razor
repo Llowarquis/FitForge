@@ -19,26 +19,29 @@
 
 @rendermode InteractiveServer
 
-@* @attribute [Authorize(Roles = "Admin")] *@
+@attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Crear Entrenador</PageTitle>
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<PageTitle>Editar Entrenador</PageTitle>
 <div class="wrapper">
 	<div class="container">
 		@*Titulo*@
 		<div class="text-black text-center">
-			<h3 style="margin-bottom: 1px;"><strong>Crear Entrenador</strong></h3>
-			<p>Aqui podr&aacute;s todos los entrenadores que sean necesarios.</p>
+			<h3 style="margin-bottom: 1px;"><strong>Editar Entrenador</strong></h3>
+			<p>Aqui podr&aacute;s editar el entrenador seleccionado.</p>
 		</div>
 		@*EDITFORM*@
-		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="Guardar" FormName="register">
+		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
 			<DataAnnotationsValidator />
+			<ValidationSummary />
 			<div class="row">
 				<div class="col">
 					<div class="row">
 						@*Campo Nombres*@
 						<div class="col">
 							<div class="form-floating mb-3">
-								<InputText @bind-Value="Input.Nombres" class="form-control" autocomplete="nombres" aria-required="true" placeholder="Nombres" />
+								<InputText @bind-Value="Input.Nombres" class="form-control" aria-required="true" placeholder="Nombres" />
 								<label for="nombres">Nombres/Apellidos</label>
 								<ValidationMessage For="() => Input.Nombres" class="text-danger" />
 							</div>
@@ -56,23 +59,16 @@
 
 					@*Campo Email*@
 					<div class="form-floating mb-3">
-						<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+						<InputText @bind-Value="Input.Email" class="form-control" aria-required="true" placeholder="name@example.com" />
 						<label for="email">Email</label>
 						<ValidationMessage For="() => Input.Email" class="text-danger" />
 					</div>
 
-					@*Campo contraseña*@
+					@*Campo Telefono*@
 					<div class="form-floating mb-3">
-						<InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-						<label for="password">Contraseña</label>
-						<ValidationMessage For="() => Input.Password" class="text-danger" />
-					</div>
-
-					@*Campo confirmar contraseña*@
-					<div class="form-floating mb-3">
-						<InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-						<label for="confirm-password">Confirmar Contraseña</label>
-						<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger validation-message" />
+						<InputText @bind-Value="Input.Telefono" class="form-control" aria-required="true" placeholder="555-555-5555" />
+						<label for="telefono">Telefono</label>
+						<ValidationMessage For="() => Input.Telefono" class="text-danger" />
 					</div>
 				</div>
 
@@ -125,18 +121,17 @@
 				</div>
 			</div>
 
-			
+
 			<div class="row">
 				@*Btn volver*@
 				<div class="col">
 					<a href="/Entrenadores/Index" class="w-100 btn btn-lg btn-primary">Volver</a>
 				</div>
-				@*Btn guardar*@
+				@*Btn Crear*@
 				<div class="col">
 					<button type="submit" class="w-100 btn btn-lg btn-primary">Guardar</button>
 				</div>
 			</div>
-			
 		</EditForm>
 	</div>
 </div>
@@ -152,6 +147,9 @@
 	[Parameter]
 	public int EntrenadorID { get; set; }
 
+	[Inject]
+	private RoleManager<IdentityRole> RoleManager { get; set; } = default!;
+
 	private IEnumerable<IdentityError>? identityErrors;
 
 	[SupplyParameterFromForm]
@@ -162,82 +160,117 @@
 
 	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}",
+		};
+
 	// Estas lista se mostrara inicializada en un combobox
 	public ICollection<ClasesDto> ListaClases { get; set; } = new List<ClasesDto>();
 	public ICollection<DiasDto> ListaDias { get; set; } = new List<DiasDto>();
-	public EntrenadoresDto entrenadorDto { get; set; } = new();
 
-	public int CantidadMaxDias { get; set; } = 0;
+	public EntrenadoresDto EntrenadorDto { get; set; } = new();
 
 	protected override async Task OnInitializedAsync()
 	{
-		if (EntrenadorID != 0)
-		{
-			entrenadorDto = await entrenadoresService.Buscar(EntrenadorID);
-			if (entrenadorDto != null)
-			{
-				Input.Nombres = entrenadorDto.Nombres;
-				Input.FechaIngreso = entrenadorDto.FechaIngreso;
-				Input.Email = entrenadorDto.Email; // Asegúrate de que el DTO tenga esta propiedad
-				Input.DescripcionClase = entrenadorDto.DescripcionClase;
-				Input.Dia = entrenadorDto.DiasClase; // Asegúrate de que esto sea correcto según tu modelo
-				Input.HoraInicio = entrenadorDto.HoraInicioClase;
-				Input.HoraFin = entrenadorDto.HoraFinClase;
-			}
-		}
-		// ListaClases = await =  clasesService.Listar(d => true) // TODAVIA NO SE HAN IMPLEMENTADO ESTOS SERVICIOS
-		// ListaDias = await diasService.Listar(d => true); // TODAVIA NO SE HAN IMPLEMENTADO ESTOS SERVICIOS
+		EntrenadorDto = await entrenadoresService.Buscar(EntrenadorID);
+
+		Input.Nombres = EntrenadorDto.Nombres;
+		Input.FechaIngreso = EntrenadorDto.FechaIngreso;
+		Input.Email = EntrenadorDto.Email;
+		Input.Telefono = EntrenadorDto.Telefono;
+		Input.DescripcionClase = EntrenadorDto.DescripcionClase;
+		Input.Dia = EntrenadorDto.DiasClase;
+		Input.HoraInicio = EntrenadorDto.HoraInicioClase;
+		Input.HoraFin = EntrenadorDto.HoraFinClase;
+
+		// ListaClases = await =  clasesService.Listar(d => true);
+		// ListaDias = await diasService.Listar(d => true);
 	}
 
-	public async Task Guardar(EditContext editContext)
+	public async Task RegisterUser(EditContext editContext)
 	{
-		var user = await UserManager.FindByEmailAsync(Input.Email);
-		if (user == null)
+		if (!await entrenadoresService.ValidarTelefono(Input.Telefono))
 		{
-			errorMessage = "Usuario no encontrado.";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "El número de teléfono ya existe o es inválido.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			return;
 		}
 
-		// Set username and email
+		var user = await UserManager.FindByEmailAsync(Input.Email);
+		if (Input.Email != EntrenadorDto.Email)
+		{
+			if (user != null && user.Id != EntrenadorDto.UserId)
+			{
+				TipoNotificacion = ToastType.Danger;
+				TituloNotificacion = "Error";
+				MensajeNotificacion = "Este email ya existe.";
+				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+				return;
+			}
+		}
+
+		user = await UserManager.FindByIdAsync(EntrenadorDto.UserId);
+		if (user == null)
+		{
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "El usuario no fué encontrado.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+			return;
+		}
+
 		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
 		var emailStore = GetEmailStore();
 		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
 		// Crear el usuario en AspNetUsers
-		var result = await UserManager.CreateAsync(user, Input.Password);
+		var result = await UserManager.UpdateAsync(user);
 		if (!result.Succeeded)
 		{
-			identityErrors = result.Errors;
-
-			foreach (var error in result.Errors)
-			{
-				Logger.LogError($"Error al crear el usuario: {error.Description}");
-			}
-
-			errorMessage = "Este email ya está ocupado";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Hubo un error al modificar al entrenador.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			return;
 		}
 
-		// Ahora que el usuario está creado, proceder con la creación del cliente
+		user = await UserManager.FindByIdAsync(user.Id);
 
-		entrenadorDto.UserId = user.Id; // La FK de AspNetUsers
-		entrenadorDto.Nombres = Input.Nombres;
-		entrenadorDto.FechaIngreso = Input.FechaIngreso;
-		entrenadorDto.DescripcionClase = Input.DescripcionClase;
-		entrenadorDto.DiasClase = Input.Dia;
-		entrenadorDto.HoraInicioClase = Input.HoraInicio;
-		entrenadorDto.HoraFinClase = Input.HoraFin;
+		EntrenadorDto.Nombres = Input.Nombres;
+		EntrenadorDto.Email = Input.Email;
+		EntrenadorDto.FechaIngreso = Input.FechaIngreso;
+		EntrenadorDto.DescripcionClase = Input.DescripcionClase;
+		EntrenadorDto.DiasClase = Input.Dia;
+		EntrenadorDto.HoraInicioClase = Input.HoraInicio;
+		EntrenadorDto.HoraFinClase = Input.HoraFin;
+		EntrenadorDto.Telefono = Input.Telefono;
 
-		var entrenadoreGuardado = await entrenadoresService.Guardar(entrenadorDto);
-		if (!entrenadoreGuardado)
+		if(!await entrenadoresService.Guardar(EntrenadorDto))
 		{
-			errorMessage = "Error al guardar los datos del entrenador.";
-			await UserManager.DeleteAsync(user);
-			return;
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Hubo un error al guardar los datos del entrenador.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 		}
+		TipoNotificacion = ToastType.Success;
+		TituloNotificacion = "Enhorabuena";
+		MensajeNotificacion = "¡Se ha guardado el entrenador exitosamente!";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 
-		await SignInManager.SignInAsync(user, isPersistent: false);
-		RedirectManager.RedirectTo(ReturnUrl);
+		NavigationManager.NavigateTo("/Entrenadores/Index");
 	}
 
 
@@ -270,23 +303,13 @@
 		public string Email { get; set; } = "";
 
 		[Required(ErrorMessage = "Este campo es obligatorio")]
-		[StringLength(100, ErrorMessage = "La contraseña debe contener al menos 6 caracteres", MinimumLength = 6)]
-		[DataType(DataType.Password)]
-		public string Password { get; set; } = "";
-
-		[DataType(DataType.Password)]
-		[Required(ErrorMessage = "Este campo es obligatorio")]
-		[Compare("Password", ErrorMessage = "Las contraseñas deben coincidir")]
-		public string ConfirmPassword { get; set; } = "";
-
-		[Required(ErrorMessage = "Este campo es obligatorio")]
 		[StringLength(100, ErrorMessage = "Este campo debe contener al menos 3 caracteres", MinimumLength = 3)]
 		public string Nombres { get; set; } = "";
 
 		[Required(ErrorMessage = "Este campo es obligatorio")]
 		[DataType(DataType.Date)]
 		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
-		public DateOnly FechaIngreso { get; set; }
+		public DateOnly FechaIngreso { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
 		public string? DescripcionClase { get; set; }
 
@@ -296,6 +319,11 @@
 
 		[RegularExpression("^(2[0-3]|[01]?[0-9])$")]
 		public TimeOnly? HoraFin { get; set; }
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		[RegularExpression(@"^\+?[0-9\s\-()]{7,15}$", ErrorMessage = "El número de teléfono debe ser válido.")]
+		[StringLength(15, ErrorMessage = "El número de teléfono no puede superar los 15 caracteres.")]
+		public string Telefono { get; set; } = "";
 	}
 }
 

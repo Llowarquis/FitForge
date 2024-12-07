@@ -4,6 +4,7 @@ using FitForge.Data.Models;
 using FitForge.Domain.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace FitForge.Services.Services;
 
@@ -56,9 +57,15 @@ public class EntrenadoresService(IDbContextFactory<ApplicationDbContext> DbFacto
 	{
 		await using var _contexto = await DbFactory.CreateDbContextAsync();
 
-		var entrenador = await _contexto.Entrenadores.FindAsync(entrenadorDto.EntrenadorId);
+		var entrenador = await _contexto.Entrenadores
+			.Include(e => e.ApplicationUser)
+			.FirstOrDefaultAsync(e => e.EntrenadorId == entrenadorDto.EntrenadorId);
+
 		if (entrenador == null)
 			throw new KeyNotFoundException("El entrenador no fue encontrado.");
+
+		if (entrenador.ApplicationUser == null)
+			throw new KeyNotFoundException("El usuario asociado al entrenador no fue encontrado.");
 
 		entrenador.Nombres = entrenadorDto.Nombres;
 		entrenador.FechaIngreso = entrenadorDto.FechaIngreso;
@@ -99,6 +106,7 @@ public class EntrenadoresService(IDbContextFactory<ApplicationDbContext> DbFacto
 				EntrenadorId = x.EntrenadorId,
 				Nombres = x.Nombres,
 				Email = x.ApplicationUser.Email,
+				Telefono = x.ApplicationUser.PhoneNumber,
 				UserId = x.ApplicationUserId,
 				FechaIngreso = x.FechaIngreso,
 			})
@@ -126,5 +134,26 @@ public class EntrenadoresService(IDbContextFactory<ApplicationDbContext> DbFacto
 			.ToListAsync();
 
 		return entrenadorDto;
+	}
+
+	// Validar numero telefono
+	public async Task<bool> ValidarTelefono(string telefono)
+	{
+		if (await ExisteTelefono(telefono))
+			return false;
+
+		string pattern = @"^[(]?[0-9]{0,9}[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}[)]?$";
+		Regex regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+		return regex.IsMatch(telefono);
+	}
+
+	private async Task<bool> ExisteTelefono(string telefono)
+	{
+		if (string.IsNullOrWhiteSpace(telefono))
+			return true;
+
+		await using var _contexto = await DbFactory.CreateDbContextAsync();
+		return await _contexto.Users.AnyAsync(c => c.PhoneNumber == telefono);
 	}
 }
