@@ -146,7 +146,7 @@
 			Type = toastType,
 			Title = $"{titulo}",
 			HelpText = $"{DateTime.Now}",
-			Message = $"{cuerpo}: {DateTime.Now}",
+			Message = $"{cuerpo}",
 		};
 
 	public async Task RegisterUser(EditContext editContext)
@@ -189,14 +189,10 @@
 		var result = await UserManager.CreateAsync(user, Input.Password);
 		if (!result.Succeeded)
 		{
-			identityErrors = result.Errors;
-
-			foreach (var error in result.Errors)
-			{
-				Logger.LogError($"Error al crear el usuario: {error.Description}");
-			}
-
-			errorMessage = "Este email ya está ocupado.";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Esta cédula ya existe.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			return;
 		}
 

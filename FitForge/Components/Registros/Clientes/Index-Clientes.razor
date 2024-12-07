@@ -38,7 +38,7 @@
 								<label for="floatingSelect"><strong>Filtrar en base a...</strong></label>
 							</div>
 							@*btn restablecer*@
-							<button type="button0" class="btn custom-button bi bi-arrow-counterclockwise" @onclick="() => Restablecer()"></button>
+							<button type="button" class="btn custom-button bi bi-arrow-counterclockwise" @onclick="() => Restablecer()"></button>
 						</div>
 					</div>
 
@@ -58,7 +58,7 @@
 					<div class="col-2 text-start">
 						<label></label>
 						<div>
-							<a class="btn custom-button bi bi-plus-circle" href="/Clientes/Create">    Crear</a>
+							<a class="btn btn-lg custom-button bi bi-plus-circle" href="/Clientes/Create">    Crear</a>
 						</div>
 					</div>
 				</div>
@@ -173,7 +173,7 @@
 			Title = $"{titulo}",
 			AutoHide = true,
 			HelpText = $"{DateTime.Now}",
-			Message = $"{cuerpo} {DateOnly.FromDateTime(DateTime.Now)}",
+			Message = $"{cuerpo}",
 		};
 
 	public async Task Buscar()
