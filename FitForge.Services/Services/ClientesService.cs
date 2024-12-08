@@ -234,4 +234,41 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 		await using var _contexto = await DbFactory.CreateDbContextAsync();
 		return await _contexto.Users.AnyAsync(c => c.PhoneNumber == telefono);
 	}
+
+    public async Task<List<ClientesDto>> ObtenerClientes()
+    {
+        await using var _contexto = await DbFactory.CreateDbContextAsync();
+        return await _contexto.Clientes
+            .Select(c => new ClientesDto()
+            {
+                ClienteId = c.ClienteId,
+                Nombres = c.Nombres,
+            })
+            .AsNoTracking().ToListAsync();
+    }
+
+    public async Task<ClientesDto?> ObtenerClientePorId(int clienteId)
+    {
+        try
+        {
+            await using var _contexto = await DbFactory.CreateDbContextAsync();
+            var cliente = await _contexto.Clientes
+                .Where(c => c.ClienteId == clienteId)
+                .Select(c => new ClientesDto
+                {
+                    ClienteId = c.ClienteId,
+                    Nombres = c.Nombres,
+                })
+
+                .FirstOrDefaultAsync();
+
+            return cliente;
+        }
+        catch (Exception ex)
+        {
+            // Manejo de errores (puedes agregar logs aquí)
+            Console.WriteLine($"Error al obtener cliente: {ex.Message}");
+            return null;
+        }
+    }
 }
