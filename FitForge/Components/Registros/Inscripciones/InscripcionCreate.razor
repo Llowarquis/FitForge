@@ -1,0 +1,317 @@
+﻿@page "/Inscripcion/Create/{ClienteId:int}"
+@inject IInscripcionesService InscripcionesService
+@inject IClientesService ClientesService
+@inject IMembresiasService MembresiasService
+@inject IItinerariosService ItinerariosService
+@inject NavigationManager NavigationManager
+
+@rendermode InteractiveServer
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header text-center" style="background-color: #96305a; color: white;">
+                    <h3 class="card-title"><b>Registrar Inscripción</b></h3>
+                </div>
+                <div class="card-body" style="background-color: #F9D1DC;">
+                    <EditForm Model="Inscripcion" OnValidSubmit="Guardar" FormName="frmTarjeta">
+                        <DataAnnotationsValidator />
+
+                        <!-- Notificación de éxito -->
+                        @if (GuardarExitoso)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                                <strong>¡Inscripción guardada correctamente!</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <!-- Nombre del cliente (readonly) -->
+                        <div class="mb-3">
+                            <label for="ClienteNombre" class="form-label">Cliente: @ClienteNombre</label>
+                        </div>
+
+                        <!-- Membresía -->
+                        <div class="mb-3">
+                            <label for="Membresia" class="form-label" style="color: #96305a;">Membresía:</label>
+                            <InputSelect id="Membresia" class="form-select custom-input" @bind-Value="MembresiaSeleccionadaId">
+                                <option value="">Seleccione un tipo de membresía</option>
+                                @foreach (var membresia in ListaMembresias)
+                                {
+                                    <option value="@membresia.MembresiaId">@membresia.Descripcion</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <!-- Botón Buscar -->
+                        <div class="mb-3">
+                            <button type="button" class="btn custom-button bi bi-search" @onclick="CargarPrecioMembresia">Buscar</button>
+                        </div>
+
+                        <!-- Precio de Membresía -->
+                        <div class="mb-3">
+                            <label class="form-label" style="color: #96305a;">Precio de Membresía:</label>
+                            <label class="form-control-plaintext text-end">@($"${PrecioMembresia:N2}")</label>
+                        </div>
+
+                        <!-- Fecha de Inscripción -->
+                        <div class="mb-3">
+                            <label for="FechaInscripcion" class="form-label" style="color: #96305a;">Fecha de Inscripción:</label>
+                            <InputDate @bind-Value="Inscripcion.FechaInscripcion" class="form-control custom-input" />
+                        </div>
+
+                        <!-- Detalles de Itinerarios -->
+                        <div class="card border-primary mt-4">
+                            <div class="card-header" style="background-color: #96305a; color: white;">
+                                <h5>Detalles de Inscripción</h5>
+                            </div>
+                            <div class="card-body">
+                                <ItinerariosPicker Itinerarios="ListaItinerarios"
+                                                   ItinerarioId="DetalleSeleccionado.ItinerarioId"
+                                                   ClaseId="DetalleSeleccionado.ClaseId"
+                                                   DiaHorarioId="DetalleSeleccionado.DiaHorarioId"
+                                                   EntrenadorId="DetalleSeleccionado.EntrenadorId"
+                                                   Precio="DetalleSeleccionado.Precio"
+                                                   OnItinerarioSelected="HandleItinerarioSelected" />
+                                <hr />
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-light">
+                                        <tr class="text-center">
+                                            <th>Itinerario</th>
+                                            <th>Clase</th>
+                                            <th>Horario</th>
+                                            <th>Entrenador</th>
+                                            <th>Precio</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var detalle in Inscripcion.InscripcionDetalle)
+                                        {
+                                            <tr class="text-center">
+                                                <td>@detalle.ItinerarioId</td>
+                                                <td>@GetClaseDescripcion(detalle.ItinerarioId)</td>
+                                                <td>@GetHorarioDescripcion(detalle.ItinerarioId)</td>
+                                                <td>@GetEntrenadorNombre(detalle.ItinerarioId)</td>
+                                                <td>@($"${detalle.Precio:N2}")</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm bi bi-trash"
+                                                            @onclick="() => RemoverDetalle(detalle)">
+                                                        Remover
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="row mt-3">
+                            <div class="col-md-6 offset-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" style="color: #96305a;"><strong>Total a Pagar</strong></label>
+                                    <input type="text" class="form-control text-end" value="@($"${MontoTotal:N2}")" readonly />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="text-center mt-3">
+                            <a href="/Inscripciones/Index" class="btn btn-secondary custom-button"> <span class="bi bi-arrow-left"></span> Volver</a>
+                            <button type="submit" class="btn custom-button"> <span class="bi bi-floppy"></span> Guardar</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Estilos personalizados*@
+<style>
+    .custom-button {
+        background-color: #96305a;
+        color: white;
+    }
+
+        .custom-button:hover {
+            background-color: #ca678e;
+            color: white;
+        }
+
+    .custom-input {
+        background-color: #F5E1E8;
+        border: 1px solid #96305a;
+    }
+
+        .custom-input:focus {
+            border-color: #ca678e;
+            box-shadow: 0 0 0 0.2rem rgba(202, 103, 142, 0.25);
+        }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #F5E1E8;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #CA678E !important;
+        color: white;
+    }
+
+    /* Modificar el estilo de las alertas de éxito */
+    .alert-success {
+        background-color: #ca678e;
+        color: white;
+    }
+
+    /* Mejorar la visibilidad de las tablas */
+    .table-light th, .table-light td {
+        text-align: center;
+    }
+
+    .card-header h5 {
+        color: white;
+    }
+</style>
+
+
+
+@code {
+    [Parameter]
+    public int ClienteId { get; set; }
+
+    [SupplyParameterFromForm]
+    public InscripcionesDto Inscripcion { get; set; } = new();
+    private string ClienteNombre { get; set; } = string.Empty;
+    public InscripcionesDetalleDto DetalleSeleccionado { get; set; } = new();
+
+    public List<MembresiasDto> ListaMembresias = new();
+    public List<ItinerariosDto> ListaItinerarios { get; set; } = new();
+    public int? MembresiaSeleccionadaId { get; set; }
+    public int? ItinerarioSeleccionadaId { get; set; }
+    public double PrecioMembresia { get; set; } = 0.0;
+    private bool GuardarExitoso { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Llama a la función para obtener el cliente por ID
+            var cliente = await ClientesService.ObtenerClientePorId(ClienteId);
+            if (cliente != null)
+            {
+                ClienteNombre = cliente.Nombres;
+                Inscripcion.ClienteId = ClienteId;
+            }
+            else
+            {
+                ClienteNombre = "Cliente no encontrado";
+            }
+        }
+        catch (Exception ex)
+        {
+            ClienteNombre = $"Error al cargar cliente: {ex.Message}";
+        }
+
+        Inscripcion.FechaInscripcion = DateTime.Today;
+        Inscripcion.InscripcionDetalle = new List<InscripcionesDetalleDto>();
+
+        ListaMembresias = await MembresiasService.ObtenerMembresiasAsync();
+
+        ListaItinerarios = await ItinerariosService.Listar(c => true);
+    }
+
+    private async Task HandleItinerarioSelected((ItinerariosDto itinerarioSeleccionado, int ClaseId, int DiaHorarioId, int EntrenadorId, double precio) selection)
+    {
+        if (Inscripcion.InscripcionDetalle.Any(d => d.ItinerarioId == selection.itinerarioSeleccionado.ItinerarioId))
+        {
+            return;
+        }
+
+        var detalle = new InscripcionesDetalleDto
+            {
+                ItinerarioId = selection.itinerarioSeleccionado.ItinerarioId,
+                ClaseId = selection.itinerarioSeleccionado.ClaseId,
+                DiaHorarioId = selection.itinerarioSeleccionado.DiaHorarioId,
+                EntrenadorId = selection.itinerarioSeleccionado.EntrenadorId,
+                Precio = selection.itinerarioSeleccionado.Precio
+            };
+
+        Inscripcion.InscripcionDetalle.Add(detalle);
+        DetalleSeleccionado = new InscripcionesDetalleDto();
+        await Task.CompletedTask;
+    }
+
+    private async Task CargarPrecioMembresia()
+    {
+        if (MembresiaSeleccionadaId.HasValue)
+        {
+            // Llama al servicio para obtener la membresía con el ID seleccionado
+            var membresia = await MembresiasService.Buscar(MembresiaSeleccionadaId.Value);
+
+            if (membresia != null && membresia.Precio > 0)
+            {
+                // Asigna el precio de la membresía seleccionada
+                PrecioMembresia = membresia.Precio;
+            }
+            else
+            {
+                // Si no se encuentra la membresía o el precio es 0
+                PrecioMembresia = 0.0;
+            }
+        }
+        else
+        {
+            // Si no hay ninguna membresía seleccionada
+            PrecioMembresia = 0.0;
+        }
+    }
+
+
+
+    private string GetClaseDescripcion(int itinerarioId) =>
+        ListaItinerarios.FirstOrDefault(i => i.ItinerarioId == itinerarioId)?.Clase.Descripcion ?? "No disponible";
+
+    private string GetHorarioDescripcion(int itinerarioId) =>
+        ListaItinerarios.FirstOrDefault(i => i.ItinerarioId == itinerarioId)?.DiaHorario.DiaHorarioDescripcion ?? "No disponible";
+
+    private string GetEntrenadorNombre(int itinerarioId) =>
+        ListaItinerarios.FirstOrDefault(i => i.ItinerarioId == itinerarioId)?.Entrenador.Nombres ?? "No disponible";
+
+    public double MontoTotal => Inscripcion.InscripcionDetalle.Sum(d => d.Precio) + PrecioMembresia;
+
+    private async Task Guardar()
+    {
+        if (!MembresiaSeleccionadaId.HasValue)
+        {
+            return;
+        }
+
+        Inscripcion.Precio = MontoTotal;
+        Inscripcion.MembresiaId = MembresiaSeleccionadaId.Value;
+
+        var guardado = await InscripcionesService.Guardar(Inscripcion);
+
+        if (guardado)
+        {
+            GuardarExitoso = true;
+
+            StateHasChanged();
+            NavigationManager.NavigateTo($"/Inscripcion/Index/{ClienteId}");
+
+        }
+        else
+        {
+            GuardarExitoso = false;
+        }
+    }
+
+
+    public void RemoverDetalle(InscripcionesDetalleDto detalle)
+    {
+        Inscripcion.InscripcionDetalle.Remove(detalle);
+        DetalleSeleccionado = detalle;
+    }
+}
