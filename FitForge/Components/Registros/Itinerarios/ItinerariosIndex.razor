@@ -1,0 +1,179 @@
+﻿@page "/Itinerarios/Index"
+@inject IItinerariosService ItinerariosService
+@inject IClasesService ClasesService
+@inject IEntrenadoresService EntrenadoresService
+@inject IDiasHorariosService DiasHorariosService
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+<PageTitle>Itinerarios</PageTitle>
+<body style="background-color: #F5E1CE">
+    <div class="container">
+        <div class="card shadow-lg">
+            @*HEADER*@
+            <div class="card-header text-center" style="background-color: #CA678E">
+                <h3><b>Itinerarios</b></h3>
+            </div>
+
+            @*BODY*@
+            <div class="card-body" style="background-color: #F5E1E8">
+                <div class="row">
+                    @*Botón Crear*@
+                    <div class="col-12 text-start mb-3">
+                        <a href="/Itinerarios/Create" class="btn custom-button bi bi-plus-square">
+                            Crear Itinerario
+                        </a>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(MensajeError))
+                {
+                    <div class="alert alert-danger mt-3">@MensajeError</div>
+                }
+
+                @if (ListaItinerarios == null || !ListaItinerarios.Any())
+                {
+                    <div class="text-center mt-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <table class="table table-striped table-hover mt-3">
+                        <thead>
+                            <tr>
+                                <th><b>Clase</b></th>
+                                <th><b>Entrenador</b></th>
+                                <th><b>Día y Hora</b></th>
+                                <th><b>Precio</b></th>
+                                <th><b>Acciones</b></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            @foreach (var itinerario in ListaItinerarios)
+                            {
+                                <tr>
+                                    <td>@itinerario.Clase.Descripcion</td>
+                                    <td>@itinerario.Entrenador.Nombres</td>
+                                    <td>@itinerario.DiaHorario.DiaHorarioDescripcion</td>
+                                    <td>@($"${itinerario.Precio:N2}")</td>
+                                    <td>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="/Itinerarios/Edit/@itinerario.ItinerarioId" class="btn btn-sm custom-button bi bi-pencil-square"> Editar</a>
+                                            <button class="btn btn-sm custom-button bi bi-trash" @onclick="() => MostrarModal(itinerario.ItinerarioId)"> Eliminar</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <label>Cantidad: @ListaItinerarios.Count()</label>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (mostrarModal)
+    {
+        <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #CA678E; color: white;">
+                        <h5 class="modal-title">Confirmación</h5>
+                        <button type="button" class="btn-close" @onclick="CerrarModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Está seguro de que desea eliminar este itinerario?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" @onclick="EliminarItinerario">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show" @onclick="CerrarModal"></div> <!-- Añadido para cerrar el modal al hacer clic fuera -->
+    }
+</body>
+
+@*Estilos personalizados*@
+<style>
+    .custom-button {
+        background-color: #96305a;
+        color: white;
+    }
+
+        .custom-button:hover {
+            background-color: #ca678e;
+            color: white;
+        }
+
+    /* Opciones de tabla */
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #F5E1E8;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #CA678E !important;
+        color: white;
+    }
+</style>
+
+@code {
+    public List<ItinerariosDto> ListaItinerarios = new();
+    public List<ClasesDto> ListaClases = new();
+    public List<EntrenadoresDto> ListaEntrenadores = new();
+    public List<DiasHorariosDto> ListaDiasHorarios = new();
+
+    private string MensajeError = string.Empty;
+    private bool mostrarModal = false;
+    private int ItinerarioIdSeleccionado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ListaClases = await ClasesService.ObtenerClasesAsync();
+            ListaEntrenadores = await EntrenadoresService.ObtenerEntrenadoresAsync();
+            ListaDiasHorarios = await DiasHorariosService.ObtenerDiasHorariosAsync();
+            ListaItinerarios = await ItinerariosService.Listar(t => true);
+
+        }
+        catch (Exception ex)
+        {
+            MensajeError = $"Error al inicializar: {ex.Message}";
+        }
+    }
+
+    private void MostrarModal(int itinerarioId)
+    {
+        ItinerarioIdSeleccionado = itinerarioId;
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+        ItinerarioIdSeleccionado = 0;
+    }
+
+    private async Task EliminarItinerario()
+    {
+        try
+        {
+            await ItinerariosService.Eliminar(ItinerarioIdSeleccionado);
+            var itinerario = ListaItinerarios.FirstOrDefault(i => i.ItinerarioId == ItinerarioIdSeleccionado);
+            if (itinerario != null)
+                ListaItinerarios.Remove(itinerario);
+
+            mostrarModal = false;
+            ItinerarioIdSeleccionado = 0;
+        }
+        catch (Exception ex)
+        {
+            MensajeError = $"Error al eliminar: {ex.Message}";
+        }
+    }
+}
