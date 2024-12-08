@@ -18,6 +18,7 @@ public static class RegistrarServicios
 		servicios.AddScoped<ITarjetasService, TarjetasService>();
 		servicios.AddBlazorBootstrap();
 		servicios.AddSingleton<ToastService>();
+		servicios.AddSingleton<ModalService>();
 		return servicios;
 	}
 }
