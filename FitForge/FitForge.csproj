@@ -25,8 +25,4 @@
   <ItemGroup>
     <ProjectReference Include="..\FitForge.Services\FitForge.Services.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Registros\Membresias\" />
-  </ItemGroup>
 </Project>
