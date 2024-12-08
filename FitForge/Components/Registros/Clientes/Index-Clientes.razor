@@ -1,8 +1,10 @@
 ﻿@page "/Clientes/Index"
+@using Microsoft.AspNetCore.Identity
 
 @inject NavigationManager navigationManager
 @inject ClientesService clientesService
 @inject IJSRuntime JS
+@inject UserManager<ApplicationUser> UserManager
 
 @rendermode InteractiveServer
 
@@ -99,7 +101,7 @@
 										</ul>
 									</div>
 									<a href="/Clientes/Edit/@cliente.ClienteId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
-									<a href="/Clientes/Delete/@cliente.ClienteId" class="btn btn-sm custom-button bi bi-trash"> Eliminar</a>
+									<button @onclick="() => MostrarModal(cliente.ClienteId, cliente.Email)" class="btn btn-sm custom-button bi bi-trash"> Eliminar</button>
 								</th>
 							</tr>
 						}
@@ -112,6 +114,29 @@
 		</div>
 	</div>
 </body>
+
+@if (mostrarModal)
+{
+	<div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header" style="background-color: #CA678E; color: white;">
+					<h5 class="modal-title">Eliminar Cliente</h5>
+					<button type="button" class="btn-close" @onclick="CerrarModal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>¿Está seguro de que desea eliminar a este cliente?</p>
+					<p>Esta opci&oacute;n no se puede deshacer.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+					<button type="button" class="btn btn-danger" @onclick="Eliminar">Aceptar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-backdrop fade show" @onclick="CerrarModal"></div>
+}
 
 @*Esto es para todos los botones de este componente*@
 <style>
@@ -160,6 +185,53 @@
 		ListaClientes = await clientesService.Listar(x => true);
 	}
 
+	// MODALS
+	private bool mostrarModal = false;
+	private int ClienteIdSeleccionado { get; set; }
+	private string EmailClienteSelecionado { get; set; } = "";
+
+	private void MostrarModal(int clienteId, string clienteEmail)
+	{
+		ClienteIdSeleccionado = clienteId;
+		EmailClienteSelecionado = clienteEmail;
+		mostrarModal = true;
+	}
+
+	private void CerrarModal()
+	{
+		mostrarModal = false;
+		ClienteIdSeleccionado = 0;
+		EmailClienteSelecionado = "";
+	}
+
+	public async Task Eliminar()
+	{
+		try
+		{
+			var user = await UserManager.FindByEmailAsync(EmailClienteSelecionado);
+			if (user == null)
+				return;
+			await UserManager.DeleteAsync(user);
+			await clientesService.Eliminar(ClienteIdSeleccionado);
+			ListaClientes = await clientesService.Listar(x => true);
+			mostrarModal = false;
+			ClienteIdSeleccionado = 0;
+			TipoNotificacion = ToastType.Success;
+			TituloNotificacion = "Enhorabuena";
+			MensajeNotificacion = "¡Se ha eliminado el cliente exitosamente!";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+		}
+		catch (Exception ex)
+		{
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Hubo un error al eliminar el cliente.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+		}
+	}
+
+
+	//NOTIFICACIONES
 	public List<ToastMessage> Notificacion = new List<ToastMessage>();
 	public ToastType TipoNotificacion { get; set; }
 	public string MensajeNotificacion { get; set; } = string.Empty;
