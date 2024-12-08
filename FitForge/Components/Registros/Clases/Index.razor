@@ -1,52 +1,309 @@
 ﻿@page "/Clases/Index"
+@using Microsoft.AspNetCore.Identity
 
 @inject NavigationManager navigationManager
+@inject ClasesService clasesService
+@inject IJSRuntime JS
+@inject UserManager<ApplicationUser> UserManager
 
-<PageTitle>Clases disponibles</PageTitle>
+@rendermode InteractiveServer
 
-<div class="container">
-	<div class="card shadow-lg">
-		@*HEADER*@
-		<div class="card-header text-center">
-			<h3><b>Clases Disponibles</b></h3>
-			<p>¡Aqui te damos la posibilidad de poder asistir a todas nuestras clases!</p>
-		</div>
+@attribute [Authorize(Roles = "Admin")]
 
-		@*BODY*@
-		<div class="card-body">
-			<table class="table table-sm table-striped table-hover">
-				<thead>
-					<tr>
-						<th><b>Descripci&oacute;n</b></th>
-						<th><b>Precio</b></th>
-						<th><b>Cupos</b></th>
-						<th><b>Entrenador</b></th>
-					</tr>
-				</thead>
-				<tbody class="table-group-divider">
-					@foreach (var clases in numeros)
-					{
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<PageTitle>Clases Disponibles</PageTitle>
+<body style="background-color: #F5E1CE">
+	<div class="container">
+		<div class="card shadow-lg">
+			@*HEADER*@
+			<div class="card-header text-center" style="background-color: #CA678E">
+				<h3><b>Clases Disponibles</b></h3>
+			</div>
+
+			@*BODY*@
+			<div class="card-body" style="background-color: #F5E1E8">
+				<div class="row">
+					<div class="col-4">
+						<div class="input-group" style="width: 250px">
+							<div class="form-floating d-flex align-items-center">
+								<InputSelect class="form-select" id="floatingSelect" aria-label="Floating label select example" @bind-Value="@valorFiltro">
+									<option value="" selected disabled>--- Selecciona ---</option>
+									<option value="idclase">ID Clase</option>
+									<option value="descripcion">Descripci&oacute;n</option>
+								</InputSelect>
+								<label for="floatingSelect"><strong>Filtrar en base a...</strong></label>
+							</div>
+							@*btn restablecer*@
+							<button type="button" class="btn custom-button bi bi-arrow-counterclockwise" @onclick="Restablecer"></button>
+						</div>
+					</div>
+
+					<div class="col text-start">
+						<div class="input-group" style="width: 500px">
+							@*textbox buscar*@
+							<div class="form-floating d-flex align-items-center">
+								<InputText @bind-Value="@searchBarValue" class="form-control" placeholder="Buscar" id="floatingSearch" />
+								<label for="floatingSearch">Buscar</label>
+							</div>
+							@*Btn Buscar*@
+							<button @onclick="Buscar" class="btn custom-button bi bi-search" type="button"></button>
+						</div>
+					</div>
+
+					@*Btn crear*@
+					<div class="col-2 text-start">
+						<label></label>
+						<div>
+							<a class="btn btn-lg custom-button bi bi-plus-circle" href="/Clases/Create">    Crear</a>
+						</div>
+					</div>
+				</div>
+				<br />
+				<table class="table table-sm table-striped table-hover">
+					<thead>
 						<tr>
-							<th>@clases</th>
+							<th><b>ID Clase</b></th>
+							<th><b>Descripci&oacute;n</b></th>
+							<th><b>Cupos Disponibles</b></th>
+							<th><b>Precio</b></th>
+							<th><b>Acciones</b></th>
 						</tr>
-					}
-				</tbody>
-				<Button Class="btn-primary" href="/" @onclick="Hola">klk</Button>
-				<caption>
-					Clases disponibles: @numeros.Count
-				</caption>
-			</table>
+					</thead>
+					<tbody class="table-group-divider">
+						@foreach (var clase in ListaClases)
+						{
+							<tr>
+								<th>@clase.ClaseId</th>
+								<th>@clase.Descripcion</th>
+								<th>@clase.Cupos</th>
+								<th>@clase.Precio</th>
+								<th>
+									<div class="btn-group">
+										<button class="btn custom-button btn-sm bi bi-eye dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+											Ver
+										</button>
+										<ul class="dropdown-menu">
+											<li><a class="dropdown-item" href="#">Ver clientes</a></li>
+										</ul>
+									</div>
+									<a href="/Clases/Edit/@clase.ClaseId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
+									<button @onclick="() => MostrarModal(clase.ClaseId)" class="btn btn-sm custom-button bi bi-trash"> Eliminar</button>
+								</th>
+							</tr>
+						}
+					</tbody>
+					<caption>
+						Clases: @ListaClases.Count
+					</caption>
+				</table>
+			</div>
 		</div>
 	</div>
-</div>
+</body>
 
+@if (mostrarModal)
+{
+	<div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header" style="background-color: #CA678E; color: white;">
+					<h5 class="modal-title">Eliminar Clase</h5>
+					<button type="button" class="btn-close" @onclick="CerrarModal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>¿Está seguro de que desea eliminar a esta clase?</p>
+					<p>Esta opci&oacute;n no se puede deshacer.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+					<button type="button" class="btn btn-danger" @onclick="Eliminar">Aceptar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-backdrop fade show" @onclick="CerrarModal"></div>
+}
 
+@*Esto es para todos los botones de este componente*@
+<style>
+
+	/* Opciones de tabla */
+	.table-striped > tbody > tr:nth-of-type(odd) {
+		background-color: #F5E1E8;
+	}
+
+	.table-hover tbody tr:hover {
+		background-color: #CA678E !important;
+		color: white;
+	}
+	.custom-button {
+		background-color: #96305a;
+		color: white;
+	}
+
+		.custom-button:hover {
+			background-color: #ca678e;
+			color: white;
+		}
+
+	/* Estilo del fondo y texto del menú desplegable */
+	.dropdown-menu {
+		background-color: #96305a; /* Fondo del menú */
+	}
+
+	/* Color del texto de los elementos del menú */
+	.dropdown-item {
+		color: white; /* Texto blanco */
+	}
+
+		/* Hover: Mantener el texto blanco y cambiar el fondo */
+		.dropdown-item:hover {
+			background-color: #ca678e; /* Fondo al pasar el mouse */
+			color: white; /* Mantener texto blanco */
+		}
+
+		/* Opcional: Sin borde en los elementos del menú */
+		.dropdown-item:focus, .dropdown-item:active {
+			background-color: #ca678e; /* Fondo cuando está seleccionado */
+			color: white;
+		}
+</style>
 
 @code {
-	public List<int> numeros { get; set; } = new List<int>() { 1, 2, 3, 3, 5, 6 };
-	void Hola()
+	public string searchBarValue { get; set; } = string.Empty;
+	public string valorFiltro { get; set; } = string.Empty;
+	public DateOnly? Desde { get; set; } = null;
+	public DateOnly? Hasta { get; set; } = null;
+	public List<ClasesDto> ListaClases { get; set; } = new List<ClasesDto>();
+
+	// MODALS
+	private bool mostrarModal = false;
+	private int ClaseIdSeleccionado { get; set; }
+
+	private void MostrarModal(int entrenadorId)
 	{
-		Console.WriteLine("Hola Mundo!");
-		navigationManager.NavigateTo("/");
+		ClaseIdSeleccionado = entrenadorId;
+		mostrarModal = true;
+	}
+
+	private void CerrarModal()
+	{
+		mostrarModal = false;
+		ClaseIdSeleccionado = 0;
+	}
+
+	public async Task Eliminar()
+	{
+		try
+		{
+			await clasesService.Eliminar(ClaseIdSeleccionado);
+			ListaClases = await clasesService.Listar(x => true);
+			mostrarModal = false;
+			ClaseIdSeleccionado = 0;
+			TipoNotificacion = ToastType.Success;
+			TituloNotificacion = "Enhorabuena";
+			MensajeNotificacion = "¡Se ha eliminado la clase exitosamente!";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+		}
+		catch (Exception ex)
+		{
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Hubo un error al eliminar la clase.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+		}
+	}
+
+
+	// NOTIFICACIONES
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}",
+		};
+
+	public async Task Restablecer()
+	{
+		TipoNotificacion = ToastType.Info;
+		TituloNotificacion = "Aviso";
+		MensajeNotificacion = "Se han restablecido los criterios de búsqueda.";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+		ListaClases = await clasesService.Listar(x => true);
+		searchBarValue = string.Empty;
+		valorFiltro = string.Empty;
+		Desde = null;
+		Hasta = null;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		ListaClases = await clasesService.Listar(x => true);
+	}
+
+	public async Task Buscar()
+	{
+		if (string.IsNullOrEmpty(valorFiltro))
+		{
+			TipoNotificacion = ToastType.Warning;
+			TituloNotificacion = "Aviso";
+			MensajeNotificacion = "Debe seleccionar una opción en el fitro.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+			ListaClases = await clasesService.Listar(x => true);
+			return;
+		}
+
+		searchBarValue.Trim().ToLower();
+
+		switch (valorFiltro)
+		{
+			case "idclase":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					TipoNotificacion = ToastType.Info;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un ID para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+					return;
+				}
+				if (!searchBarValue.All(char.IsDigit))
+				{
+					TipoNotificacion = ToastType.Info;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "El criterio de búsqueda solo puede alojar numeros.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+					return;
+				}
+				if (int.TryParse(searchBarValue, out int id))
+					ListaClases = await clasesService.Listar(lt => lt.ClaseId == id);
+				break;
+
+			case "descripcion":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer la descripción de la clase para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+					return;
+				}
+				ListaClases = await clasesService.Listar(lt => lt.Descripcion.Trim().ToLower()
+															.Contains(searchBarValue));
+				break;
+
+			default:
+				ListaClases = await clasesService.Listar(x => true);
+				break;
+		}
 	}
 }
+
