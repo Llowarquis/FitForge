@@ -1,0 +1,77 @@
+﻿<div class="col-auto input-group align-items-center">
+    <InputSelect class="form-control form-select" @bind-Value="ItinerarioId">
+        <option value="0">-- Seleccione un itinerario --</option>
+        @foreach (var itinerario in Itinerarios)
+        {
+            <option value="@itinerario.ItinerarioId">
+                @itinerario.ItinerarioId - @(itinerario.Clase?.Descripcion ?? "Sin Clase")
+                @(itinerario.DiaHorario?.DiaHorarioDescripcion ?? "Sin Horario")
+                @(itinerario.Entrenador?.Nombres ?? "Sin Entrenador")
+                ($@itinerario.Precio:N2)
+            </option>
+        }
+    </InputSelect>
+    <button type="button" class="btn btn-outline-success bi bi-plus" @onclick="TriggerSelection">Agregar</button>
+</div>
+
+@if (ErrorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ErrorMessage
+    </div>
+}
+
+@code {
+    // Lista de itinerarios disponibles
+    [Parameter]
+    public List<ItinerariosDto> Itinerarios { get; set; } = new();
+
+    // Evento para notificar la selección del itinerario
+    [Parameter]
+    public EventCallback<(ItinerariosDto Itinerario, int ClaseId, int DiaHorarioId, int EntrenadorId, double Precio)> OnItinerarioSelected { get; set; }
+
+    // Propiedad para almacenar el ID del itinerario seleccionado
+    [Parameter]
+    public int ItinerarioId { get; set; }
+
+    // Propiedades adicionales relacionadas con el itinerario
+    [Parameter]
+    public int ClaseId { get; set; }
+    [Parameter]
+    public int DiaHorarioId { get; set; }
+    [Parameter]
+    public int EntrenadorId { get; set; }
+    [Parameter]
+    public double Precio { get; set; }
+
+    // Mensaje de error (si ocurre)
+    private string? ErrorMessage { get; set; } = null;
+
+    // Método para manejar la selección del itinerario
+    private async Task TriggerSelection()
+    {
+        ErrorMessage = null;
+
+        // Validar que se haya seleccionado un itinerario válido
+        if (ItinerarioId <= 0)
+        {
+            ErrorMessage = "Seleccione un itinerario válido.";
+            return;
+        }
+
+        // Buscar el itinerario seleccionado en la lista
+        var itinerarioSeleccionado = Itinerarios.SingleOrDefault(a => a.ItinerarioId == ItinerarioId);
+
+        // Validar que el itinerario exista
+        if (itinerarioSeleccionado == null)
+        {
+            ErrorMessage = "El itinerario seleccionado no se encuentra en la lista.";
+            return;
+        }
+
+        // Invocar el evento con los datos seleccionados
+        await OnItinerarioSelected.InvokeAsync(
+            (itinerarioSeleccionado, ClaseId, DiaHorarioId, EntrenadorId, Precio)
+        );
+    }
+}
