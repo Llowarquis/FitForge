@@ -1,0 +1,105 @@
+﻿@page "/Membresias/Create"
+@inject IMembresiasService MembresiasService
+@attribute [Authorize(Roles = "Admin")]
+
+<div class="wrapper">
+    <div class="form-section">
+        <EditForm Enhance="true" Model="membresiaDto" OnValidSubmit="Guardar" FormName="frmMembresia">
+            <DataAnnotationsValidator />
+
+            <div class="text-black text-center">
+                <h3><strong>Registro Membresia</strong></h3>
+                <p>Ingrese los datos de la nueva membresia</p>
+            </div>
+
+            <!-- Estado de la membresía -->
+            <div class="input-box">
+                <InputSelect id="EstadoMembresia"
+                             @bind-Value="@membresiaDto.EstadoMembresiaId" required>
+                    <option value="" disabled>Seleccione un estado</option>
+                    <option value="1">Activa</option>
+                    <option value="2">Suspendida</option>
+                    <option value="3">Vencido</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => membresiaDto.EstadoMembresiaId)" />
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-floating mb-3">
+                <InputText id="Descripcion" class="form-control" @bind-Value="@membresiaDto.Descripcion" required />
+                <label for="Descripcion">Ingrese una descripción</label>
+                <ValidationMessage For="@(() => membresiaDto.Descripcion)" />
+            </div>
+
+            <!-- Precio -->
+            <div class="form-floating mb-3">
+                <InputNumber id="Precio" class="form-control" @bind-Value="@membresiaDto.Precio" required />
+                <label for="Precio">Ingrese el precio</label>
+                <ValidationMessage For="@(() => membresiaDto.Precio)" />
+            </div>
+
+            <!-- Fecha de vencimiento -->
+            <div class="form-floating mb-3">
+                <InputDate id="FechaVencimiento" class="form-control" @bind-Value="@membresiaDto.FechaVencimiento" required />
+                <label for="FechaVencimiento">Seleccione la fecha de vencimiento</label>
+                <ValidationMessage For="@(() => membresiaDto.FechaVencimiento)" />
+            </div>
+
+            <!-- Botón para registrar membresía -->
+            <button type="submit" class="btn" style="background-color: #96305a; color: #fff;">
+                Registrar Membresia
+            </button>
+
+            <!-- Mensaje de éxito o error -->
+            @if (!string.IsNullOrEmpty(mensajeExito))
+            {
+                <div class="alert alert-info mt-2">
+                    @mensajeExito
+                </div>
+            }
+        </EditForm>
+    </div>
+
+    <div class="welcome-section">
+        <img src="/images/fitforge-logo.png" alt="FitForge Logo" width="200">
+        <br />
+        <a href="/Membresias/Index" class="btn btn-primary" style="background-color: #96305a; color: #fff;">
+            Volver
+        </a>
+    </div>
+</div>
+
+<head>
+    <link href="css/Login.css" rel="stylesheet" />
+</head>
+
+
+@code {
+    [SupplyParameterFromForm]
+    private MembresiasDto membresiaDto { get; set; } = new MembresiasDto();
+    private string mensajeExito;
+
+
+    private async Task Guardar()
+    {
+        try
+        {
+            // Intentar guardar el registro
+            var guardado = await MembresiasService.Guardar(membresiaDto);
+
+            if (guardado)
+            {
+                mensajeExito = "Membresia registrada con éxito!";
+                membresiaDto = new MembresiasDto();
+            }
+            else
+            {
+                mensajeExito = "Error al guardar la membresia.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeExito = $"Error: {ex.Message}";
+        }
+    }
+}
