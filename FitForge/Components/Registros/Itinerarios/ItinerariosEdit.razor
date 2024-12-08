@@ -1,0 +1,144 @@
+﻿@page "/Itinerarios/Edit/{ItinerarioId:int}"
+@inject IItinerariosService ItinerariosService
+@inject IClasesService ClasesService
+@inject IEntrenadoresService EntrenadoresService
+@inject IDiasHorariosService DiasHorariosService
+
+@attribute [Authorize(Roles = "Admin")]
+
+@rendermode InteractiveServer
+
+<div class="wrapper">
+    <div class="form-section">
+        <EditForm Model="itinerarioDto" OnValidSubmit="Modificar" FormName="frmItinerarioEdit">
+            <DataAnnotationsValidator />
+
+            <div class="text-black text-center">
+                <h3><strong>Editar Itinerario</strong></h3>
+                <p>Modifique los datos del itinerario</p>
+            </div>
+
+            <!-- Clase -->
+            <div class="form-floating mb-3">
+                <InputSelect id="ClaseId" class="form-select" @bind-Value="itinerarioDto.ClaseId">
+                    <option value="">Seleccione una clase</option>
+                    @foreach (var clase in ListaClases)
+                    {
+                        <option value="@clase.ClaseId">@clase.Descripcion</option>
+                    }
+                </InputSelect>
+                <label for="ClaseId">Clase</label>
+                <ValidationMessage For="@(() => itinerarioDto.ClaseId)" />
+            </div>
+
+            <!-- Entrenador -->
+            <div class="form-floating mb-3">
+                <InputSelect id="EntrenadorId" class="form-select" @bind-Value="itinerarioDto.EntrenadorId">
+                    <option value="">Seleccione un entrenador</option>
+                    @foreach (var entrenador in ListaEntrenadores)
+                    {
+                        <option value="@entrenador.EntrenadorId">@entrenador.Nombres</option>
+                    }
+                </InputSelect>
+                <label for="EntrenadorId">Entrenador</label>
+                <ValidationMessage For="@(() => itinerarioDto.EntrenadorId)" />
+            </div>
+
+            <!-- Día y horario -->
+            <div class="form-floating mb-3">
+                <InputSelect id="DiaHorarioId" class="form-select" @bind-Value="itinerarioDto.DiaHorarioId">
+                    <option value="">Seleccione un día y horario</option>
+                    @foreach (var diaHorario in ListaDiasHorarios)
+                    {
+                        <option value="@diaHorario.DiaHorarioId">@diaHorario.DiaHorarioDescripcion</option>
+                    }
+                </InputSelect>
+                <label for="DiaHorarioId">Día y Horario</label>
+                <ValidationMessage For="@(() => itinerarioDto.DiaHorarioId)" />
+            </div>
+
+            <!-- Precio -->
+            <div class="form-floating mb-3">
+                <InputNumber id="Precio" class="form-control" @bind-Value="itinerarioDto.Precio" />
+                <label for="Precio">Precio</label>
+                <ValidationMessage For="@(() => itinerarioDto.Precio)" />
+            </div>
+
+            <!-- Botón para editar itinerario -->
+            <button type="submit" class="btn" style="background-color: #96305a; color: #fff; width: 100%;">
+                Guardar Cambios
+            </button>
+
+            <!-- Mensaje de éxito o error -->
+            @if (!string.IsNullOrEmpty(mensajeExito))
+            {
+                <div class="alert alert-info mt-2">
+                    @mensajeExito
+                </div>
+            }
+        </EditForm>
+    </div>
+
+    <div class="welcome-section">
+        <img src="/images/fitforge-logo.png" alt="FitForge Logo" width="200">
+        <br />
+        <a href="/Itinerarios/Index" class="btn" style="background-color: #96305a; color: #fff; width: 100%;">
+            Volver
+        </a>
+    </div>
+</div>
+
+<head>
+    <link href="css/Login.css" rel="stylesheet" />
+</head>
+
+@code {
+    [Parameter]
+    public int ItinerarioId { get; set; }
+
+    private ItinerariosDto itinerarioDto { get; set; } = new ItinerariosDto();
+    private List<ClasesDto> ListaClases = new();
+    private List<EntrenadoresDto> ListaEntrenadores = new();
+    private List<DiasHorariosDto> ListaDiasHorarios = new();
+    private string mensajeExito;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Obtener el itinerario existente por ID
+            itinerarioDto = await ItinerariosService.Buscar(ItinerarioId) ?? new ItinerariosDto();
+
+            // Cargar datos auxiliares
+            ListaClases = await ClasesService.ObtenerClasesAsync();
+            ListaEntrenadores = await EntrenadoresService.ObtenerEntrenadoresAsync();
+            ListaDiasHorarios = await DiasHorariosService.ObtenerDiasHorariosAsync();
+        }
+        catch (Exception ex)
+        {
+            mensajeExito = $"Error al cargar datos: {ex.Message}";
+        }
+    }
+
+    private async Task Modificar()
+    {
+        try
+        {
+            // Intentar guardar los cambios
+            var actualizado = await ItinerariosService.Modificar(itinerarioDto);
+
+            if (actualizado)
+            {
+                mensajeExito = "Itinerario actualizado con éxito!";
+            }
+            else
+            {
+                mensajeExito = "Error al actualizar el itinerario.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeExito = $"Error: {ex.Message}";
+        }
+    }
+}

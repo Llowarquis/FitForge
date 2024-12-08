@@ -15,4 +15,6 @@ public class Itinerarios
 
     public int EntrenadorId { get; set; }
     public Entrenadores Entrenador { get; set; }
+
+    public double Precio { get; set; }
 }
