@@ -1,0 +1,193 @@
+﻿@page "/Inscripcion/Index/{ClienteId:int}"
+@inject IInscripcionesService InscripcionesService
+@inject IClientesService ClientesService
+@inject IMembresiasService MembresiasService
+
+@rendermode InteractiveServer
+
+<PageTitle>Inscripciones</PageTitle>
+<body style="background-color: #F5E1CE">
+    <div class="container">
+        <div class="card shadow-lg">
+            @*HEADER*@
+            <div class="card-header text-center" style="background-color: #CA678E">
+                <h3><b>Inscripciones</b></h3>
+            </div>
+
+            @*BODY*@
+            <div class="card-body" style="background-color: #F5E1E8">
+                <div class="row">
+                    @*Botón Crear*@
+                    <div class="col-12 text-start mb-3">
+                        <a href="/Inscripcion/Create/@ClienteId" class="btn custom-button bi bi-plus-square">
+                            Crear Inscripción
+                        </a>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(MensajeError))
+                {
+                    <div class="alert alert-danger mt-3">@MensajeError</div>
+                }
+
+                @if (ListaInscripciones == null || !ListaInscripciones.Any())
+                {
+                    <div class="text-center mt-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <table class="table table-striped table-hover mt-3">
+                        <thead>
+                            <tr>
+                                <th><b>Clientes</b></th>
+                                <th><b>Membresía</b></th>
+                                <th><b>Fecha de Inscripción</b></th>
+                                <th><b>Precio</b></th>
+                                <th><b>Editar</b></th>
+                                <th><b>Eliminar</b></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inscripcion in ListaInscripciones)
+                            {
+                                <tr>
+                                    <td>@inscripcion.Cliente?.Nombres</td>
+                                    <td>@inscripcion.Membresia.Descripcion</td>
+                                    <td>@inscripcion.FechaInscripcion</td>
+                                    <td>@($"${inscripcion.Precio:N2}")</td>
+                                    <td>
+                                        <a class="btn btn-sm custom-button bi bi-pencil-square" href="/Inscripcion/Edit/@inscripcion.InscripcionId?ClienteId=@inscripcion.ClienteId">
+                                            Editar
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm custom-button bi bi-trash" @onclick="() => MostrarModal(inscripcion.InscripcionId)">
+                                            Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <label>Cantidad: @ListaInscripciones.Count()</label>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (mostrarModal)
+    {
+        <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog" aria-hidden="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #CA678E; color: white;">
+                        <h5 class="modal-title">Confirmación</h5>
+                        <button type="button" class="btn-close" @onclick="CerrarModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Está seguro de que desea eliminar esta inscripción?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" @onclick="EliminarInscripcion">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show" @onclick="CerrarModal"></div> <!-- Añadido para cerrar el modal al hacer clic fuera -->
+    }
+</body>
+
+@*Estilos personalizados*@
+<style>
+    .custom-button {
+        background-color: #96305a;
+        color: white;
+    }
+
+        .custom-button:hover {
+            background-color: #ca678e;
+            color: white;
+        }
+
+    /* Opciones de tabla */
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #F5E1E8;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #CA678E !important;
+        color: white;
+    }
+</style>
+
+
+@code {
+    [Parameter]
+    public int ClienteId { get; set; }
+
+
+    public List<InscripcionesDto> ListaInscripciones = new();
+    public ClientesDto ClienteActual { get; set; }
+    public List<MembresiasDto> ListaMembresias = new();
+
+    private string MensajeError = string.Empty;
+    private bool mostrarModal = false;
+    private int InscripcionIdSeleccionada;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ClienteActual = await ClientesService.ObtenerClientePorId(ClienteId);
+
+            if (ClienteActual == null)
+            {
+                // Manejo de errores: Cliente no encontrado
+                throw new Exception("Cliente no encontrado.");
+            }
+
+            ListaMembresias = await MembresiasService.ObtenerMembresiasAsync();
+            ListaInscripciones = await InscripcionesService.Listar(t => t.ClienteId == ClienteId);
+
+        }
+        catch (Exception ex)
+        {
+            MensajeError = $"Error al inicializar: {ex.Message}";
+        }
+    }
+
+    private void MostrarModal(int inscripcionId)
+    {
+        InscripcionIdSeleccionada = inscripcionId;
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+        InscripcionIdSeleccionada = 0;
+    }
+
+    private async Task EliminarInscripcion()
+    {
+        try
+        {
+            await InscripcionesService.Eliminar(InscripcionIdSeleccionada);
+            var inscripcion = ListaInscripciones.FirstOrDefault(i => i.InscripcionId == InscripcionIdSeleccionada);
+            if (inscripcion != null)
+                ListaInscripciones.Remove(inscripcion);
+
+            mostrarModal = false;
+            InscripcionIdSeleccionada = 0;
+        }
+        catch (Exception ex)
+        {
+            MensajeError = $"Error al eliminar: {ex.Message}";
+        }
+    }
+}
