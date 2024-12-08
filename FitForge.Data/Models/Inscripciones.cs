@@ -17,15 +17,9 @@ public class Inscripciones
 	public int MembresiaId { get; set; }
 	public Membresias Membresia { get; set; }
 
-	[ForeignKey("Itinerarios")]
-	public int? ItinerarioId { get; set; }
-	public Itinerarios? Itinerario { get; set; }
-
 	public DateTime FechaInscripcion { get; set; } = DateTime.Now;
 
+    public virtual ICollection<InscripcionesDetalle> InscripcionDetalle { get; set; } = new List<InscripcionesDetalle>();
     public double Precio { get; set; }
 
-	[ForeignKey("Entrenadores")]
-	public int? EntrenadorId { get; set; }
-	public Entrenadores? Entrenador { get; set; }
 }
