@@ -20,7 +20,8 @@ public static class RegistrarServicios
         servicios.AddScoped<ITarjetasService, TarjetasService>();
         servicios.AddScoped<IItinerariosService, ItinerariosService>();
         servicios.AddScoped<IClasesService, ClasesService>();
-        servicios.AddScoped<IInscripcionesService, InscripcionesService>();
+		servicios.AddScoped<ClasesService>();
+		servicios.AddScoped<IInscripcionesService, InscripcionesService>();
         servicios.AddScoped<IEntrenadoresService, EntrenadoresService>();
         servicios.AddScoped<IDiasHorariosService, DiasHorariosService>();
         servicios.AddBlazorBootstrap();

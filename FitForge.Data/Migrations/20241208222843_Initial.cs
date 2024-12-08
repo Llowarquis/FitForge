@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitForge.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Register : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -68,6 +68,7 @@ namespace FitForge.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Cupos = table.Column<int>(type: "int", nullable: false),
+                    Precio = table.Column<double>(type: "float", nullable: false),
                     FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -543,9 +544,9 @@ namespace FitForge.Data.Migrations
                 columns: new[] { "MembresiaId", "Descripcion", "EstadoMembresiaId", "FechaVencimiento", "Precio" },
                 values: new object[,]
                 {
-                    { 1, "Membresía Estudiante", 1, new DateTime(2025, 1, 8, 2, 12, 18, 836, DateTimeKind.Local).AddTicks(3903), 500m },
-                    { 2, "Membresía Básica", 1, new DateTime(2025, 1, 8, 2, 12, 18, 836, DateTimeKind.Local).AddTicks(3906), 800m },
-                    { 3, "Membresía VIP", 1, new DateTime(2025, 1, 8, 2, 12, 18, 836, DateTimeKind.Local).AddTicks(3908), 1500m }
+                    { 1, "Membresía Estudiante", 1, new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9636), 500m },
+                    { 2, "Membresía Básica", 1, new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9639), 800m },
+                    { 3, "Membresía VIP", 1, new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9643), 1500m }
                 });
 
             migrationBuilder.CreateIndex(
