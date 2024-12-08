@@ -16,6 +16,7 @@ public static class RegistrarServicios
 		servicios.AddScoped<IPagosService, PagosService>();
 		servicios.AddScoped<EntrenadoresService>();
 		servicios.AddScoped<ITarjetasService, TarjetasService>();
+		servicios.AddScoped<ClasesService>();
 		servicios.AddBlazorBootstrap();
 		servicios.AddSingleton<ToastService>();
 		servicios.AddSingleton<ModalService>();
