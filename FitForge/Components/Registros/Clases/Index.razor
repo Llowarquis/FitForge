@@ -8,7 +8,7 @@
 
 @rendermode InteractiveServer
 
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "Admin, Cliente")]
 
 <Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 
@@ -17,8 +17,9 @@
 	<div class="container">
 		<div class="card shadow-lg">
 			@*HEADER*@
-			<div class="card-header text-center" style="background-color: #CA678E">
+			<div class="card-header text-center" style="background-color: #CA678E; color: black">
 				<h3><b>Clases Disponibles</b></h3>
+				<p>Aqu&iacute; te brindamos la experiencia de inscribirte a las clases de tu preferencia.</p>
 			</div>
 
 			@*BODY*@
@@ -51,13 +52,17 @@
 						</div>
 					</div>
 
-					@*Btn crear*@
-					<div class="col-2 text-start">
-						<label></label>
-						<div>
-							<a class="btn btn-lg custom-button bi bi-plus-circle" href="/Clases/Create">    Crear</a>
-						</div>
-					</div>
+					<AuthorizeView Roles="Admin">
+						<Authorized>
+							@*Btn crear*@
+							<div class="col-2 text-start">
+								<label></label>
+								<div>
+									<a class="btn btn-lg custom-button bi bi-plus-circle" href="/Clases/Create">    Crear</a>
+								</div>
+							</div>
+						</Authorized>
+					</AuthorizeView>
 				</div>
 				<br />
 				<table class="table table-sm table-striped table-hover">
@@ -78,18 +83,29 @@
 								<th>@clase.Descripcion</th>
 								<th>@clase.Cupos</th>
 								<th>@clase.Precio</th>
-								<th>
-									<div class="btn-group">
-										<button class="btn custom-button btn-sm bi bi-eye dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-											Ver
-										</button>
-										<ul class="dropdown-menu">
-											<li><a class="dropdown-item" href="#">Ver clientes</a></li>
-										</ul>
-									</div>
-									<a href="/Clases/Edit/@clase.ClaseId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
-									<button @onclick="() => MostrarModal(clase.ClaseId)" class="btn btn-sm custom-button bi bi-trash"> Eliminar</button>
-								</th>
+								<AuthorizeView Roles="Admin">
+									<Authorized>
+										<th>
+											<div class="btn-group">
+												<button class="btn custom-button btn-sm bi bi-eye dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+													Ver
+												</button>
+												<ul class="dropdown-menu">
+													<li><a class="dropdown-item" href="#">Ver clientes</a></li>
+												</ul>
+											</div>
+											<a href="/Clases/Edit/@clase.ClaseId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
+											<button @onclick="() => MostrarModal(clase.ClaseId)" class="btn btn-sm custom-button bi bi-trash"> Eliminar</button>
+										</th>
+									</Authorized>
+								</AuthorizeView>
+								<AuthorizeView Roles="Cliente">
+									<Authorized>
+										<th>
+											<button type="button" class="btn btn-sm custom-button bi bi-cart-plus">   Inscribirme</button>
+										</th>
+									</Authorized>
+								</AuthorizeView>
 							</tr>
 						}
 					</tbody>
