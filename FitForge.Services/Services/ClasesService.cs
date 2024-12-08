@@ -46,7 +46,6 @@ public class ClasesService(IDbContextFactory<ApplicationDbContext> DbFactory) : 
 			ClaseId = claseDto.ClaseId,
 			Descripcion = claseDto.Descripcion,
 			Cupos = claseDto.Cupos,
-			FechaVencimiento = claseDto.FechaVencimiento,
 			Precio = claseDto.Precio,
 		};
 		_contexto.Clases.Add(clase);
@@ -63,7 +62,7 @@ public class ClasesService(IDbContextFactory<ApplicationDbContext> DbFactory) : 
 			.FirstOrDefaultAsync(e => e.ClaseId == claseDto.ClaseId);
 
 		if (clase == null)
-			throw new KeyNotFoundException("El entrenador no fue encontrado.");
+			throw new KeyNotFoundException("La clase no fue encontrada.");
 
 		clase.Descripcion = claseDto.Descripcion;
 		clase.Cupos = claseDto.Cupos;
