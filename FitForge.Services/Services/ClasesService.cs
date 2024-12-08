@@ -1,9 +1,10 @@
 ﻿using FitForge.Abstractions.Interfaces;
 using FitForge.Data.DAL;
+
 using FitForge.Data.Models;
+using System.Linq.Expressions;
 using FitForge.Domain.DTO;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace FitForge.Services.Services;
 
@@ -13,6 +14,7 @@ public class ClasesService(IDbContextFactory<ApplicationDbContext> DbFactory) : 
 	public async Task AfectarCupos(int id)
 	{
 		await using var _contexto = await DbFactory.CreateDbContextAsync();
+    // FALTA IMPLEMENTAR LOGICA
 		if (!await _contexto.Clases.AnyAsync(c => c.ClaseId == id))
 			throw new Exception("La clase que busca no existe.");
 
@@ -129,4 +131,19 @@ public class ClasesService(IDbContextFactory<ApplicationDbContext> DbFactory) : 
 
 		return claseDto;
 	}
+
+    public async Task<List<ClasesDto>> ObtenerClasesAsync()
+    {
+        await using var _contexto = await DbFactory.CreateDbContextAsync();
+        return await _contexto.Clases
+            .Select(c => new ClasesDto
+            {
+                ClaseId = c.ClaseId,
+                Descripcion = c.Descripcion,
+
+
+            })
+            .ToListAsync();
+    }
+
 }

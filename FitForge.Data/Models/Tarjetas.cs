@@ -16,7 +16,7 @@ public class Tarjetas
 
 	[RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
 	[Required(ErrorMessage = "Este campo es obligatorio")]
-	public int NumeroTarjeta { get; set; }
+	public string NumeroTarjeta { get; set; }
 
 
 	[RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]

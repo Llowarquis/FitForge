@@ -156,4 +156,16 @@ public class EntrenadoresService(IDbContextFactory<ApplicationDbContext> DbFacto
 		await using var _contexto = await DbFactory.CreateDbContextAsync();
 		return await _contexto.Users.AnyAsync(c => c.PhoneNumber == telefono);
 	}
+
+    public async Task<List<EntrenadoresDto>> ObtenerEntrenadoresAsync()
+    {
+        await using var _contexto = await DbFactory.CreateDbContextAsync();
+        return await _contexto.Entrenadores
+            .Select(e => new EntrenadoresDto
+            {
+                EntrenadorId = e.EntrenadorId,
+                Nombres = e.Nombres
+            })
+            .ToListAsync();
+    }
 }

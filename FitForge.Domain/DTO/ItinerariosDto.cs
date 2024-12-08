@@ -2,12 +2,16 @@
 
 public class ItinerariosDto
 {
-	// A esta clase es la que se le hara el registro de las clases disponibles
+    public int ItinerarioId { get; set; }
 
-	public int ItinerarioId { get; set; }
-    public string DescripcionClase { get; set; }
-	public List<string> Dia { get; set; } = new List<string>();
-    public TimeOnly HoraInicio { get; set; }
-	public TimeOnly HoraFin{ get; set; }
-	public string NombreEntrenador { get; set; }
+    public int ClaseId { get; set; }
+    public ClasesDto Clase { get; set; }
+
+    public int DiaHorarioId { get; set; }
+    public DiasHorariosDto DiaHorario { get; set; }
+
+    public int EntrenadorId { get; set; }
+    public EntrenadoresDto Entrenador { get; set; }
+
+    public double Precio { get; set; }
 }
