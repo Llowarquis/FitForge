@@ -78,14 +78,14 @@ public class ClasesService(IDbContextFactory<ApplicationDbContext> DbFactory) : 
 		if (id <= 0)
 			return false;
 
-		await using var contexto = await DbFactory.CreateDbContextAsync();
+		await using var _contexto = await DbFactory.CreateDbContextAsync();
+		var clase = await _contexto.Clases
+			.FirstOrDefaultAsync(x => x.ClaseId == id);
 
-		var existeClase = await contexto.Clases.AnyAsync(e => e.ClaseId == id);
-		if (!existeClase) return false;
+		if (clase == null) return false;
 
-		return await contexto.Clases
-			.Where(c => c.ClaseId == id)
-			.ExecuteDeleteAsync() > 0;
+		_contexto.Clases.Remove(clase);
+		return await _contexto.SaveChangesAsync() > 0;
 	}
 
 
