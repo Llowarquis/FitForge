@@ -111,14 +111,14 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 		if (id <= 0)
 			return false;
 
-		await using var contexto = await DbFactory.CreateDbContextAsync();
+		await using var _contexto = await DbFactory.CreateDbContextAsync();
+		var cliente = await _contexto.Clientes
+			.FirstOrDefaultAsync(x => x.ClienteId == id);
 
-		var existeCliente = await contexto.Clientes.AnyAsync(c => c.ClienteId == id);
-		if (!existeCliente) return false;
+		if (cliente == null) return false;
 
-		return await contexto.Clientes
-			.Where(c => c.ClienteId == id)
-			.ExecuteDeleteAsync() > 0;
+		_contexto.Clientes.Remove(cliente);
+		return await _contexto.SaveChangesAsync() > 0;
 	}
 
 

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitForge.Data.Models;
 
@@ -17,7 +16,7 @@ public class Clases
 	[RegularExpression(@"^\d+(\.\d+)?$", ErrorMessage = "Este campo solo puede alojar numeros.")]
 	public int Cupos { get; set; }
 
+    public double Precio { get; set; }
 
-	[Required(ErrorMessage = "Este campo es obligatorio")]
-    public DateTime FechaVencimiento { get; set; } = DateTime.Now.AddMonths(1);
+    public DateTime FechaVencimiento { get; set; }
 }

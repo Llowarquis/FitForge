@@ -10,7 +10,6 @@ public static class RegistrarServicios
 {
 	public static IServiceCollection InyectarServicios(this IServiceCollection servicios)
 	{
-
         servicios.RegisterDbContextFactory();
         servicios.AddScoped<IClientesService, ClientesService>();
         servicios.AddScoped<ClientesService>();

@@ -4,6 +4,7 @@ using FitForge.Data.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitForge.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241208071033_2daMigracion")]
+    partial class _2daMigracion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,50 +165,18 @@ namespace FitForge.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DiaId"));
 
-                    b.Property<string>("Nombre")
+                    b.Property<string>("Dia")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("DiasHorariosDiaHorarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("DiaId");
 
-                    b.ToTable("Dias");
+                    b.HasIndex("DiasHorariosDiaHorarioId");
 
-                    b.HasData(
-                        new
-                        {
-                            DiaId = 1,
-                            Nombre = "Lunes"
-                        },
-                        new
-                        {
-                            DiaId = 2,
-                            Nombre = "Martes"
-                        },
-                        new
-                        {
-                            DiaId = 3,
-                            Nombre = "Miércoles"
-                        },
-                        new
-                        {
-                            DiaId = 4,
-                            Nombre = "Jueves"
-                        },
-                        new
-                        {
-                            DiaId = 5,
-                            Nombre = "Viernes"
-                        },
-                        new
-                        {
-                            DiaId = 6,
-                            Nombre = "Sábado"
-                        },
-                        new
-                        {
-                            DiaId = 7,
-                            Nombre = "Domingo"
-                        });
+                    b.ToTable("Dias");
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.DiasHorarios", b =>
@@ -224,31 +195,7 @@ namespace FitForge.Data.Migrations
 
                     b.HasKey("DiaHorarioId");
 
-                    b.HasIndex("DiaId");
-
-                    b.HasIndex("HorarioId");
-
                     b.ToTable("DiasHorarios");
-
-                    b.HasData(
-                        new
-                        {
-                            DiaHorarioId = 1,
-                            DiaId = 1,
-                            HorarioId = 1
-                        },
-                        new
-                        {
-                            DiaHorarioId = 2,
-                            DiaId = 2,
-                            HorarioId = 2
-                        },
-                        new
-                        {
-                            DiaHorarioId = 3,
-                            DiaId = 3,
-                            HorarioId = 3
-                        });
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.Domicilios", b =>
@@ -328,23 +275,6 @@ namespace FitForge.Data.Migrations
                     b.HasKey("EstadoMembresiaId");
 
                     b.ToTable("EstadosMembresia");
-
-                    b.HasData(
-                        new
-                        {
-                            EstadoMembresiaId = 1,
-                            Descripcion = "Activo"
-                        },
-                        new
-                        {
-                            EstadoMembresiaId = 2,
-                            Descripcion = "Suspendido"
-                        },
-                        new
-                        {
-                            EstadoMembresiaId = 3,
-                            Descripcion = "Vencido"
-                        });
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.FormasPago", b =>
@@ -372,6 +302,9 @@ namespace FitForge.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HorarioId"));
 
+                    b.Property<int?>("DiasHorariosDiaHorarioId")
+                        .HasColumnType("int");
+
                     b.Property<TimeOnly>("HoraFin")
                         .HasColumnType("time");
 
@@ -380,63 +313,9 @@ namespace FitForge.Data.Migrations
 
                     b.HasKey("HorarioId");
 
+                    b.HasIndex("DiasHorariosDiaHorarioId");
+
                     b.ToTable("Horarios");
-
-                    b.HasData(
-                        new
-                        {
-                            HorarioId = 1,
-                            HoraFin = new TimeOnly(7, 0, 0),
-                            HoraInicio = new TimeOnly(6, 0, 0)
-                        },
-                        new
-                        {
-                            HorarioId = 2,
-                            HoraFin = new TimeOnly(8, 0, 0),
-                            HoraInicio = new TimeOnly(7, 0, 0)
-                        },
-                        new
-                        {
-                            HorarioId = 3,
-                            HoraFin = new TimeOnly(9, 0, 0),
-                            HoraInicio = new TimeOnly(8, 0, 0)
-                        });
-                });
-
-            modelBuilder.Entity("FitForge.Data.Models.InscripcionesDetalle", b =>
-                {
-                    b.Property<int>("DetalleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DetalleId"));
-
-                    b.Property<int>("ClaseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DiaHorarioId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EntrenadorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InscripcionId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("InscripcionesInscripcionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ItinerarioId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Precio")
-                        .HasColumnType("float");
-
-                    b.HasKey("DetalleId");
-
-                    b.HasIndex("InscripcionesInscripcionId");
-
-                    b.ToTable("InscripcionesDetalle");
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.Itinerarios", b =>
@@ -455,9 +334,6 @@ namespace FitForge.Data.Migrations
 
                     b.Property<int>("EntrenadorId")
                         .HasColumnType("int");
-
-                    b.Property<double>("Precio")
-                        .HasColumnType("float");
 
                     b.HasKey("ItinerarioId");
 
@@ -480,51 +356,22 @@ namespace FitForge.Data.Migrations
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("EstadoMembresiaId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("FechaVencimiento")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Precio")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("Precio")
+                        .HasColumnType("float");
 
                     b.HasKey("MembresiaId");
 
                     b.HasIndex("EstadoMembresiaId");
 
                     b.ToTable("Membresias");
-
-                    b.HasData(
-                        new
-                        {
-                            MembresiaId = 1,
-                            Descripcion = "Membresía Estudiante",
-                            EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 8, 2, 12, 18, 836, DateTimeKind.Local).AddTicks(3903),
-                            Precio = 500m
-                        },
-                        new
-                        {
-                            MembresiaId = 2,
-                            Descripcion = "Membresía Básica",
-                            EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 8, 2, 12, 18, 836, DateTimeKind.Local).AddTicks(3906),
-                            Precio = 800m
-                        },
-                        new
-                        {
-                            MembresiaId = 3,
-                            Descripcion = "Membresía VIP",
-                            EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 8, 2, 12, 18, 836, DateTimeKind.Local).AddTicks(3908),
-                            Precio = 1500m
-                        });
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.Pagos", b =>
@@ -578,9 +425,8 @@ namespace FitForge.Data.Migrations
                     b.Property<DateOnly>("FechaVencimiento")
                         .HasColumnType("date");
 
-                    b.Property<string>("NumeroTarjeta")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("NumeroTarjeta")
+                        .HasColumnType("int");
 
                     b.HasKey("TarjetaId");
 
@@ -600,8 +446,14 @@ namespace FitForge.Data.Migrations
                     b.Property<int>("ClienteId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("EntrenadorId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("FechaInscripcion")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("ItinerarioId")
+                        .HasColumnType("int");
 
                     b.Property<int>("MembresiaId")
                         .HasColumnType("int");
@@ -612,6 +464,10 @@ namespace FitForge.Data.Migrations
                     b.HasKey("InscripcionId");
 
                     b.HasIndex("ClienteId");
+
+                    b.HasIndex("EntrenadorId");
+
+                    b.HasIndex("ItinerarioId");
 
                     b.HasIndex("MembresiaId");
 
@@ -762,23 +618,11 @@ namespace FitForge.Data.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
-            modelBuilder.Entity("FitForge.Data.Models.DiasHorarios", b =>
+            modelBuilder.Entity("FitForge.Data.Models.Dias", b =>
                 {
-                    b.HasOne("FitForge.Data.Models.Dias", "Dia")
-                        .WithMany("DiasHorarios")
-                        .HasForeignKey("DiaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FitForge.Data.Models.Horarios", "Horario")
-                        .WithMany("DiasHorarios")
-                        .HasForeignKey("HorarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Dia");
-
-                    b.Navigation("Horario");
+                    b.HasOne("FitForge.Data.Models.DiasHorarios", null)
+                        .WithMany("Dias")
+                        .HasForeignKey("DiasHorariosDiaHorarioId");
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.Domicilios", b =>
@@ -803,11 +647,11 @@ namespace FitForge.Data.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
-            modelBuilder.Entity("FitForge.Data.Models.InscripcionesDetalle", b =>
+            modelBuilder.Entity("FitForge.Data.Models.Horarios", b =>
                 {
-                    b.HasOne("FitForge.Data.Modelsp.Inscripciones", null)
-                        .WithMany("InscripcionDetalle")
-                        .HasForeignKey("InscripcionesInscripcionId");
+                    b.HasOne("FitForge.Data.Models.DiasHorarios", null)
+                        .WithMany("Horario")
+                        .HasForeignKey("DiasHorariosDiaHorarioId");
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.Itinerarios", b =>
@@ -842,7 +686,7 @@ namespace FitForge.Data.Migrations
                     b.HasOne("FitForge.Data.Models.EstadosMembresia", "EstadoMembresia")
                         .WithMany()
                         .HasForeignKey("EstadoMembresiaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("EstadoMembresia");
@@ -894,6 +738,14 @@ namespace FitForge.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FitForge.Data.Models.Entrenadores", "Entrenador")
+                        .WithMany()
+                        .HasForeignKey("EntrenadorId");
+
+                    b.HasOne("FitForge.Data.Models.Itinerarios", "Itinerario")
+                        .WithMany()
+                        .HasForeignKey("ItinerarioId");
+
                     b.HasOne("FitForge.Data.Models.Membresias", "Membresia")
                         .WithMany()
                         .HasForeignKey("MembresiaId")
@@ -901,6 +753,10 @@ namespace FitForge.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Cliente");
+
+                    b.Navigation("Entrenador");
+
+                    b.Navigation("Itinerario");
 
                     b.Navigation("Membresia");
                 });
@@ -965,24 +821,16 @@ namespace FitForge.Data.Migrations
                     b.Navigation("Tarjetas");
                 });
 
-            modelBuilder.Entity("FitForge.Data.Models.Dias", b =>
+            modelBuilder.Entity("FitForge.Data.Models.DiasHorarios", b =>
                 {
-                    b.Navigation("DiasHorarios");
-                });
+                    b.Navigation("Dias");
 
-            modelBuilder.Entity("FitForge.Data.Models.Horarios", b =>
-                {
-                    b.Navigation("DiasHorarios");
+                    b.Navigation("Horario");
                 });
 
             modelBuilder.Entity("FitForge.Data.Models.Tarjetas", b =>
                 {
                     b.Navigation("Pagos");
-                });
-
-            modelBuilder.Entity("FitForge.Data.Modelsp.Inscripciones", b =>
-                {
-                    b.Navigation("InscripcionDetalle");
                 });
 #pragma warning restore 612, 618
         }

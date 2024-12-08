@@ -81,14 +81,14 @@ public class EntrenadoresService(IDbContextFactory<ApplicationDbContext> DbFacto
 		if (id <= 0)
 			return false;
 
-		await using var contexto = await DbFactory.CreateDbContextAsync();
+		await using var _contexto = await DbFactory.CreateDbContextAsync();
+		var entrenador = await _contexto.Entrenadores
+			.FirstOrDefaultAsync(x => x.EntrenadorId == id);
 
-		var existeEntrenador = await contexto.Entrenadores.AnyAsync(e => e.EntrenadorId == id);
-		if (!existeEntrenador) return false;
+		if (entrenador == null) return false;
 
-		return await contexto.Entrenadores
-			.Where(c => c.EntrenadorId == id)
-			.ExecuteDeleteAsync() > 0;
+		_contexto.Entrenadores.Remove(entrenador);
+		return await _contexto.SaveChangesAsync() > 0;
 	}
 
 

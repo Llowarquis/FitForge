@@ -1,0 +1,232 @@
+﻿@page "/Clases/Edit/{ClaseID:int}"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using FitForge.Components.Account
+@using FitForge.Components.Account.Pages
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject ClasesService clasesService
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+@rendermode InteractiveServer
+
+@attribute [Authorize(Roles = "Admin")]
+
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<PageTitle>Editar Clase</PageTitle>
+<div class="wrapper">
+	<div class="container">
+		@*Titulo*@
+		<div class="text-black text-center">
+			<h3 style="margin-bottom: 1px;"><strong>Editar Clase</strong></h3>
+			<p>Aqui podr&aacute;s editar la clase seleccionada.</p>
+		</div>
+		@*EDITFORM*@
+		<EditForm Model="@Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+			<DataAnnotationsValidator />
+			<div class="row">
+				<div class="col">
+					@*Campo Descripcion Clase*@
+					<div class="form-floating mb-3">
+						<InputText @bind-Value="Input.DescripcionClase" class="form-control" aria-required="true" placeholder="Nombres" />
+						<label for="nombres">Descripci&oacute;n de clase</label>
+						<ValidationMessage For="() => Input.DescripcionClase" class="text-danger" />
+					</div>
+
+					@*Campo dia*@
+					<div class="form-floating mb-3">
+						<InputSelect @bind-Value="Input.Dia" class="form-control">
+							<option value="" palceholder="" selected disabled>--- Selecciona un d&iacute;a ---</option>
+							@foreach (var dia in ListaDias)
+							{
+								<option value="@dia.DiaId">@dia.Dia</option>
+							}
+						</InputSelect>
+						<label for="fecha-de-nacimiento">Dia</label>
+						<ValidationMessage For="() => Input.Dia" class="text-danger" />
+					</div>
+
+					<div class="row">
+						<div class="col">
+							@*Campo Hora incio*@
+							<div class="form-floating mb-3">
+								<TimeInput @bind-Value="Input.HoraInicio" class="form-control" aria-required="true" />
+								<label for="hora-inicio">Hora de Inicio</label>
+								<ValidationMessage For="() => Input.HoraInicio" class="text-danger" />
+							</div>
+						</div>
+						<div class="col">
+							@*Campo Hora Fin*@
+							<div class="form-floating mb-3">
+								<TimeInput @bind-Value="Input.HoraFin" class="form-control" aria-required="true" />
+								<label for="hora-fin">Hora de Fin</label>
+								<ValidationMessage For="() => Input.HoraFin" class="text-danger" />
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col">
+							@*Campo Precio*@
+							<div class="form-floating mb-3">
+								<InputNumber @bind-Value="Input.Precio" class="form-control" aria-required="true" />
+								<label for="hora-inicio">Precio</label>
+								<ValidationMessage For="() => Input.Precio" class="text-danger" />
+							</div>
+						</div>
+						<div class="col">
+							@*Campo Cupos*@
+							<div class="form-floating mb-3">
+								<InputNumber @bind-Value="Input.CuposIniciales" class="form-control" aria-required="true" />
+								<label for="hora-fin">Cupos Iniciales</label>
+								<ValidationMessage For="() => Input.CuposIniciales" class="text-danger" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				@*Btn volver*@
+				<div class="col">
+					<a href="/Clases/Index" class="w-100 btn btn-lg btn-primary">     Volver</a>
+				</div>
+				@*Btn Crear*@
+				<div class="col">
+					<button type="submit" class="w-100 btn btn-lg btn-primary">Guardar</button>
+				</div>
+			</div>
+		</EditForm>
+	</div>
+</div>
+
+<head>
+	<link href="css/Crear-Entrenador.css" rel="stylesheet" />
+</head>
+
+@code {
+	[Parameter]
+	public int ClaseID { get; set; }
+
+	[Inject]
+	private RoleManager<IdentityRole> RoleManager { get; set; } = default!;
+
+	private IEnumerable<IdentityError>? identityErrors;
+
+	[SupplyParameterFromForm]
+	private InputModel Input { get; set; } = new();
+
+	[SupplyParameterFromQuery]
+	private string? ReturnUrl { get; set; }
+
+	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+	// Estas lista se mostrara inicializada en un combobox
+	public ClasesDto ClasesDto { get; set; } = new ClasesDto();
+	public ICollection<DiasDto> ListaDias { get; set; } = new List<DiasDto>();
+
+	// NOTIFICACIONES
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}",
+		};
+
+	protected override async Task OnInitializedAsync()
+	{
+		ClasesDto = await clasesService.Buscar(ClaseID);
+		Input.DescripcionClase = ClasesDto.Descripcion;
+		Input.Precio = ClasesDto.Precio;
+		Input.CuposIniciales = ClasesDto.Cupos;
+		// Fecha de la inscripcion + 1 mes = ClasesDto.FechaVencimiento;
+		// ListaDias = await diasService.Listar(d => true);
+	}
+
+	public async Task RegisterUser(EditContext editContext)
+	{
+		ClasesDto.Descripcion = Input.DescripcionClase;
+		ClasesDto.Cupos = Input.CuposIniciales;
+		ClasesDto.Precio = Input.Precio;
+		// ClasesDto.FechaVencimiento = FechaInscripcion + 1 mes
+		// ClasesDto.HorasInicioYFin (esos campos deben estar en el dto) = 
+
+		var claseGuardada = await clasesService.Guardar(ClasesDto);
+		if (!claseGuardada)
+		{
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Hubo un error al guardar la clase.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+			return;
+		}
+		TipoNotificacion = ToastType.Success;
+		TituloNotificacion = "Enhorabuena";
+		MensajeNotificacion = "¡Se ha creado la clase exitosamente!";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+		NavigationManager.NavigateTo("/Clases/Index");
+	}
+
+
+	private ApplicationUser CreateUser()
+	{
+		try
+		{
+			return Activator.CreateInstance<ApplicationUser>();
+		}
+		catch
+		{
+			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+				$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+		}
+	}
+
+	private IUserEmailStore<ApplicationUser> GetEmailStore()
+	{
+		if (!UserManager.SupportsUserEmail)
+		{
+			throw new NotSupportedException("The default UI requires a user store with email support.");
+		}
+		return (IUserEmailStore<ApplicationUser>)UserStore;
+	}
+
+	private sealed class InputModel
+	{
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		public string DescripcionClase { get; set; } = "";
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		public double Precio { get; set; }
+
+		// [Required(ErrorMessage = "Este campo es obligatorio")]
+		public List<string> Dia { get; set; } = new List<string>();
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		public TimeOnly HoraInicio { get; set; }
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		public TimeOnly HoraFin { get; set; }
+
+		[Required(ErrorMessage = "Este campo es obligatorio")]
+		public int CuposIniciales { get; set; }
+	}
+}
+
