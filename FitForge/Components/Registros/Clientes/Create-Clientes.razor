@@ -21,6 +21,8 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Crear Cliente</PageTitle>
 <div class="wrapper">
 	<div class="container">
@@ -158,21 +160,21 @@
 				TituloNotificacion = "Error";
 				MensajeNotificacion = "La cédula debe tener unicamente 11 digitos.";
 				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
-				break;
+				return;
 
 			case "yaExiste":
 				TipoNotificacion = ToastType.Danger;
 				TituloNotificacion = "Error";
 				MensajeNotificacion = "Esta cédula ya existe.";
 				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
-				break;
+				return;
 
 			case "noValida":
 				TipoNotificacion = ToastType.Danger;
 				TituloNotificacion = "Error";
 				MensajeNotificacion = "La cédula es inválida.";
 				ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
-				break;
+				return;
 		}
 
 		var user = CreateUser();
@@ -191,7 +193,7 @@
 		{
 			TipoNotificacion = ToastType.Danger;
 			TituloNotificacion = "Error";
-			MensajeNotificacion = "Esta cédula ya existe.";
+			MensajeNotificacion = "Este email ya existe.";
 			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			return;
 		}
