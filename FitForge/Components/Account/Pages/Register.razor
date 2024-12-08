@@ -15,6 +15,8 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Registrarse</PageTitle>
 <div class="wrapper">
 
@@ -24,10 +26,6 @@
 		<br />
 		<h1><strong>BIENVENIDO/A!</strong></h1>
 		<p>¡Registrate para tener acceso a FitForge y lograr tu figura ideal!</p>
-		@if (!string.IsNullOrEmpty(errorMessage))
-		{
-			<p>@errorMessage</p>
-		}
 	</div>
 
 	@*Formulario*@

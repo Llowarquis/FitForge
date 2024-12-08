@@ -71,10 +71,6 @@
 		<br />
 		<h1><strong>¡BIENVENIDO/A DE NUEVO!</strong></h1>
 		<p>¡Hola, Ingresa tus datos para continuar tu camino hacia tu figura ideal!</p>
-		@if (!string.IsNullOrEmpty(errorMessage))
-		{
-			<p>@errorMessage</p>
-		}
 	</div>
 </div>
 
@@ -104,6 +100,21 @@
 		}
 	}
 
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}: {DateTime.Now}",
+		};
+
 	public async Task LoginUser()
 	{
 		// This doesn't count login failures towards account lockout
@@ -112,6 +123,10 @@
 		if (result.Succeeded)
 		{
 			Logger.LogInformation("Has iniciado sesión.");
+			TipoNotificacion = ToastType.Success;
+			TituloNotificacion = "Enhorabuena";
+			MensajeNotificacion = "¡Has iniciado sesión exitosamente !";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 			RedirectManager.RedirectTo(ReturnUrl);
 		}
 		else if (result.RequiresTwoFactor)
@@ -127,7 +142,10 @@
 		}
 		else
 		{
-			errorMessage = "Error: Email o Contraseña incorrectos.";
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Email o contraseña incorrectos.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 		}
 	}
 
@@ -141,7 +159,7 @@
 		[DataType(DataType.Password)]
 		public string Password { get; set; } = "";
 
-		[Display(Name = "Me recuerdas?")]
+		[Display(Name = "rememberMe")]
 		public bool Recuerdame { get; set; }
 	}
 }
