@@ -8,4 +8,6 @@ public class DiasHorariosDto
 
 	public int HorarioId { get; set; }
 	public HorariosDto Horario { get; set; }
+
+    public string DiaHorarioDescripcion { get; set; }
 }
