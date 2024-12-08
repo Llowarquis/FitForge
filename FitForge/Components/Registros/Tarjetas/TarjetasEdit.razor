@@ -1,0 +1,131 @@
+﻿@page "/Tarjetas/Edit/{TarjetaId:int}"
+@inject ITarjetasService TarjetasService
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+<div class="wrapper">
+    <div class="form-section">
+        <EditForm Model="tarjetaDto" OnValidSubmit="Modificar" FormName="frmTarjetaedit">
+            <DataAnnotationsValidator />
+
+            <div class="text-black text-center">
+                <h3><strong>Editar Tarjeta</strong></h3>
+                <p>Modifique los datos de la tarjeta</p>
+            </div>
+
+            <!-- Nombre del cliente (readonly) -->
+            <div class="mb-3">
+                <label for="ClienteNombre" class="form-label">Cliente: @ClienteNombre</label>
+            </div>
+
+            <!-- Número de tarjeta -->
+            <div class="form-floating mb-3">
+                <InputText id="NumeroTarjeta" class="form-control" @bind-Value="@tarjetaDto.NumeroTarjeta" required maxlength="19" placeholder="0000 0000 0000 0000" />
+                <label for="NumeroTarjeta">Ingrese el número de la tarjeta</label>
+                <ValidationMessage For="@(() => tarjetaDto.NumeroTarjeta)" />
+            </div>
+
+            <!-- CVV -->
+            <div class="form-floating mb-3">
+                <InputNumber id="Cvv" class="form-control" @bind-Value="@tarjetaDto.Cvv" required min="100" max="9999" />
+                <label for="Cvv">Ingrese el código de seguridad (CVV)</label>
+                <ValidationMessage For="@(() => tarjetaDto.Cvv)" />
+            </div>
+
+            <!-- Fecha de vencimiento -->
+            <div class="form-floating mb-3">
+                <InputDate id="FechaVencimiento" class="form-control" @bind-Value="@tarjetaDto.FechaVencimiento" required />
+                <label for="FechaVencimiento">Seleccione la fecha de vencimiento</label>
+                <ValidationMessage For="@(() => tarjetaDto.FechaVencimiento)" />
+            </div>
+
+            <!-- Botón para registrar tarjeta -->
+            <button type="submit" class="btn" style="background-color: #96305a; color: #fff;">
+                Registrar Tarjeta
+            </button>
+
+            <!-- Mensaje de éxito o error -->
+            @if (!string.IsNullOrEmpty(mensajeExito))
+            {
+                <div class="alert alert-info mt-2">
+                    @mensajeExito
+                </div>
+            }
+        </EditForm>
+    </div>
+
+    <div class="welcome-section">
+        <img src="/images/fitforge-logo.png" alt="FitForge Logo" width="200">
+        <br />
+        <a href="/Tarjetas/Index/@ClienteId" class="btn btn-primary" style="background-color: #96305a; color: #fff;">
+            Volver
+        </a>
+    </div>
+</div>
+
+<head>
+    <link href="css/Login.css" rel="stylesheet" />
+</head>
+
+
+@code {
+    [Parameter]
+    public int? TarjetaId { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery] // Esto enlaza el ClienteId desde el query string
+    public int? ClienteId { get; set; } // ClienteId del cliente
+
+    private TarjetasDto tarjetaDto { get; set; } = new TarjetasDto();
+    private string mensajeExito;
+    private bool Existe { get; set; } = false;
+    private string ClienteNombre { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TarjetaId.HasValue)
+        {
+            tarjetaDto.TarjetaId = TarjetaId.Value;
+            await Buscar();
+        }
+    }
+
+    public void Nuevo()
+    {
+        tarjetaDto = new TarjetasDto();
+        Existe = false;
+    }
+
+    public async Task Buscar()
+    {
+        var TarjetaEncontrada = await TarjetasService.Buscar(tarjetaDto.TarjetaId);
+
+        if (TarjetaEncontrada != null)
+        {
+            tarjetaDto = TarjetaEncontrada;
+            ClienteNombre = tarjetaDto.Cliente?.Nombres;
+        }
+    }
+
+    private async Task Modificar()
+    {
+        try
+        {
+            var guardado = await TarjetasService.Guardar(tarjetaDto);
+
+            if (guardado)
+            {
+                mensajeExito = "Tarjeta editada con éxito!";
+                Nuevo();
+            }
+            else
+            {
+                mensajeExito = "Error al editar la tarjeta.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeExito = $"Error: {ex.Message}";
+        }
+    }
+}
