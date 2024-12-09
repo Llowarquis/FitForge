@@ -3,6 +3,8 @@
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 <div class="wrapper">
     <div class="form-section">
         <EditForm Model="membresiaDto" OnValidSubmit="Modificar" FormName="frmMembresiaedit">
@@ -127,17 +129,45 @@
 
             if (guardado)
             {
-                mensajeExito = "Membresía editada con éxito!";
+                TipoNotificacion = ToastType.Success;
+                TituloNotificacion = "Enhorabuena";
+                MensajeNotificacion = "¡Se ha modificado la membresia exitosamente!";
+                ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
                 Nuevo();
             }
             else
             {
-                mensajeExito = "Error al editar la membresía.";
+                TipoNotificacion = ToastType.Danger;
+                TituloNotificacion = "Error";
+                MensajeNotificacion = "Hubo un error al modificar la membresia.";
+                ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+                return;
             }
         }
         catch (Exception ex)
         {
-            mensajeExito = $"Error: {ex.Message}";
+            TipoNotificacion = ToastType.Danger;
+            TituloNotificacion = "Error";
+            MensajeNotificacion = "Hubo un error al modificar la membresia.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+
+
         }
     }
+
+    // NOTIFICACIONES
+    public List<ToastMessage> Notificacion = new List<ToastMessage>();
+    public ToastType TipoNotificacion { get; set; }
+    public string MensajeNotificacion { get; set; } = string.Empty;
+    public string TituloNotificacion { get; set; } = string.Empty;
+
+    public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+    private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = $"{titulo}",
+            HelpText = $"{DateTime.Now}",
+            Message = $"{cuerpo}",
+        };
 }
