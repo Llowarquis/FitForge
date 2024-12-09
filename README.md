@@ -7,7 +7,7 @@
 ---
 
 ## 👥 Integrantes:
-- 👨‍💻 Frailyn Garcia Garcia (2022 - 0000)
+- 👨‍💻 Frailyn Garcia Garcia (2022 - 0375)
 - 👨‍💻 Yohualkis Tejada Escolastico (2022 - 0433)
 
 ---
