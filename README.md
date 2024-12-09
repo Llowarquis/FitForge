@@ -14,12 +14,12 @@
 
 ## Usuarios y Claves de Acceso
 - User:
-  - 👤: User@example.com
-  - 🔑: User1234
+  - 👤: Yohualkis99@gmail.com
+  - 🔑: User1234@
 
 - Admin:
   - 👤: Admin@example.com
-  - 🔑: Admin1234
+  - 🔑: Admin1234@
 ---
 
 ## 📝 Funcionalidades Principales
