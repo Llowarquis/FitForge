@@ -3,8 +3,12 @@
 @inject IClasesService ClasesService
 @inject IEntrenadoresService EntrenadoresService
 @inject IDiasHorariosService DiasHorariosService
+@rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin")]
+
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 
 <div class="wrapper">
     <div class="form-section">
@@ -112,6 +116,11 @@
         }
     }
 
+    public List<ToastMessage> Notificacion = new List<ToastMessage>();
+    public ToastType TipoNotificacion { get; set; }
+    public string MensajeNotificacion { get; set; } = string.Empty;
+    public string TituloNotificacion { get; set; } = string.Empty;
+
     private async Task Guardar()
     {
         try
@@ -121,17 +130,35 @@
 
             if (guardado)
             {
-                mensajeExito = "Itinerario registrado con éxito!";
+                TipoNotificacion = ToastType.Success;
+                TituloNotificacion = "Enhorabuena";
+                MensajeNotificacion = "¡El itinerario fue creado exitosamente!";
+                ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
                 itinerarioDto = new ItinerariosDto(); // Reinicia el formulario
             }
             else
             {
-                mensajeExito = "Error al guardar el itinerario.";
+                TipoNotificacion = ToastType.Danger;
+                TituloNotificacion = "Error";
+                MensajeNotificacion = "No se pudo crear el itinerario.";
+                ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
             }
         }
         catch (Exception ex)
         {
-            mensajeExito = $"Error: {ex.Message}";
+            TipoNotificacion = ToastType.Danger;
+            TituloNotificacion = "Error";
+            MensajeNotificacion = "Ocurrió un error inesperado al crear el itinerario.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
         }
     }
+    public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+    private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = $"{titulo}",
+            HelpText = $"{DateTime.Now}",
+            Message = $"{cuerpo}",
+        };
 }
