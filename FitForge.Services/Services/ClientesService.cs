@@ -271,4 +271,25 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
             return null;
         }
     }
+
+    public async Task<int?> ObtenerClienteIdPorEmail(string email)
+    {
+        try
+        {
+            await using var _contexto = await DbFactory.CreateDbContextAsync();
+
+            var clienteId = await _contexto.Clientes
+                .Where(c => c.Email == email)
+                .Select(c => c.ClienteId)
+                .FirstOrDefaultAsync();
+
+            return clienteId == 0 ? null : clienteId; // Retorna null si no se encuentra el cliente
+        }
+        catch (Exception ex)
+        {
+            // Manejo de errores (puedes agregar logs aquí)
+            Console.WriteLine($"Error al obtener ClienteId por email: {ex.Message}");
+            return null;
+        }
+    }
 }

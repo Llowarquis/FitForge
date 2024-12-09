@@ -1,6 +1,8 @@
 ﻿@page "/Tarjetas/Index/{ClienteId:int}"
+@page "/Tarjetas/Index"
 @inject ITarjetasService TarjetasService
 @inject IClientesService ClientesService
+@inject AuthenticationStateProvider AuthStateProvider
 
 @rendermode InteractiveServer
 
@@ -116,13 +118,39 @@
     public ClientesDto ClienteActual { get; set; }
     private bool mostrarModal = false;
     private int TarjetaIdSeleccionada;
+    // Variable para almacenar el correo electrónico del usuario autenticado
+    public string UsuarioEmail { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            // Obtener información del cliente actual
+            // Obtén el estado de autenticación del usuario actual
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity != null && user.Identity.IsAuthenticated)
+            {
+                // Extrae el correo electrónico del claim "email"
+                UsuarioEmail = user.Identity.Name;
+            }
+            else
+            {
+                UsuarioEmail = "Usuario no autenticado";
+            }
+
+            // Obtener el ClienteId basado en el correo del usuario
+            int? clienteIdPorEmail = await ClientesService.ObtenerClienteIdPorEmail(UsuarioEmail);
+
+            if (clienteIdPorEmail.HasValue && clienteIdPorEmail.Value != 0)
+            {
+                // Si encontramos un ClienteId distinto de cero, lo usamos
+                ClienteId = clienteIdPorEmail.Value;
+            }
+
+            // Obtener el cliente actual por el ClienteId (nuevo o existente)
             ClienteActual = await ClientesService.ObtenerClientePorId(ClienteId);
+
             if (ClienteActual == null)
             {
                 // Manejo de errores: Cliente no encontrado

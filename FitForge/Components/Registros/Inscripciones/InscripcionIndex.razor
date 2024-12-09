@@ -1,7 +1,10 @@
 ﻿@page "/Inscripcion/Index/{ClienteId:int}"
+@page "/Inscripcion/Index"
 @inject IInscripcionesService InscripcionesService
 @inject IClientesService ClientesService
 @inject IMembresiasService MembresiasService
+@inject AuthenticationStateProvider AuthStateProvider
+
 
 @rendermode InteractiveServer
 
@@ -189,11 +192,37 @@
     private string MensajeError = string.Empty;
     private bool mostrarModal = false;
     private int InscripcionIdSeleccionada;
+    // Variable para almacenar el correo electrónico del usuario autenticado
+    public string UsuarioEmail { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            // Obtén el estado de autenticación del usuario actual
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity != null && user.Identity.IsAuthenticated)
+            {
+                // Extrae el correo electrónico del claim "email"
+                UsuarioEmail = user.Identity.Name;
+            }
+            else
+            {
+                UsuarioEmail = "Usuario no autenticado";
+            }
+
+            // Obtener el ClienteId basado en el correo del usuario
+            int? clienteIdPorEmail = await ClientesService.ObtenerClienteIdPorEmail(UsuarioEmail);
+
+            if (clienteIdPorEmail.HasValue && clienteIdPorEmail.Value != 0)
+            {
+                // Si encontramos un ClienteId distinto de cero, lo usamos
+                ClienteId = clienteIdPorEmail.Value;
+            }
+
+            // Obtener el cliente actual por el ClienteId (nuevo o existente)
             ClienteActual = await ClientesService.ObtenerClientePorId(ClienteId);
 
             if (ClienteActual == null)
@@ -202,15 +231,21 @@
                 throw new Exception("Cliente no encontrado.");
             }
 
+            // Cargar membresías e inscripciones relacionadas
             ListaMembresias = await MembresiasService.ObtenerMembresiasAsync();
             ListaInscripciones = await InscripcionesService.Listar(t => t.ClienteId == ClienteId);
-
         }
         catch (Exception ex)
         {
             MensajeError = $"Error al inicializar: {ex.Message}";
         }
     }
+
+
+
+
+
+
 
     private void MostrarModal(int inscripcionId)
     {

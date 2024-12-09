@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitForge.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Clientes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -244,6 +244,7 @@ namespace FitForge.Data.Migrations
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Nombres = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Cedula = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Pin = table.Column<int>(type: "int", nullable: false, defaultValueSql: "NEXT VALUE FOR Pin"),
                     UrlFotoPerfil = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FechaNacimiento = table.Column<DateOnly>(type: "date", nullable: false)
@@ -544,9 +545,9 @@ namespace FitForge.Data.Migrations
                 columns: new[] { "MembresiaId", "Descripcion", "EstadoMembresiaId", "FechaVencimiento", "Precio" },
                 values: new object[,]
                 {
-                    { 1, "Membresía Estudiante", 1, new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9636), 500m },
-                    { 2, "Membresía Básica", 1, new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9639), 800m },
-                    { 3, "Membresía VIP", 1, new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9643), 1500m }
+                    { 1, "Membresía Estudiante", 1, new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7209), 500m },
+                    { 2, "Membresía Básica", 1, new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7213), 800m },
+                    { 3, "Membresía VIP", 1, new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7216), 1500m }
                 });
 
             migrationBuilder.CreateIndex(

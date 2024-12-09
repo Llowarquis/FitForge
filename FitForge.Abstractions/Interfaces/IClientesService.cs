@@ -12,4 +12,6 @@ public interface IClientesService
     Task<List<ClientesDto>> ObtenerClientes();
 
     Task<ClientesDto?> ObtenerClientePorId(int clienteId);
+
+    Task<int?> ObtenerClienteIdPorEmail(string email);
 }
