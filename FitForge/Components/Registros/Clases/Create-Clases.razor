@@ -43,38 +43,6 @@
 						<ValidationMessage For="() => Input.DescripcionClase" class="text-danger" />
 					</div>
 
-					@*Campo dia*@
-					<div class="form-floating mb-3">
-						<InputSelect @bind-Value="Input.Dia" class="form-control">
-							<option value="" palceholder="" selected disabled>--- Selecciona un d&iacute;a ---</option>
-							@foreach (var dia in ListaDias)
-							{
-								<option value="@dia.DiaId">@dia.Nombre</option>
-							}
-						</InputSelect>
-						<label for="fecha-de-nacimiento">Dia</label>
-						<ValidationMessage For="() => Input.Dia" class="text-danger" />
-					</div>
-
-					<div class="row">
-						<div class="col">
-							@*Campo Hora incio*@
-							<div class="form-floating mb-3">
-								<TimeInput @bind-Value="Input.HoraInicio" class="form-control" aria-required="true" />
-								<label for="hora-inicio">Hora de Inicio</label>
-								<ValidationMessage For="() => Input.HoraInicio" class="text-danger" />
-							</div>
-						</div>
-						<div class="col">
-							@*Campo Hora Fin*@
-							<div class="form-floating mb-3">
-								<TimeInput @bind-Value="Input.HoraFin" class="form-control" aria-required="true" />
-								<label for="hora-fin">Hora de Fin</label>
-								<ValidationMessage For="() => Input.HoraFin" class="text-danger" />
-							</div>
-						</div>
-					</div>
-
 					<div class="row">
 						<div class="col">
 							@*Campo Precio*@
