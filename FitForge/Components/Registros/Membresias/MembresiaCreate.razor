@@ -1,54 +1,70 @@
 ﻿@page "/Membresias/Create"
 @inject IMembresiasService MembresiasService
 @attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 
 <div class="wrapper">
     <div class="form-section">
-        <EditForm Enhance="true" Model="membresiaDto" OnValidSubmit="Guardar" FormName="frmMembresia">
+        <EditForm Model="nuevaMembresiaDto" OnValidSubmit="Crear" FormName="frmMembresiaCreate">
             <DataAnnotationsValidator />
 
-            <div class="text-black text-center">
-                <h3><strong>Registro Membresia</strong></h3>
-                <p>Ingrese los datos de la nueva membresia</p>
+            <!-- Título y descripción -->
+            <div class="text-black text-center mb-4">
+                <h3><strong>Crear Membresía</strong></h3>
+                <p>Complete los datos para registrar una nueva membresía</p>
             </div>
 
             <!-- Estado de la membresía -->
             <div class="input-box">
                 <InputSelect id="EstadoMembresia"
-                             @bind-Value="@membresiaDto.EstadoMembresiaId" required>
-                    <option value="" disabled>Seleccione un estado</option>
+                             @bind-Value="@nuevaMembresiaDto.EstadoMembresiaId" required>
+                    <option value="" disabled selected>Seleccione un estado</option>
                     <option value="1">Activa</option>
                     <option value="2">Suspendida</option>
                     <option value="3">Vencido</option>
                 </InputSelect>
-                <ValidationMessage For="@(() => membresiaDto.EstadoMembresiaId)" />
+                <ValidationMessage For="@(() => nuevaMembresiaDto.EstadoMembresiaId)" />
             </div>
+
 
             <!-- Descripción -->
             <div class="form-floating mb-3">
-                <InputText id="Descripcion" class="form-control" @bind-Value="@membresiaDto.Descripcion" required />
+                <InputText id="Descripcion"
+                           class="form-control"
+                           @bind-Value="@nuevaMembresiaDto.Descripcion"
+                           required />
                 <label for="Descripcion">Ingrese una descripción</label>
-                <ValidationMessage For="@(() => membresiaDto.Descripcion)" />
+                <ValidationMessage For="@(() => nuevaMembresiaDto.Descripcion)" />
             </div>
 
             <!-- Precio -->
             <div class="form-floating mb-3">
-                <InputNumber id="Precio" class="form-control" @bind-Value="@membresiaDto.Precio" required />
+                <InputNumber id="Precio"
+                             class="form-control"
+                             @bind-Value="@nuevaMembresiaDto.Precio"
+                             required />
                 <label for="Precio">Ingrese el precio</label>
-                <ValidationMessage For="@(() => membresiaDto.Precio)" />
+                <ValidationMessage For="@(() => nuevaMembresiaDto.Precio)" />
             </div>
 
             <!-- Fecha de vencimiento -->
             <div class="form-floating mb-3">
-                <InputDate id="FechaVencimiento" class="form-control" @bind-Value="@membresiaDto.FechaVencimiento" required />
+                <InputDate id="FechaVencimiento"
+                           class="form-control"
+                           @bind-Value="@nuevaMembresiaDto.FechaVencimiento"
+                           required />
                 <label for="FechaVencimiento">Seleccione la fecha de vencimiento</label>
-                <ValidationMessage For="@(() => membresiaDto.FechaVencimiento)" />
+                <ValidationMessage For="@(() => nuevaMembresiaDto.FechaVencimiento)" />
             </div>
 
-            <!-- Botón para registrar membresía -->
-            <button type="submit" class="btn" style="background-color: #96305a; color: #fff;">
-                Registrar Membresia
-            </button>
+            <!-- Botón para guardar -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary" style="background-color: #96305a; color: #fff;">
+                    Crear Membresía
+                </button>
+            </div>
 
             <!-- Mensaje de éxito o error -->
             @if (!string.IsNullOrEmpty(mensajeExito))
@@ -73,33 +89,60 @@
     <link href="css/Login.css" rel="stylesheet" />
 </head>
 
-
 @code {
-    [SupplyParameterFromForm]
-    private MembresiasDto membresiaDto { get; set; } = new MembresiasDto();
+    private MembresiasDto nuevaMembresiaDto { get; set; } = new MembresiasDto
+        {
+            EstadoMembresiaId = 1,
+            FechaVencimiento = DateTime.Now.AddMonths(1) // Fecha predeterminada
+        };
     private string mensajeExito;
 
+    public List<ToastMessage> Notificacion = new List<ToastMessage>();
+    public ToastType TipoNotificacion { get; set; }
+    public string MensajeNotificacion { get; set; } = string.Empty;
+    public string TituloNotificacion { get; set; } = string.Empty;
 
-    private async Task Guardar()
+    private async Task Crear()
     {
         try
         {
-            // Intentar guardar el registro
-            var guardado = await MembresiasService.Guardar(membresiaDto);
+            var creado = await MembresiasService.Guardar(nuevaMembresiaDto);
 
-            if (guardado)
+            if (creado)
             {
-                mensajeExito = "Membresia registrada con éxito!";
-                membresiaDto = new MembresiasDto();
+                TipoNotificacion = ToastType.Success;
+                TituloNotificacion = "Enhorabuena";
+                MensajeNotificacion = "¡La membresía fue creada exitosamente!";
+                ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+                nuevaMembresiaDto = new MembresiasDto
+                    {
+                        FechaVencimiento = DateTime.Now.AddMonths(1)
+                    }; // Reiniciar el formulario
             }
             else
             {
-                mensajeExito = "Error al guardar la membresia.";
+                TipoNotificacion = ToastType.Danger;
+                TituloNotificacion = "Error";
+                MensajeNotificacion = "No se pudo crear la membresía.";
+                ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
             }
         }
         catch (Exception ex)
         {
-            mensajeExito = $"Error: {ex.Message}";
+            TipoNotificacion = ToastType.Danger;
+            TituloNotificacion = "Error";
+            MensajeNotificacion = "Ocurrió un error inesperado al crear la membresía.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
         }
     }
+
+    public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+    private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = $"{titulo}",
+            HelpText = $"{DateTime.Now}",
+            Message = $"{cuerpo}",
+        };
 }
