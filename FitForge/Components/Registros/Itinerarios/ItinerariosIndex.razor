@@ -4,9 +4,6 @@
 @inject IEntrenadoresService EntrenadoresService
 @inject IDiasHorariosService DiasHorariosService
 
-@attribute [Authorize(Roles = "Admin")]
-
-@rendermode InteractiveServer
 
 <Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 
@@ -21,6 +18,7 @@
 
             @*BODY*@
             <div class="card-body" style="background-color: #F5E1E8">
+                @* AuthorizedView para verificar si el usuario tiene acceso *@
                 <div class="row">
                     <div class="col-4">
                         <div class="input-group" style="width: 250px">
@@ -52,12 +50,16 @@
 
                     @*Botón Crear a la derecha*@
                     <div class="col-12 text-end mb-3">
-                        <a href="/Itinerarios/Create" class="btn custom-button bi bi-plus-square">
-                            Crear Itinerario
-                        </a>
+                        <AuthorizeView Roles="Admin">
+                            <Authorized>
+                                <a href="/Itinerarios/Create" class="btn custom-button bi bi-plus-square">
+                                    Crear Itinerario
+                                </a>
+                            </Authorized>
+                        </AuthorizeView>
+
                     </div>
                 </div>
-
 
                 @if (!string.IsNullOrEmpty(MensajeError))
                 {
@@ -94,13 +96,21 @@
                                     <td>@($"${itinerario.Precio:N2}")</td>
                                     <td>
                                         <div class="d-flex justify-content-start gap-2">
-                                            <a href="/Itinerarios/Edit/@itinerario.ItinerarioId" class="btn btn-sm custom-button bi bi-pencil-square"> Editar</a>
-                                            <button class="btn btn-sm custom-button bi bi-trash" @onclick="() => MostrarModal(itinerario.ItinerarioId)"> Eliminar</button>
+                                            <AuthorizeView Roles="Admin">
+                                                <Authorized>
+                                                    <a href="/Itinerarios/Edit/@itinerario.ItinerarioId" class="btn btn-sm custom-button bi bi-pencil-square"> Editar</a>
+                                                    <button class="btn btn-sm custom-button bi bi-trash" @onclick="() => MostrarModal(itinerario.ItinerarioId)"> Eliminar</button>
+                                                </Authorized>
+                                            </AuthorizeView>
+                                            <AuthorizeView Roles="Cliente">
+                                                <Authorized>
+                                                    <a href="/Inscripcion/Index/@itinerario.ItinerarioId" class="btn btn-sm custom-button bi bi-person-plus">Inscribirse</a>
+                                                </Authorized>
+                                            </AuthorizeView>
                                         </div>
                                     </td>
                                 </tr>
                             }
-
                         </tbody>
                     </table>
 
