@@ -3,57 +3,118 @@
 @inject IEstadoMembresiasService EstadoMembresiasService
 @rendermode InteractiveServer
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+
 <PageTitle>Membresías</PageTitle>
+
 <body style="background-color: #F5E1CE">
 	<div class="container">
 		<div class="card shadow-lg">
-			@*HEADER*@
+			@* HEADER *@
 			<div class="card-header text-center" style="background-color: #CA678E">
 				<h3><b>Membresías</b></h3>
 			</div>
 
-			@*BODY*@
+			@* BODY *@
 			<div class="card-body" style="background-color: #F5E1E8">
-				<div class="row">
-					@*Botón Crear*@
-					<div class="col-12 text-start mb-3">
-						<a href="/Membresias/Create" class="btn custom-button bi bi-plus-circle"> Crear Membresía</a>
+				<div class="row mb-4">
+					<div class="col-md-3">
+						<div class="input-group">
+							<div class="form-floating d-flex align-items-center">
+								<InputSelect class="form-select" id="floatingSelect" aria-label="Floating label select example" @bind-Value="@valorFiltro">
+									<option value="" selected disabled>--- Selecciona ---</option>
+									<option value="estado">Estado</option>
+									<option value="descripcion">Descripcion</option>
+									<option value="fechavencimiento">Fecha de Vencimiento</option>
+								</InputSelect>
+								<label for="floatingSelect"><strong>Filtrar en base a...</strong></label>
+							</div>
+							<button type="button" class="btn custom-button bi bi-arrow-counterclockwise ms-2" @onclick="Restablecer"></button>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="input-group">
+							<div class="form-floating d-flex align-items-center flex-grow-1">
+								<InputText @bind-Value="@searchBarValue" class="form-control" placeholder="Buscar" id="floatingSearch" />
+								<label for="floatingSearch">Buscar</label>
+							</div>
+							<button @onclick="Buscar" class="btn custom-button bi bi-search ms-2" type="button"></button>
+						</div>
+					</div>
+					<div class="col-md-3 text-end">
+						<AuthorizeView Roles="Admin">
+							<Authorized>
+								<a href="/Membresias/Create" class="btn custom-button bi bi-plus-circle"> Crear Membresía</a>
+							</Authorized>
+						</AuthorizeView>
 					</div>
 				</div>
-				<table class="table table-sm table-striped table-hover">
-					<thead>
-						<tr>
-							<th><b>Estado</b></th>
-							<th><b>Descripción</b></th>
-							<th><b>Precio</b></th>
-							<th><b>Fecha de Vencimiento</b></th>
-							<th><b>Acciones</b></th>
-						</tr>
-					</thead>
-					<tbody class="table-group-divider">
-						@foreach (var membresia in ListaMembresias)
-						{
+
+				@if (valorFiltro == "fechavencimiento")
+				{
+					<div class="row mb-3">
+						<div class="col-md-6">
+							<div class="form-floating">
+								<InputDate @bind-Value="Desde" class="form-control" />
+								<label for="desde"><b>Desde...</b></label>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-floating">
+								<InputDate @bind-Value="Hasta" class="form-control" />
+								<label for="hasta"><b>Hasta...</b></label>
+							</div>
+						</div>
+					</div>
+				}
+
+				<div class="table-responsive">
+					<table class="table table-sm table-striped table-hover">
+						<thead>
 							<tr>
-								<td>@membresia.EstadoMembresia?.Descripcion</td>
-								<td>@membresia.Descripcion</td>
-								<td>@($"${membresia.Precio:N2}")</td>
-								<td>@membresia.FechaVencimiento.ToShortDateString()</td>
-								<td>
-									<div class="d-flex justify-content-between">
-										<a href="/Membresias/Edit/@membresia.MembresiaId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
-										<button class="btn btn-sm custom-button bi bi-trash" @onclick="() => MostrarModal(membresia.MembresiaId)"> Eliminar</button>
-									</div>
-								</td>
+								<th><b>Estado</b></th>
+								<th><b>Descripción</b></th>
+								<th><b>Precio</b></th>
+								<th><b>Fecha de Vencimiento</b></th>
+								<th><b>Acciones</b></th>
 							</tr>
-						}
-					</tbody>
-					<caption>
-						Membresías: @ListaMembresias.Count
-					</caption>
-				</table>
+						</thead>
+						<tbody>
+							@foreach (var membresia in ListaMembresias)
+							{
+								<tr>
+									<td>@membresia.EstadoMembresia?.Descripcion</td>
+									<td>@membresia.Descripcion</td>
+									<td>@($"${membresia.Precio:N2}")</td>
+									<td>@membresia.FechaVencimiento.ToShortDateString()</td>
+									<td>
+										<div class="d-flex custom-spacing">
+											<AuthorizeView Roles="Admin">
+												<Authorized>
+													<a href="/Membresias/Edit/@membresia.MembresiaId" class="btn btn-sm bi bi-pencil-square custom-button">Editar</a>
+													<button class="btn btn-sm custom-button bi bi-trash" @onclick="() => MostrarModal(membresia.MembresiaId)">Eliminar</button>
+												</Authorized>
+											</AuthorizeView>
+											<AuthorizeView Roles="Cliente">
+												<Authorized>
+													<a href="/Inscripcion/Index/@membresia.MembresiaId" class="btn btn-sm custom-button bi bi-person-plus">Inscribirse</a>
+												</Authorized>
+											</AuthorizeView>
+										</div>
+									</td>
+								</tr>
+							}
+						</tbody>
+						<caption>
+							Membresías: @ListaMembresias.Count
+						</caption>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
+
 
 	@if (mostrarModal)
 	{
@@ -78,8 +139,10 @@
 	}
 </body>
 
+
 @*Estilos personalizados*@
 <style>
+	/* Botón personalizado */
 	.custom-button {
 		background-color: #96305a;
 		color: white;
@@ -90,28 +153,35 @@
 			color: white;
 		}
 
-	/* Opciones de tabla */
+	/* Espaciado entre botones */
+	.d-flex.custom-spacing {
+		gap: 0.5rem; /* Espaciado ajustado */
+	}
+
+	/* Estilos de la tabla */
 	.table-striped > tbody > tr:nth-of-type(odd) {
-		background-color: #F5E1E8;
+		background-color: #fbe6ec; /* Tono rosado claro */
+	}
+
+	.table-striped > tbody > tr:nth-of-type(even) {
+		background-color: #fdf6f9; /* Tono aún más claro */
 	}
 
 	.table-hover tbody tr:hover {
-		background-color: #CA678E !important;
-		color: white;
+		background-color: #f8d7e4 !important; /* Tono ligeramente más oscuro al pasar el cursor */
+		color: black;
 	}
 </style>
 
 @code {
+	public string searchBarValue { get; set; } = string.Empty;
+	public string valorFiltro { get; set; } = string.Empty;
+	public DateTime? Desde { get; set; } = null;
+	public DateTime? Hasta { get; set; } = null;
 	public List<MembresiasDto> ListaMembresias = new List<MembresiasDto>();
 	public List<EstadosMembresiaDto> ListaEstadosMembresias = new List<EstadosMembresiaDto>();
 	private bool mostrarModal = false;
 	private int membresiaIdSeleccionada;
-
-	protected override async Task OnInitializedAsync()
-	{
-		ListaEstadosMembresias = await EstadoMembresiasService.ObtenerEstadoMembresias();
-		ListaMembresias = await MembresiasService.Listar(c => true);
-	}
 
 	private void MostrarModal(int membresiaId)
 	{
@@ -133,10 +203,121 @@
 			ListaMembresias = await MembresiasService.Listar(c => true);
 			mostrarModal = false;
 			membresiaIdSeleccionada = 0;
+			TipoNotificacion = ToastType.Success;
+			TituloNotificacion = "Enhorabuena";
+			MensajeNotificacion = "¡Se ha eliminado la membresia exitosamente!";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 		}
 		catch (Exception ex)
 		{
-			Console.WriteLine($"Error al eliminar: {ex.Message}");
+			TipoNotificacion = ToastType.Danger;
+			TituloNotificacion = "Error";
+			MensajeNotificacion = "Hubo un error al eliminar la membresia.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 		}
 	}
+
+	// NOTIFICACIONES
+	public List<ToastMessage> Notificacion = new List<ToastMessage>();
+	public ToastType TipoNotificacion { get; set; }
+	public string MensajeNotificacion { get; set; } = string.Empty;
+	public string TituloNotificacion { get; set; } = string.Empty;
+
+	public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+	private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+	=> new ToastMessage
+		{
+			Type = toastType,
+			Title = $"{titulo}",
+			HelpText = $"{DateTime.Now}",
+			Message = $"{cuerpo}",
+		};
+
+	public async Task Restablecer()
+	{
+		TipoNotificacion = ToastType.Info;
+		TituloNotificacion = "Aviso";
+		MensajeNotificacion = "Se han restablecido los criterios de búsqueda.";
+		ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+		ListaMembresias = await MembresiasService.Listar(c => true);
+		searchBarValue = string.Empty;
+		valorFiltro = string.Empty;
+		Desde = null;
+		Hasta = null;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		ListaEstadosMembresias = await EstadoMembresiasService.ObtenerEstadoMembresias();
+		ListaMembresias = await MembresiasService.Listar(c => true);
+	}
+
+	public async Task Buscar()
+	{
+		if (string.IsNullOrEmpty(valorFiltro))
+		{
+			TipoNotificacion = ToastType.Warning;
+			TituloNotificacion = "Aviso";
+			MensajeNotificacion = "Debe seleccionar una opción en el fitro.";
+			ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+			ListaMembresias = await MembresiasService.Listar(c => true);
+			return;
+		}
+
+		searchBarValue.Trim().ToLower();
+
+		switch (valorFiltro)
+		{
+			case "estado":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					TipoNotificacion = ToastType.Info;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer un estado para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+					return;
+				}
+				ListaMembresias = await MembresiasService.Listar(lt => lt.EstadoMembresia.Descripcion.Trim().ToLower()
+															.Contains(searchBarValue));
+				break;
+
+			case "descripcion":
+				if (string.IsNullOrEmpty(searchBarValue))
+				{
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Debe proveer El nombre de la membresia para buscar.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+					return;
+				}
+				ListaMembresias = await MembresiasService.Listar(lt => lt.Descripcion.Trim().ToLower()
+															.Contains(searchBarValue));
+				break;
+
+			case "fechavencimiento":
+				if (Desde > Hasta)
+				{
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "La fecha inicial no puede ser mayor a la final.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+					return;
+				}
+				if (Desde == null || Hasta == null)
+				{
+					TipoNotificacion = ToastType.Warning;
+					TituloNotificacion = "Aviso";
+					MensajeNotificacion = "Ambos campos de fecha deben estar llenos.";
+					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+					return;
+				}
+				ListaMembresias = await MembresiasService.Listar(f => f.FechaVencimiento >= Desde && f.FechaVencimiento <= Hasta);
+				break;
+
+			default:
+				ListaMembresias = await MembresiasService.Listar(x => true);
+				break;
+		}
+	}
+
 }
