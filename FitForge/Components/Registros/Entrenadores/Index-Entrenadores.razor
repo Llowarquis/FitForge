@@ -30,7 +30,6 @@
 								<InputSelect class="form-select" id="floatingSelect" aria-label="Floating label select example" @bind-Value="@valorFiltro">
 									<option value="" selected disabled>--- Selecciona ---</option>
 									<option value="identrenador">ID Entrenador</option>
-									<option value="idusuario">ID Usuario</option>
 									<option value="nombres">Nombre</option>
 									<option value="email">Email</option>
 									<option value="fechaIngreso">Fecha de Ingreso</option>
@@ -58,11 +57,11 @@
 					<div class="col-2 text-start">
 						<label></label>
 						<div>
-							<a class="btn btn-lg custom-button bi bi-plus-circle" href="/Entrenadores/Create">    Crear</a>
+							<a class="btn btn-sm custom-button bi bi-plus-circle" href="/Entrenadores/Create">Crear</a>
 						</div>
 					</div>
 				</div>
-				<br/>
+				<br />
 				@if (valorFiltro == "fechaIngreso")
 				{
 					@*Campo Fecha ingreso*@
@@ -81,24 +80,24 @@
 				<table class="table table-sm table-striped table-hover">
 					<thead>
 						<tr>
-							<th><b>ID Entrenador</b></th>
-							<th><b>Nombres</b></th>
-							<th><b>Email</b></th>
-							<th><b>Tel&eacute;fono</b></th>
-							<th><b>Fecha de Ingreso</b></th>
-							<th><b>Acciones</b></th>
+							<th>ID Entrenador</th>
+							<th>Nombres</th>
+							<th>Email</th>
+							<th>Tel&eacute;fono</th>
+							<th>Fecha de Ingreso</th>
+							<th>Acciones</th>
 						</tr>
 					</thead>
 					<tbody class="table-group-divider">
 						@foreach (var entrenador in ListaEntrenadores)
 						{
 							<tr>
-								<th>@entrenador.EntrenadorId</th>
-								<th>@entrenador.Nombres</th>
-								<th>@entrenador.Email</th>
-								<th>@entrenador.Telefono</th>
-								<th>@entrenador.FechaIngreso</th>
-								<th>
+								<td>@entrenador.EntrenadorId</td>
+								<td>@entrenador.Nombres</td>
+								<td>@entrenador.Email</td>
+								<td>@entrenador.Telefono</td>
+								<td>@entrenador.FechaIngreso</td>
+								<td>
 									<div class="btn-group">
 										<button class="btn custom-button btn-sm bi bi-eye dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 											Ver
@@ -110,7 +109,7 @@
 									</div>
 									<a href="/Entrenadores/Edit/@entrenador.EntrenadorId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
 									<button @onclick="() => MostrarModal(entrenador.EntrenadorId, entrenador.Email)" class="btn btn-sm custom-button bi bi-trash"> Eliminar</button>
-								</th>
+								</td>
 							</tr>
 						}
 					</tbody>
@@ -146,9 +145,8 @@
 	<div class="modal-backdrop fade show" @onclick="CerrarModal"></div>
 }
 
-@*Esto es para todos los botones de este componente*@
+@*Estilo CSS para los botones y la tabla*@
 <style>
-
 	/* Opciones de tabla */
 	.table-striped > tbody > tr:nth-of-type(odd) {
 		background-color: #F5E1E8;
@@ -158,15 +156,6 @@
 		background-color: #CA678E !important;
 		color: white;
 	}
-	.custom-button {
-		background-color: #96305a;
-		color: white;
-	}
-
-		.custom-button:hover {
-			background-color: #ca678e;
-			color: white;
-		}
 
 	/* Estilo del fondo y texto del menú desplegable */
 	.dropdown-menu {
@@ -189,7 +178,21 @@
 			background-color: #ca678e; /* Fondo cuando está seleccionado */
 			color: white;
 		}
+
+	/* Estilo para el botón de crear más pequeño */
+	.custom-button {
+		background-color: #96305a;
+		color: white;
+		font-size: 14px; /* Ajusta el tamaño del texto */
+		padding: 6px 12px; /* Ajusta el tamaño del botón */
+	}
+
+		.custom-button:hover {
+			background-color: #ca678e;
+			color: white;
+		}
 </style>
+
 
 @code {
 	public string searchBarValue { get; set; } = string.Empty;
@@ -360,7 +363,7 @@
 					ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
 					return;
 				}
-				if(Desde == null || Hasta == null)
+				if (Desde == null || Hasta == null)
 				{
 					TipoNotificacion = ToastType.Warning;
 					TituloNotificacion = "Aviso";
