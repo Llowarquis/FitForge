@@ -1,14 +1,89 @@
 ﻿@page "/"
 
 <PageTitle>Home</PageTitle>
-
 @*BODY*@
 <body style="background-color: #f5e1ce">
-	<main>
+
+	<div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+		<div class="carousel-inner">
+			<div class="carousel-item active" data-bs-interval="3000">
+				<img src="/images/Home/FotoGymSlider.jpeg" class="d-block w-100" alt="..."
+					 style="height: calc(100vh - 100px); width: 100%; object-fit: cover;">
+				<div class="carousel-caption d-flex flex-column justify-content-center align-items-center" style="height: 100%;">
+					<h1 class="display-4">¡Entrena con nosotros!</h1>
+					<p class="lead">Aprovecha la oportunidad.</p>
+					<a href="/Account/Register" class="btn custom-button btn-lg">¡Comienza Ahora!</a>
+				</div>
+			</div>
+			<div class="carousel-item" data-bs-interval="3000">
+				<img src="/images/Home/FotoGymSlider2.jpeg" class="d-block w-100" alt="..."
+					 style="height: calc(100vh - 100px); width: 100%; object-fit: cover;">
+				<div class="carousel-caption d-flex flex-column justify-content-center align-items-center" style="height: 100%;">
+					<h1 class="display-4">¡Entrena con nosotros!</h1>
+					<p class="lead">Aprovecha la oportunidad.</p>
+					<a href="/Account/Register" class="btn custom-button btn-lg">¡Comienza Ahora!</a>
+				</div>
+			</div>
+			<div class="carousel-item" data-bs-interval="3000">
+				<img src="/images/Home/FotoGymSlider3.jpg" class="d-block w-100" alt="..."
+					 style="height: calc(100vh - 100px); width: 100%; object-fit: cover;">
+				<div class="carousel-caption d-flex flex-column justify-content-center align-items-center" style="height: 100%;">
+					<h1 class="display-4">¡Entrena con nosotros!</h1>
+					<p class="lead">Aprovecha la oportunidad.</p>
+					<a href="/Account/Register" class="btn custom-button btn-lg">¡Comienza Ahora!</a>
+				</div>
+			</div>
+		</div>
+		<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Previous</span>
+		</button>
+		<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Next</span>
+		</button>
+	</div>
+	<br />
+
+	<div class="container gym-class mb-5">
+		<div class="row px-3">
+			<div class="col-md-6 p-0">
+				<div class="gym-class-box d-flex flex-column align-items-end justify-content-center text-right text-white py-5 px-5" style="background-color: #ed5592">
+					<i class="flaticon-six-pack"></i>
+					<h3 class="display-4 mb-3 text-white font-weight-bold">Body Building</h3>
+					<p>
+						El levantamiento de pesas no solo mejora la fuerza muscular, sino que también acelera
+						el metabolismo, refuerza los huesos, mejora la postura, aumenta la resistencia y
+						reduce el riesgo de lesiones. Además, ayuda a combatir el estrés.
+					</p>
+					<a href="/Account/register" class="btn btn-lg custom-button mt-4 px-4">Unirse</a>
+				</div>
+			</div>
+			<div class="col-md-6 p-0">
+				<div class="gym-class-box d-flex flex-column align-items-start justify-content-center text-left text-white py-5 px-5" style="background-color: #ab416b">
+					<i class="flaticon-bodybuilding"></i>
+					<h3 class="display-4 mb-3 text-white font-weight-bold">Construir Músculo</h3>
+					<p>
+
+						Mejorar la figura no solo aumenta la confianza y la autoestima, sino que también
+						refleja un cuerpo saludable. Mantener un buen tono muscular y reducir la grasa
+						corporal favorecen la movilidad, la postura y la energía diaria, promoviendo
+						un estilo de vida equilibrado y positivo.
+					</p>
+					<a href="/Account/register" class="btn btn-lg custom-button mt-4 px-4">Unirse</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<br />
+	<div>
 		<div class="text-center">
 			<h1><b>Nuestro Planes</b></h1>
 			<p>Contamos con los mejores planes del mercado</p>
 		</div>
+
+
 		<div class="membership-cards">
 			<!-- Tarjeta 1 -->
 			<div class="membership-card">
@@ -37,8 +112,122 @@
 				</a>
 			</div>
 		</div>
-	</main>
+	</div>
+	<br />
+	<br />
+	<br />
+	<div class="row">
+		<div class="col-lg-4 p-0">
+			<div class="d-flex align-items-center text-white px-5 card-feature position-relative" style="background-color: #ca678e">
+				<img src="/images/Home/progresion.png" class="feature-img" alt="Progresión">
+				<div>
+					<h2 class="text-white mb-3">Progresión</h2>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu suscipit orci velit id libero.
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-4 p-0">
+			<div class="d-flex align-items-center text-white px-5 card-feature position-relative" style="background-color: #c74e7d">
+				<img src="/images/Home/entrenamiento.png" class="feature-img" alt="Entrenamiento">
+				<div>
+					<h2 class="text-white mb-3">Entrenamiento</h2>
+					<p>
+						Tenemos las mejores máquinas para tu disposición para que puedas darlo todo.
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-4 p-0">
+			<div class="d-flex align-items-center text-white px-5 card-feature position-relative" style="background-color: #ca678e">
+				<img src="/images/Home/nutricion.png" class="feature-img" alt="Nutrición">
+				<div>
+					<h2 class="text-white mb-3">Nutrición</h2>
+					<p>
+						Contamos con los mejores planes de nutrición adaptables a cualquier persona.
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<br />
+	<br />
+	<br />
+	<div class="container-fluid bg-light-purple py-5 rounded-container">
+		<div class="container feature pt-5 text-white">
+			<div class="d-flex flex-column text-center mb-5">
+				<h4 class="text font-weight-bold">¿Por qu&eacute; debes escogernos?</h4>
+				<h4 class="display-4 font-weight-bold">Beneficios de unirte a FitForge</h4>
+			</div>
+			<div class="row">
+
+				<div class="col-md-6 mb-5">
+					<div class="row align-items-center">
+						<div class="col-sm-5">
+							<img class="img-fluid mb-3 mb-sm-0" src="/images/Home/aprender-en-linea.png" />
+						</div>
+						<div class="col-sm-7">
+							<div class="bg-gradient text-white p-4 rounded">
+								<h4 class="font-weight-bold">Clases Grabadas</h4>
+								<p>Puedes seguir tu entrenamiento en casa con nosotros siguiendo nuestras clases grabadas.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-6 mb-5">
+					<div class="row align-items-center">
+						<div class="col-sm-5">
+							<img class="img-fluid mb-3 mb-sm-0" src="/images/Home/calendario.png" />
+						</div>
+						<div class="col-sm-7">
+							<div class="bg-gradient text-white p-4 rounded">
+								<h4 class="font-weight-bold">Itinerarios de Clases</h4>
+								<p>Contamos con una variedad de clases con los mejores entrenadores que hay en el mercado.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-6 mb-5">
+					<div class="row align-items-center">
+						<div class="col-sm-5">
+							<img class="img-fluid mb-3 mb-sm-0" src="/images/Home/wifi.png" />
+						</div>
+						<div class="col-sm-7">
+							<div class="bg-gradient text-white p-4 rounded">
+								<h4 class="font-weight-bold">Wi-Fi Gratis</h4>
+								<p>Te proveemos un wi-fi de 100mbps totalmente gratis como parte de cualquier membresía que escojas.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-6 mb-5">
+					<div class="row align-items-center">
+						<div class="col-sm-5">
+							<img class="img-fluid mb-3 mb-sm-0" src="/images/Home/abrazo.png" alt="Image">
+						</div>
+						<div class="col-sm-7">
+							<div class="bg-gradient text-white p-4 rounded">
+								<h4 class="font-weight-bold">Apoyo de nuestra Comunidad</h4>
+								<p>Nuestra comunidad de FitForge es un espacio motivador donde las personas comparten metas similares, se apoyan mutuamente y celebran logros.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+	<br />
 </body>
+
 @*FOOTER*@
 <footer style="background-color: #96305a; padding: 20px; color: white;">
 	<div class="row">
@@ -61,158 +250,53 @@
 	</div>
 </footer>
 
+<link href="/css/Home.css" rel="stylesheet" />
+
 <style>
-	/* Aseguramos que el contenedor ocupe toda la altura de la pantalla */
-	html, body {
-		font-family: Arial, sans-serif;
-		height: 100%;
-		margin: 0;
-		overflow-x: hidden;
-		padding-right: 17px; /* Compensa la barra de desplazamiento */
+	.custom-button {
+		background-color: #96305a;
+		color: white;
 	}
 
-	footer {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		z-index: 9999; /* Asegura que esté por encima de otros elementos */
+		.custom-button:hover {
+			background-color: #ca678e;
+			color: white;
+		}
+
+	.bg-light-purple {
+		background-color: #ca678e; /* Color morado claro */
 	}
 
-	nav {
+	.rounded-container {
+		border-top-left-radius: 15px; /* Borde redondeado suave en la esquina superior izquierda */
+		border-top-right-radius: 15px; /* Borde redondeado suave en la esquina superior derecha */
+		border-bottom-right-radius: 15px;
+		border-bottom-left-radius: 15px;
+	}
+
+	.card-feature {
+		min-height: 300px;
 		position: relative;
-		z-index: 1;
+		overflow: hidden; /* Asegura que la imagen no sobresalga del contenedor */
 	}
 
-	::-webkit-scrollbar {
-		width: 12px; /* Ancho de la barra de desplazamiento */
+	.feature-img {
+		position: absolute;
+		top: 50%; /* Centrado vertical */
+		left: 50%; /* Centrado horizontal */
+		transform: translate(-50%, -50%); /* Ajusta la posición al centro */
+		z-index: 1; /* Coloca la imagen detrás del contenido */
+		width: 150px; /* Ajusta el tamaño de la imagen */
+		opacity: 0.1; /* Transparencia para no interferir con el texto */
+		pointer-events: none; /* Evita que la imagen sea interactiva */
 	}
 
-	/* Estilo del header */
-	.page-header {
-		background: linear-gradient(90deg, #ca678e, #ca678e); /* Degradado morado claro a oscuro */
-		height: 15vh; /* Altura fija para el header */
-		color: white;
-		display: flex;
-		align-items: center; /* Centra verticalmente el contenido */
-		padding: 0 20px; /* Espaciado lateral */
-		justify-content: space-between; /* Espaciado entre elementos */
+	.card-feature i,
+	.card-feature h2,
+	.card-feature p {
+		z-index: 2; /* Asegura que el contenido esté encima de la imagen */
+		position: relative;
 	}
-
-	.header-content {
-		display: flex;
-		align-items: center; /* Centra verticalmente logo y título */
-		gap: 15px; /* Espaciado entre logo y título */
-		width: 100%;
-	}
-
-	.logo {
-		width: 100px; /* Tamaño del logo aumentado */
-		height: auto;
-	}
-
-	.title-section {
-		display: flex;
-		flex-direction: column; /* Coloca título e iconos en columna */
-		gap: 5px; /* Espacio entre el título y los íconos */
-		width: 100%;
-		padding-top: 10px; /* Espaciado superior para bajar el título */
-	}
-
-	.title {
-		font-size: 1.8em; /* Tamaño del título */
-		margin: 0; /* Sin margen */
-	}
-
-	.icons-section {
-		display: flex;
-		justify-content: flex-end; /* Alinea los íconos a la derecha */
-		gap: 30px; /* Espaciado entre íconos */
-	}
-
-	.icon-item {
-		display: flex;
-		flex-direction: column; /* Alineación vertical */
-		align-items: center; /* Centra el contenido */
-	}
-
-	.icon-image {
-		width: 40px; /* Tamaño de las imágenes de los íconos */
-		height: auto; /* Mantiene las proporciones */
-	}
-
-	.icon-text {
-		margin: 5px 0 0 0; /* Margen superior */
-		font-size: 0.9em; /* Tamaño del texto de los títulos */
-		color: white; /* Color blanco para los textos */
-	}
-
-	/* Nueva franja morado oscuro */
-	.secondary-bar {
-		background-color: #96305a; /* Color morado oscuro */
-		height: 5vh; /* Un tercio de la altura del header */
-		display: flex;
-		align-items: center; /* Centra verticalmente el contenido */
-		padding-left: 20px; /* Alineación a la izquierda */
-		color: white;
-	}
-
-	.slogan {
-		font-size: 1em; /* Tamaño del slogan */
-		margin: 0; /* Sin margen para mantener alineación */
-	}
-
-	/* Estilo para las tarjetas de membresía */
-	.membership-cards {
-		display: flex;
-		gap: 20px;
-		justify-content: center;
-		margin-top: 20px;
-		flex-wrap: wrap;
-	}
-
-	.membership-card {
-		background-color: #f8f8f8;
-		border: 1px solid #ddd;
-		border-radius: 8px;
-		width: 250px;
-		padding: 20px;
-		text-align: center;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		transition: transform 0.3s ease;
-	}
-
-		.membership-card:hover {
-			transform: scale(1.05);
-		}
-
-	.membership-title {
-		font-size: 1.6em;
-		color: #ca678e; /* Morado claro para el título */
-		margin-bottom: 10px;
-	}
-
-	.membership-description {
-		font-size: 1em;
-		color: #555;
-		margin-bottom: 20px;
-	}
-
-	.membership-button {
-		background-color: #96305a; /* Morado oscuro para el botón */
-		color: white;
-		border: none;
-		padding: 10px 20px;
-		border-radius: 5px;
-		cursor: pointer;
-		font-size: 1em;
-		transition: background-color 0.3s ease;
-		text-decoration: none;
-	}
-
-		.membership-button:hover {
-			background-color: #ca678e; /* Cambio de color al pasar el ratón */
-			color: #ffffff; /* Color gris para el texto */
-		}
-
 </style>
+
+

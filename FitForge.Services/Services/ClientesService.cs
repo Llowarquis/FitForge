@@ -3,6 +3,8 @@ using FitForge.Abstractions.Interfaces;
 using FitForge.Data.DAL;
 using FitForge.Data.Models;
 using FitForge.Domain.DTO;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -44,36 +46,12 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 		{
 			ClienteId = clienteDto.ClienteId,
 			Nombres = clienteDto.Nombres,
+			Email = clienteDto.Email,
 			ApplicationUserId = clienteDto.UserId,
 			Cedula = clienteDto.Cedula,
 			FechaNacimiento = clienteDto.FechaNacimiento,
 			Pin = clienteDto.Pin,
 			UrlFotoPerfil = clienteDto.UrlFotoPerfil,
-
-			// ESTE CODIGO ES DE PRUEBA NO ESTOY SEGURO PERO CREO QUE YA NO HAY QUE HACER
-			// ESTO PORQUE PARA ESO LE HAREMOS SERVICIOS A INSCRIPCIONES, TARJETAS Y PAGOS
-
-			//Inscripciones = clienteDto.Inscripciones
-			//.Select(inscripcionesDto => new Inscripciones()
-			//{
-			//	InscripcionId = inscripcionesDto.InscripcionId,
-			//})
-			//Tarjetas = clienteDto.Tarjetas
-			//.Select(tarjetasDto => new Tarjetas()
-			//{
-			//	TarjetaId = tarjetasDto.TarjetaId,
-			//	NumeroTarjeta = tarjetasDto.NumeroTarjeta,
-			//	FechaVencimiento = tarjetasDto.FechaVencimiento,
-			//	Cvv = tarjetasDto.Cvv,
-			//	Pagos = tarjetasDto.Pagos
-			//	.Select(pagosDto => new Pagos()
-			//	{
-			//		PagoId = pagosDto.PagoId,
-			//		FechaPago = pagosDto.FechaPago,
-			//		Monto = pagosDto.Monto,
-			//		FormasPagoId = pagosDto.FormaPago.FormasPagoId,
-			//	}).ToList()
-			//}).ToList()
 		};
 		_contexto.Clientes.Add(cliente);
 		clienteDto.ClienteId = cliente.ClienteId;
@@ -97,6 +75,7 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 
 		cliente.Nombres = clienteDto.Nombres;
 		cliente.Cedula = clienteDto.Cedula;
+		cliente.Email = clienteDto.Email;
 		cliente.FechaNacimiento = clienteDto.FechaNacimiento;
 		cliente.UrlFotoPerfil = clienteDto.UrlFotoPerfil;
 		cliente.ApplicationUser.Email = clienteDto.Email;
@@ -140,6 +119,7 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
 				UserId = x.ApplicationUserId,
 				Cedula = x.Cedula,
 				Pin = x.Pin,
+				UrlFotoPerfil = x.UrlFotoPerfil,
 			})
 			.FirstOrDefaultAsync();
 		return registroEncontrado ?? new ClientesDto();
@@ -270,6 +250,56 @@ public class ClientesService(IDbContextFactory<ApplicationDbContext> DbFactory) 
             Console.WriteLine($"Error al obtener cliente: {ex.Message}");
             return null;
         }
+    }
+
+
+
+    private readonly IWebHostEnvironment _webHostEnvironment;
+
+    // Método para guardar la URL de la imagen de perfil en la base de datos
+    public async Task<bool> GuardarUrlFotoPerfil(ClientesDto clienteDto, IBrowserFile file)
+    {
+        // Subir la imagen al servidor y obtener la URL
+        var urlImagen = await SubirImagenAsync(file);
+
+        if (!string.IsNullOrEmpty(urlImagen))
+        {
+            // Guardar la URL de la imagen en la base de datos
+            await using var _contexto = await DbFactory.CreateDbContextAsync();
+            var cliente = await _contexto.Clientes
+                                         .FirstOrDefaultAsync(c => c.ClienteId == clienteDto.ClienteId);
+
+            if (cliente != null)
+            {
+                cliente.UrlFotoPerfil = urlImagen;
+                _contexto.Clientes.Update(cliente);
+                return await _contexto.SaveChangesAsync() > 0;
+            }
+        }
+        return false;
+    }
+
+    // Método para subir la imagen al servidor y generar una URL accesible
+    private async Task<string> SubirImagenAsync(IBrowserFile file)
+    {
+        if (file == null) return string.Empty;
+
+        // Ruta donde se almacenarán las imágenes
+        var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "uploads");
+        Directory.CreateDirectory(uploadsFolder);  // Asegúrate de que la carpeta exista
+
+        // Nombre único para evitar sobrescribir imágenes existentes
+        var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        // Guardar el archivo
+        await using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.OpenReadStream().CopyToAsync(stream);
+        }
+
+        // Devolver la URL accesible
+        return $"/images/uploads/{uniqueFileName}";
     }
 
     public async Task<int?> ObtenerClienteIdPorEmail(string email)

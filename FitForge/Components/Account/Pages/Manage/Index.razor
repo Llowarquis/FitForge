@@ -9,26 +9,49 @@
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Profile</PageTitle>
+@inject ClientesService clientesService
+@inject EntrenadoresService entrenadoresService
+@inject AuthenticationStateProvider AuthStateProvider
 
-<h3>Profile</h3>
+<PageTitle>Mi perfil</PageTitle>
+
+<h3>Perfil</h3>
 <StatusMessage />
-
 <div class="row">
     <div class="col-md-6">
         <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <input type="text" value="@username" class="form-control" placeholder="Please choose your username." disabled />
-                <label for="username" class="form-label">Username</label>
-            </div>
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
-                <label for="phone-number" class="form-label">Phone number</label>
-                <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+           <div class="row">
+               <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" value="@username" class="form-control" placeholder="Please choose your username." disabled />
+                        <label for="username" class="form-label">Email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                        <label for="phone-number" class="form-label">N&uacute;mero de tel&eacute;fono</label>
+                        <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
+                    </div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary bi bi-floppy">   Guardar</button>
+               </div>
+
+               <div class="col">
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label">Seleccionar una imagen</label>
+                        <InputFile id="formFile" class="form-control" OnChange="OnFileChange" />
+                    </div>
+
+                    <p>URL de la imagen seleccionada: @UrlFotoPerfil</p>
+
+                    @if (string.IsNullOrEmpty(UrlFotoPerfil))
+                    {
+                        <div>
+                            <img src="@UrlFotoPerfil" alt="Foto de Perfil" class="img-fluid" style="max-width: 100px; height: auto;" />
+                        </div>
+                    }
+
+               </div>
+           </div>
         </EditForm>
     </div>
 </div>
@@ -51,7 +74,82 @@
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
 
         Input.PhoneNumber ??= phoneNumber;
+        // try
+        // {
+        //     // Obtén el estado de autenticación del usuario actual
+        //     var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        //     var user = authState.User;
+
+        //     if (user.Identity != null && user.Identity.IsAuthenticated)
+        //     {
+        //         // Extrae el correo electrónico del claim "email"
+        //         UsuarioEmail = user.Identity.Name;
+        //     }
+        //     else
+        //     {
+        //         UsuarioEmail = "Usuario no autenticado";
+        //     }
+
+        //     // Obtener el ClienteId basado en el correo del usuario
+        //     int? clienteIdPorEmail = await clientesService.ObtenerClienteIdPorEmail(UsuarioEmail);
+
+        //     if (clienteIdPorEmail.HasValue && clienteIdPorEmail.Value != 0)
+        //     {
+        //         // Si encontramos un ClienteId distinto de cero, lo usamos
+        //         ClienteId = clienteIdPorEmail.Value;
+        //     }
+
+        //     // Obtener el cliente actual por el ClienteId (nuevo o existente)
+        //     ClienteDto = await clientesService.ObtenerClientePorId(ClienteId);
+
+        //     if (ClienteDto == null)
+        //     {
+        //         throw new Exception("Cliente no encontrado.");
+        //     }
+
+        //     // Cargar membresías e inscripciones relacionadas
+        // }
+        // catch (Exception ex)
+        // {
+        //     throw new Exception(ex.Message);
+        // }
     }
+
+
+
+    // Logica Adicional al individual account
+
+    public int ClienteId { get; set; }
+    private string UrlFotoPerfil { get; set; } = string.Empty;
+    private ClientesDto ClienteDto { get; set; }
+
+    // Variable para almacenar el correo electrónico del usuario autenticado
+    public string UsuarioEmail { get; set; } = string.Empty;
+
+    // Método para manejar el cambio de archivo
+    private async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            // Convertimos la imagen seleccionada a una URL de datos (Data URL)
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream().ReadAsync(buffer);
+
+            // Convertir a base64 (para mostrar en el navegador)
+            UrlFotoPerfil = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+            ClienteDto = await clientesService.Buscar(ClienteDto.ClienteId);
+            ClienteDto.UrlFotoPerfil = UrlFotoPerfil;
+            if (!await clientesService.Guardar(ClienteDto))
+            {
+                throw new Exception("No se pudo guardar la foto de perfil.");
+            }
+        }
+    }
+
+
+
 
     private async Task OnValidSubmitAsync()
     {
@@ -63,15 +161,14 @@
                 RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
             }
         }
-
         await SignInManager.RefreshSignInAsync(user);
         RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
     }
 
     private sealed class InputModel
     {
-        [Phone]
-        [Display(Name = "Phone number")]
+        [Phone(ErrorMessage = "Debe ingresar un teléfono válido")]
+        [Display(Name = "Número de teléfono")]
         public string? PhoneNumber { get; set; }
     }
 }
