@@ -7,7 +7,7 @@
                 @itinerario.ItinerarioId - @(itinerario.Clase?.Descripcion ?? "Sin Clase")
                 @(itinerario.DiaHorario?.DiaHorarioDescripcion ?? "Sin Horario")
                 @(itinerario.Entrenador?.Nombres ?? "Sin Entrenador")
-                ($@itinerario.Precio:N2)
+                @($"${itinerario.Precio:N2}")
             </option>
         }
     </InputSelect>
