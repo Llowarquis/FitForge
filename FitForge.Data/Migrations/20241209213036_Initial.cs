@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitForge.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Clientes : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -545,9 +545,9 @@ namespace FitForge.Data.Migrations
                 columns: new[] { "MembresiaId", "Descripcion", "EstadoMembresiaId", "FechaVencimiento", "Precio" },
                 values: new object[,]
                 {
-                    { 1, "Membresía Estudiante", 1, new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7209), 500m },
-                    { 2, "Membresía Básica", 1, new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7213), 800m },
-                    { 3, "Membresía VIP", 1, new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7216), 1500m }
+                    { 1, "Membresía Estudiante", 1, new DateTime(2025, 1, 9, 17, 30, 35, 942, DateTimeKind.Local).AddTicks(7499), 500m },
+                    { 2, "Membresía Básica", 1, new DateTime(2025, 1, 9, 17, 30, 35, 942, DateTimeKind.Local).AddTicks(7501), 800m },
+                    { 3, "Membresía VIP", 1, new DateTime(2025, 1, 9, 17, 30, 35, 942, DateTimeKind.Local).AddTicks(7503), 1500m }
                 });
 
             migrationBuilder.CreateIndex(

@@ -510,7 +510,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 1,
                             Descripcion = "Membresía Estudiante",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7209),
+                            FechaVencimiento = new DateTime(2025, 1, 9, 17, 30, 35, 942, DateTimeKind.Local).AddTicks(7499),
                             Precio = 500m
                         },
                         new
@@ -518,7 +518,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 2,
                             Descripcion = "Membresía Básica",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7213),
+                            FechaVencimiento = new DateTime(2025, 1, 9, 17, 30, 35, 942, DateTimeKind.Local).AddTicks(7501),
                             Precio = 800m
                         },
                         new
@@ -526,7 +526,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 3,
                             Descripcion = "Membresía VIP",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7216),
+                            FechaVencimiento = new DateTime(2025, 1, 9, 17, 30, 35, 942, DateTimeKind.Local).AddTicks(7503),
                             Precio = 1500m
                         });
                 });
