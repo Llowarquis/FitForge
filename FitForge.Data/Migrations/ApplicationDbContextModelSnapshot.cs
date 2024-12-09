@@ -132,6 +132,10 @@ namespace FitForge.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateOnly>("FechaNacimiento")
                         .HasColumnType("date");
 
@@ -506,7 +510,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 1,
                             Descripcion = "Membresía Estudiante",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9636),
+                            FechaVencimiento = new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7209),
                             Precio = 500m
                         },
                         new
@@ -514,7 +518,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 2,
                             Descripcion = "Membresía Básica",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9639),
+                            FechaVencimiento = new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7213),
                             Precio = 800m
                         },
                         new
@@ -522,7 +526,7 @@ namespace FitForge.Data.Migrations
                             MembresiaId = 3,
                             Descripcion = "Membresía VIP",
                             EstadoMembresiaId = 1,
-                            FechaVencimiento = new DateTime(2025, 1, 8, 18, 28, 42, 640, DateTimeKind.Local).AddTicks(9643),
+                            FechaVencimiento = new DateTime(2025, 1, 9, 14, 22, 25, 171, DateTimeKind.Local).AddTicks(7216),
                             Precio = 1500m
                         });
                 });
