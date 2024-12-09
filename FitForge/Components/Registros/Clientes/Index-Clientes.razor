@@ -10,9 +10,6 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
-<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
-
-
 <PageTitle>Listado Clientes</PageTitle>
 <body style="background-color: #F5E1CE">
 	<div class="container">
@@ -60,7 +57,7 @@
 					<div class="col-2 text-start">
 						<label></label>
 						<div>
-							<a class="btn btn-lg custom-button bi bi-plus-circle" href="/Clientes/Create">    Crear</a>
+							<a class="btn btn-sm custom-button bi bi-plus-circle" href="/Clientes/Create">    Crear</a>
 						</div>
 					</div>
 				</div>
@@ -82,14 +79,14 @@
 						@foreach (var cliente in ListaClientes)
 						{
 							<tr>
-								<th>@cliente.ClienteId</th>
-								<th>@cliente.Nombres</th>
-								<th>@cliente.Email</th>
-								<th>@cliente.Telefono</th>
-								<th>@cliente.Cedula</th>
-								<th>@cliente.Pin</th>
-								<th>@cliente.FechaNacimiento</th>
-								<th>
+								<td>@cliente.ClienteId</td>
+								<td>@cliente.Nombres</td>
+								<td>@cliente.Email</td>
+								<td>@cliente.Telefono</td>
+								<td>@cliente.Cedula</td>
+								<td>@cliente.Pin</td>
+								<td>@cliente.FechaNacimiento</td>
+								<td>
 									<div class="btn-group">
 										<button class="btn custom-button btn-sm bi bi-eye dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 											Ver
@@ -98,13 +95,13 @@
 											<li><a class="dropdown-item" href="#">Pagos</a></li>
 											<li><a class="dropdown-item" href="/Tarjetas/Index/@cliente.ClienteId">Tarjetas</a></li>
 											<li><a class="dropdown-item" href="/Inscripcion/Index/@cliente.ClienteId">Inscripciones</a></li>
-											<li><a class="dropdown-item" href="#">Estado de Membres&iacute;a</a></li>
+											<li><a class="dropdown-item" href="#">Estado de Membresía</a></li>
 											<li><a class="dropdown-item" href="#">Info de Usuario</a></li>
 										</ul>
 									</div>
 									<a href="/Clientes/Edit/@cliente.ClienteId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
 									<button @onclick="() => MostrarModal(cliente.ClienteId, cliente.Email)" class="btn btn-sm custom-button bi bi-trash"> Eliminar</button>
-								</th>
+								</td>
 							</tr>
 						}
 					</tbody>
@@ -128,7 +125,7 @@
 				</div>
 				<div class="modal-body">
 					<p>¿Está seguro de que desea eliminar a este cliente?</p>
-					<p>Esta opci&oacute;n no se puede deshacer.</p>
+					<p>Esta opción no se puede deshacer.</p>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
@@ -139,9 +136,9 @@
 	</div>
 	<div class="modal-backdrop fade show" @onclick="CerrarModal"></div>
 }
-
-@*Esto es para todos los botones de este componente*@
+@* Estilos personalizados *@
 <style>
+	/* Botón personalizado */
 	.custom-button {
 		background-color: #96305a;
 		color: white;
@@ -152,28 +149,61 @@
 			color: white;
 		}
 
-	/* Estilo del fondo y texto del menú desplegable */
-	.dropdown-menu {
-		background-color: #96305a; /* Fondo del menú */
+	/* Reducir tamaño del botón Crear */
+	.btn-sm.custom-button {
+		font-size: 0.875rem; /* tamaño más pequeño */
+		padding: 0.25rem 0.5rem; /* reduce el tamaño del padding */
 	}
 
-	/* Color del texto de los elementos del menú */
+	/* Espaciado entre botones */
+	.d-flex.custom-spacing {
+		gap: 0.5rem;
+	}
+
+	/* Estilos de la tabla */
+	.table-striped > tbody > tr:nth-of-type(odd) {
+		background-color: #fbe6ec;
+	}
+
+	.table-striped > tbody > tr:nth-of-type(even) {
+		background-color: #fdf6f9;
+	}
+
+	.table-hover tbody tr:hover {
+		background-color: #f8d7e4 !important;
+		color: black;
+	}
+
+	/* Eliminar negrita en los datos de la tabla */
+	table td {
+		font-weight: normal; /* Asegura que los datos no estén en negrita */
+	}
+
+	/* Estilo del menú desplegable */
+	.dropdown-menu {
+		background-color: #5d1451; /* Fondo morado oscuro */
+		border-color: #5d1451; /* Borde de color morado oscuro */
+	}
+
+	/* Estilo de los elementos del menú */
 	.dropdown-item {
 		color: white; /* Texto blanco */
 	}
 
-		/* Hover: Mantener el texto blanco y cambiar el fondo */
+		/* Hover: Cambiar fondo a morado más claro */
 		.dropdown-item:hover {
-			background-color: #ca678e; /* Fondo al pasar el mouse */
+			background-color: #7a1c6f; /* Fondo morado más claro */
 			color: white; /* Mantener texto blanco */
 		}
 
-		/* Opcional: Sin borde en los elementos del menú */
+		/* Estilo de los elementos cuando están enfocados o seleccionados */
 		.dropdown-item:focus, .dropdown-item:active {
-			background-color: #ca678e; /* Fondo cuando está seleccionado */
+			background-color: #7a1c6f; /* Fondo morado más claro */
 			color: white;
 		}
 </style>
+
+
 
 @code {
 	public string searchBarValue { get; set; } = string.Empty;

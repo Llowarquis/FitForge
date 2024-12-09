@@ -5,6 +5,9 @@
 @inject IItinerariosService ItinerariosService
 @inject NavigationManager NavigationManager
 
+
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 @rendermode InteractiveServer
 <div class="container mt-4">
     <div class="row justify-content-center">
@@ -35,7 +38,7 @@
                         <div class="mb-3">
                             <label for="Membresia" class="form-label" style="color: #96305a;">Membresía:</label>
                             <InputSelect id="Membresia" class="form-select custom-input" @bind-Value="MembresiaSeleccionadaId">
-                                <option value="">Seleccione un tipo de membresía</option>
+                                <option value="" disabled>Seleccione un tipo de membresía</option>
                                 @foreach (var membresia in ListaMembresias)
                                 {
                                     <option value="@membresia.MembresiaId">@membresia.Descripcion</option>
@@ -57,7 +60,7 @@
                         <!-- Fecha de Inscripción -->
                         <div class="mb-3">
                             <label for="FechaInscripcion" class="form-label" style="color: #96305a;">Fecha de Inscripción:</label>
-                            <InputDate @bind-Value="Inscripcion.FechaInscripcion" class="form-control custom-input" />
+                            <InputDate @bind-Value="Inscripcion.FechaInscripcion" class="form-control custom-input" disabled />
                         </div>
 
                         <!-- Detalles de Itinerarios -->
@@ -284,11 +287,18 @@
 
     private async Task Guardar()
     {
-        if (!MembresiaSeleccionadaId.HasValue)
+        // Verifica si el precio de la membresía es 0
+        if (PrecioMembresia <= 0)
         {
+            // Muestra un mensaje de error con un toast
+            TipoNotificacion = ToastType.Danger;
+            TituloNotificacion = "Error";
+            MensajeNotificacion = "Hubo un error al modficar la inscripcion: el precio de la membresia no puede ser 0.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
             return;
         }
 
+        // Si pasa la validación, guarda los datos
         Inscripcion.Precio = MontoTotal;
         Inscripcion.MembresiaId = MembresiaSeleccionadaId.Value;
 
@@ -297,10 +307,8 @@
         if (guardado)
         {
             GuardarExitoso = true;
-
             StateHasChanged();
             NavigationManager.NavigateTo($"/Inscripcion/Index/{ClienteId}");
-
         }
         else
         {
@@ -314,4 +322,21 @@
         Inscripcion.InscripcionDetalle.Remove(detalle);
         DetalleSeleccionado = detalle;
     }
+
+
+    // NOTIFICACIONES
+    public List<ToastMessage> Notificacion = new List<ToastMessage>();
+    public ToastType TipoNotificacion { get; set; }
+    public string MensajeNotificacion { get; set; } = string.Empty;
+    public string TituloNotificacion { get; set; } = string.Empty;
+
+    public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+    private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = $"{titulo}",
+            HelpText = $"{DateTime.Now}",
+            Message = $"{cuerpo}",
+        };
 }

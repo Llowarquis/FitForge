@@ -58,7 +58,7 @@
 							<div class="col-2 text-start">
 								<label></label>
 								<div>
-									<a class="btn btn-lg custom-button bi bi-plus-circle" href="/Clases/Create">    Crear</a>
+									<a class="btn btn-sm custom-button bi bi-plus-circle" href="/Clases/Create">Crear</a>
 								</div>
 							</div>
 						</Authorized>
@@ -68,24 +68,24 @@
 				<table class="table table-sm table-striped table-hover">
 					<thead>
 						<tr>
-							<th><b>ID Clase</b></th>
-							<th><b>Descripci&oacute;n</b></th>
-							<th><b>Cupos Disponibles</b></th>
-							<th><b>Precio</b></th>
-							<th><b>Acciones</b></th>
+							<th>ID Clase</th>
+							<th>Descripci&oacute;n</th>
+							<th>Cupos Disponibles</th>
+							<th>Precio</th>
+							<th>Acciones</th>
 						</tr>
 					</thead>
 					<tbody class="table-group-divider">
 						@foreach (var clase in ListaClases)
 						{
 							<tr>
-								<th>@clase.ClaseId</th>
-								<th>@clase.Descripcion</th>
-								<th>@clase.Cupos</th>
-								<th>@clase.Precio</th>
+								<td>@clase.ClaseId</td>
+								<td>@clase.Descripcion</td>
+								<td>@clase.Cupos</td>
+								<td>@clase.Precio</td>
 								<AuthorizeView Roles="Admin">
 									<Authorized>
-										<th>
+										<td>
 											<div class="btn-group">
 												<button class="btn custom-button btn-sm bi bi-eye dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 													Ver
@@ -96,14 +96,14 @@
 											</div>
 											<a href="/Clases/Edit/@clase.ClaseId" class="btn btn-sm bi bi-pencil-square custom-button"> Editar</a>
 											<button @onclick="() => MostrarModal(clase.ClaseId)" class="btn btn-sm custom-button bi bi-trash"> Eliminar</button>
-										</th>
+										</td>
 									</Authorized>
 								</AuthorizeView>
 								<AuthorizeView Roles="Cliente">
 									<Authorized>
-										<th>
-											<button type="button" class="btn btn-sm custom-button bi bi-cart-plus">   Inscribirme</button>
-										</th>
+										<td>
+											<button type="button" class="btn btn-sm custom-button bi bi-cart-plus"> Inscribirme</button>
+										</td>
 									</Authorized>
 								</AuthorizeView>
 							</tr>
@@ -153,6 +153,8 @@
 		background-color: #CA678E !important;
 		color: white;
 	}
+
+	/* Estilo para los botones */
 	.custom-button {
 		background-color: #96305a;
 		color: white;
@@ -184,7 +186,14 @@
 			background-color: #ca678e; /* Fondo cuando está seleccionado */
 			color: white;
 		}
+
+	/* Hacer el botón "Crear" más pequeño */
+	.btn-sm {
+		font-size: 14px; /* Ajusta el tamaño del texto */
+		padding: 6px 12px; /* Ajusta el tamaño del botón */
+	}
 </style>
+
 
 @code {
 	public string searchBarValue { get; set; } = string.Empty;
@@ -322,4 +331,6 @@
 		}
 	}
 }
+
+
 

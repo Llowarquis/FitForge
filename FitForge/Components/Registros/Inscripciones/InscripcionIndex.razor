@@ -5,6 +5,10 @@
 
 @rendermode InteractiveServer
 
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+
+
 <PageTitle>Inscripciones</PageTitle>
 <body style="background-color: #F5E1CE">
     <div class="container">
@@ -17,13 +21,55 @@
             @*BODY*@
             <div class="card-body" style="background-color: #F5E1E8">
                 <div class="row">
-                    @*Botón Crear*@
-                    <div class="col-12 text-start mb-3">
-                        <a href="/Inscripcion/Create/@ClienteId" class="btn custom-button bi bi-plus-square">
-                            Crear Inscripción
-                        </a>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <div class="form-floating d-flex align-items-center">
+                                <InputSelect class="form-select" id="floatingSelect" aria-label="Floating label select example" @bind-Value="@valorFiltro">
+                                    <option value="" selected disabled>--- Selecciona ---</option>
+                                    <option value="precio">Precio</option>
+                                    <option value="fechainscripcion">Fecha de Inscripcion</option>
+                                </InputSelect>
+                                <label for="floatingSelect"><strong>Filtrar en base a...</strong></label>
+                            </div>
+                            <button type="button" class="btn custom-button bi bi-arrow-counterclockwise ms-2" @onclick="Restablecer"></button>
+                        </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <div class="form-floating d-flex align-items-center flex-grow-1">
+                                <InputText @bind-Value="@searchBarValue" class="form-control" placeholder="Buscar" id="floatingSearch" />
+                                <label for="floatingSearch">Buscar</label>
+                            </div>
+                            <button @onclick="Buscar" class="btn custom-button bi bi-search ms-2" type="button"></button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        @*Botón Crear*@
+                        <div class="col-12 text-start mb-3">
+                            <a href="/Inscripcion/Create/@ClienteId" class="btn custom-button bi bi-plus-square">
+                                Crear Inscripción
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
+                @if (valorFiltro == "fechainscripcion")
+                {
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="Desde" class="form-control" />
+                                <label for="desde"><b>Desde...</b></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="Hasta" class="form-control" />
+                                <label for="hasta"><b>Hasta...</b></label>
+                            </div>
+                        </div>
+                    </div>
+                }
 
                 @if (!string.IsNullOrEmpty(MensajeError))
                 {
@@ -57,7 +103,7 @@
                                 <tr>
                                     <td>@inscripcion.Cliente?.Nombres</td>
                                     <td>@inscripcion.Membresia.Descripcion</td>
-                                    <td>@inscripcion.FechaInscripcion</td>
+                                    <td>@inscripcion.FechaInscripcion.ToString("dd/MM/yyyy")</td>
                                     <td>@($"${inscripcion.Precio:N2}")</td>
                                     <td>
                                         <a class="btn btn-sm custom-button bi bi-pencil-square" href="/Inscripcion/Edit/@inscripcion.InscripcionId?ClienteId=@inscripcion.ClienteId">
@@ -130,6 +176,11 @@
     [Parameter]
     public int ClienteId { get; set; }
 
+    public string searchBarValue { get; set; } = string.Empty;
+    public string valorFiltro { get; set; } = string.Empty;
+    public DateTime? Desde { get; set; } = null;
+    public DateTime? Hasta { get; set; } = null;
+
 
     public List<InscripcionesDto> ListaInscripciones = new();
     public ClientesDto ClienteActual { get; set; }
@@ -184,10 +235,96 @@
 
             mostrarModal = false;
             InscripcionIdSeleccionada = 0;
+            TipoNotificacion = ToastType.Success;
+            TituloNotificacion = "Enhorabuena";
+            MensajeNotificacion = "¡Se ha eliminado la inscripcion exitosamente!";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
         }
         catch (Exception ex)
         {
-            MensajeError = $"Error al eliminar: {ex.Message}";
+            TipoNotificacion = ToastType.Danger;
+            TituloNotificacion = "Error";
+            MensajeNotificacion = "Hubo un error al eliminar la membresia.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+        }
+    }
+    // NOTIFICACIONES
+    public List<ToastMessage> Notificacion = new List<ToastMessage>();
+    public ToastType TipoNotificacion { get; set; }
+    public string MensajeNotificacion { get; set; } = string.Empty;
+    public string TituloNotificacion { get; set; } = string.Empty;
+
+    public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+    private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = $"{titulo}",
+            HelpText = $"{DateTime.Now}",
+            Message = $"{cuerpo}",
+        };
+
+    public async Task Restablecer()
+    {
+        TipoNotificacion = ToastType.Info;
+        TituloNotificacion = "Aviso";
+        MensajeNotificacion = "Se han restablecido los criterios de búsqueda.";
+        ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+        ListaInscripciones = await InscripcionesService.Listar(c => true);
+        searchBarValue = string.Empty;
+        valorFiltro = string.Empty;
+        Desde = null;
+        Hasta = null;
+    }
+
+    public async Task Buscar()
+    {
+        if (string.IsNullOrEmpty(valorFiltro))
+        {
+            TipoNotificacion = ToastType.Warning;
+            TituloNotificacion = "Aviso";
+            MensajeNotificacion = "Debe seleccionar una opción en el fitro.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+            ListaInscripciones = await InscripcionesService.Listar(c => true);
+        }
+
+        searchBarValue.Trim().ToLower();
+
+        switch (valorFiltro)
+        {
+            case "precio":
+                if (string.IsNullOrEmpty(searchBarValue))
+                {
+                    TipoNotificacion = ToastType.Warning;
+                    TituloNotificacion = "Aviso";
+                    MensajeNotificacion = "Debe proveer El precio de la membresia para buscar.";
+                    ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+                }
+                ListaInscripciones = await InscripcionesService.Listar(lt => lt.Precio.ToString().Trim().ToLower()
+                                                             .Contains(searchBarValue));
+                break;
+
+            case "fechainscripcion":
+                if (Desde > Hasta)
+                {
+                    TipoNotificacion = ToastType.Warning;
+                    TituloNotificacion = "Aviso";
+                    MensajeNotificacion = "La fecha inicial no puede ser mayor a la final.";
+                    ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+                }
+                if (Desde == null || Hasta == null)
+                {
+                    TipoNotificacion = ToastType.Warning;
+                    TituloNotificacion = "Aviso";
+                    MensajeNotificacion = "Ambos campos de fecha deben estar llenos.";
+                    ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+                }
+                ListaInscripciones = await InscripcionesService.Listar(f => f.FechaInscripcion >= Desde && f.FechaInscripcion <= Hasta);
+                break;
+
+            default:
+                ListaInscripciones = await InscripcionesService.Listar(x => true);
+                break;
         }
     }
 }

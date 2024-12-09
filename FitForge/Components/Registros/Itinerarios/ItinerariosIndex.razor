@@ -3,8 +3,13 @@
 @inject IClasesService ClasesService
 @inject IEntrenadoresService EntrenadoresService
 @inject IDiasHorariosService DiasHorariosService
+
 @attribute [Authorize(Roles = "Admin")]
+
 @rendermode InteractiveServer
+
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Itinerarios</PageTitle>
 <body style="background-color: #F5E1CE">
     <div class="container">
@@ -17,13 +22,42 @@
             @*BODY*@
             <div class="card-body" style="background-color: #F5E1E8">
                 <div class="row">
-                    @*Botón Crear*@
-                    <div class="col-12 text-start mb-3">
+                    <div class="col-4">
+                        <div class="input-group" style="width: 250px">
+                            <div class="form-floating d-flex align-items-center">
+                                <InputSelect class="form-select" id="floatingSelect" aria-label="Floating label select example" @bind-Value="@valorFiltro">
+                                    <option value="" selected disabled>--- Selecciona ---</option>
+                                    <option value="entrenador">Entrenador</option>
+                                    <option value="diayhora">Dia y Hora</option>
+                                    <option value="precio">Precio</option>
+                                </InputSelect>
+                                <label for="floatingSelect"><strong>Filtrar en base a...</strong></label>
+                            </div>
+                            @*btn restablecer*@
+                            <button type="button" class="btn custom-button bi bi-arrow-counterclockwise" @onclick="() => Restablecer()"></button>
+                        </div>
+                    </div>
+
+                    @*Btn Buscar*@
+                    <div class="col text-start">
+                        <div class="input-group" style="width: 500px">
+                            @*textbox buscar*@
+                            <div class="form-floating d-flex align-items-center">
+                                <InputText @bind-Value="@searchBarValue" class="form-control" placeholder="Buscar" id="floatingSearch" />
+                                <label for="floatingSearch">Buscar</label>
+                            </div>
+                            <button @onclick="Buscar" class="btn custom-button bi bi-search" type="button"></button>
+                        </div>
+                    </div>
+
+                    @*Botón Crear a la derecha*@
+                    <div class="col-12 text-end mb-3">
                         <a href="/Itinerarios/Create" class="btn custom-button bi bi-plus-square">
                             Crear Itinerario
                         </a>
                     </div>
                 </div>
+
 
                 @if (!string.IsNullOrEmpty(MensajeError))
                 {
@@ -59,13 +93,14 @@
                                     <td>@itinerario.DiaHorario.DiaHorarioDescripcion</td>
                                     <td>@($"${itinerario.Precio:N2}")</td>
                                     <td>
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-start gap-2">
                                             <a href="/Itinerarios/Edit/@itinerario.ItinerarioId" class="btn btn-sm custom-button bi bi-pencil-square"> Editar</a>
                                             <button class="btn btn-sm custom-button bi bi-trash" @onclick="() => MostrarModal(itinerario.ItinerarioId)"> Eliminar</button>
                                         </div>
                                     </td>
                                 </tr>
                             }
+
                         </tbody>
                     </table>
 
@@ -122,28 +157,111 @@
 </style>
 
 @code {
+    public string searchBarValue { get; set; } = string.Empty;
+    public string valorFiltro { get; set; } = string.Empty;
     public List<ItinerariosDto> ListaItinerarios = new();
-    public List<ClasesDto> ListaClases = new();
-    public List<EntrenadoresDto> ListaEntrenadores = new();
-    public List<DiasHorariosDto> ListaDiasHorarios = new();
-
     private string MensajeError = string.Empty;
     private bool mostrarModal = false;
     private int ItinerarioIdSeleccionado;
+
+    // NOTIFICACIONES
+    public List<ToastMessage> Notificacion = new List<ToastMessage>();
+    public ToastType TipoNotificacion { get; set; }
+    public string MensajeNotificacion { get; set; } = string.Empty;
+    public string TituloNotificacion { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            ListaClases = await ClasesService.ObtenerClasesAsync();
-            ListaEntrenadores = await EntrenadoresService.ObtenerEntrenadoresAsync();
-            ListaDiasHorarios = await DiasHorariosService.ObtenerDiasHorariosAsync();
             ListaItinerarios = await ItinerariosService.Listar(t => true);
-
         }
         catch (Exception ex)
         {
             MensajeError = $"Error al inicializar: {ex.Message}";
+        }
+    }
+
+    public async Task Buscar()
+    {
+        searchBarValue = searchBarValue.Trim().ToLower();
+
+        if (string.IsNullOrEmpty(valorFiltro))
+        {
+            TipoNotificacion = ToastType.Warning;
+            TituloNotificacion = "Aviso";
+            MensajeNotificacion = "Debe seleccionar una opción en el filtro.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+            return;
+        }
+
+        try
+        {
+            switch (valorFiltro)
+            {
+                case "entrenador":
+                    if (string.IsNullOrEmpty(searchBarValue))
+                    {
+                        MostrarAdvertencia("Debe proveer el nombre de un entrenador para buscar.");
+                        return;
+                    }
+                    ListaItinerarios = await ItinerariosService.Listar(it =>
+                        it.Entrenador.Nombres.Trim().ToLower().Contains(searchBarValue));
+                    break;
+
+                case "diayhora":
+                    if (string.IsNullOrEmpty(searchBarValue))
+                    {
+                        MostrarAdvertencia("Debe proveer un Día y Hora para buscar.");
+                        return;
+                    }
+                    // Carga los datos básicos de la base de datos
+                    var itinerarios = await ItinerariosService.Listar(it => true);
+
+                    // Filtra en memoria basándote en la propiedad del DTO
+                    ListaItinerarios = itinerarios.Where(it =>
+                        it.DiaHorario.DiaHorarioDescripcion.Trim().ToLower().Contains(searchBarValue)).ToList();
+                    break;
+
+
+                case "precio":
+                    if (!double.TryParse(searchBarValue, out double precio))
+                    {
+                        MostrarAdvertencia("Debe proveer un precio válido para buscar.");
+                        return;
+                    }
+                    ListaItinerarios = await ItinerariosService.Listar(it => it.Precio == precio);
+                    break;
+
+                default:
+                    MostrarAdvertencia("Opción de filtro no válida.");
+                    break;
+            }
+
+            if (!ListaItinerarios.Any())
+            {
+                MostrarInformacion("No se encontraron resultados con los criterios proporcionados.");
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarError($"Hubo un error al realizar la búsqueda: {ex.Message}");
+        }
+    }
+
+    public async Task Restablecer()
+    {
+        try
+        {
+            ListaItinerarios = await ItinerariosService.Listar(x => true);
+            searchBarValue = string.Empty;
+            valorFiltro = string.Empty;
+
+            MostrarInformacion("Se han restablecido los criterios de búsqueda.");
+        }
+        catch (Exception ex)
+        {
+            MostrarError($"Error al restablecer los datos: {ex.Message}");
         }
     }
 
@@ -165,15 +283,38 @@
         {
             await ItinerariosService.Eliminar(ItinerarioIdSeleccionado);
             var itinerario = ListaItinerarios.FirstOrDefault(i => i.ItinerarioId == ItinerarioIdSeleccionado);
-            if (itinerario != null)
-                ListaItinerarios.Remove(itinerario);
+            if (itinerario != null) ListaItinerarios.Remove(itinerario);
 
             mostrarModal = false;
             ItinerarioIdSeleccionado = 0;
+            MostrarExito("¡Se ha eliminado el itinerario exitosamente!");
         }
         catch (Exception ex)
         {
-            MensajeError = $"Error al eliminar: {ex.Message}";
+            MostrarError($"Error al eliminar el itinerario: {ex.Message}");
         }
     }
+
+    // Métodos para notificaciones
+    public void ShowMessage(ToastType toastType, string titulo, string cuerpo) =>
+        Notificacion.Add(new ToastMessage
+            {
+                Type = toastType,
+                Title = titulo,
+                AutoHide = true,
+                HelpText = $"{DateTime.Now}",
+                Message = cuerpo
+            });
+
+    private void MostrarExito(string mensaje) =>
+        ShowMessage(ToastType.Success, "Éxito", mensaje);
+
+    private void MostrarError(string mensaje) =>
+        ShowMessage(ToastType.Danger, "Error", mensaje);
+
+    private void MostrarInformacion(string mensaje) =>
+        ShowMessage(ToastType.Info, "Información", mensaje);
+
+    private void MostrarAdvertencia(string mensaje) =>
+        ShowMessage(ToastType.Warning, "Advertencia", mensaje);
 }
