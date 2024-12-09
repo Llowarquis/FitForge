@@ -2,6 +2,10 @@
 @inject ITarjetasService TarjetasService
 @inject IClientesService ClientesService
 
+@rendermode InteractiveServer
+
+<Toasts class="p-3" Messages="Notificacion" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
 <div class="wrapper">
     <div class="form-section">
         <EditForm Model="tarjetaDto" OnValidSubmit="Guardar" FormName="frmTarjeta">
@@ -17,9 +21,16 @@
                 <label for="ClienteNombre" class="form-label">Cliente: @ClienteNombre</label>
             </div>
 
+
             <!-- Número de tarjeta -->
             <div class="form-floating mb-3">
-                <InputText id="NumeroTarjeta" class="form-control" @bind-Value="@tarjetaDto.NumeroTarjeta" required placeholder="0000 0000 0000 0000" maxlength="19" />
+                <InputText id="NumeroTarjeta" class="form-control"
+                           @bind-Value="@tarjetaDto.NumeroTarjeta"
+                           onkeypress="ValidarTecla(event)"
+                           @oninput="ValidarNumeroTarjeta"
+                           required
+                           placeholder="0000 0000 0000 0000"
+                           maxlength="19" />
                 <label for="NumeroTarjeta">Ingrese el número de la tarjeta</label>
                 <ValidationMessage For="@(() => tarjetaDto.NumeroTarjeta)" />
             </div>
@@ -67,6 +78,15 @@
     <link href="css/Login.css" rel="stylesheet" />
 </head>
 
+<script>
+    function ValidarTecla(event) {
+        const charCode = event.which || event.keyCode;
+        // Permitir solo dígitos (teclas 48-57) y teclas de control (retroceso, suprimir, etc.)
+        if (charCode < 48 || charCode > 57) {
+            event.preventDefault();
+        }
+    }
+</script>
 @code {
     [Parameter]
     public int ClienteId { get; set; }
@@ -98,6 +118,24 @@
         }
     }
 
+    private void ValidarNumeroTarjeta(ChangeEventArgs e)
+    {
+        var valor = e.Value?.ToString();
+
+        // Si el valor contiene caracteres no válidos, limpia el campo
+        if (!string.IsNullOrEmpty(valor) && !valor.All(char.IsDigit))
+        {
+            // Mostrar Toast de advertencia
+            TipoNotificacion = ToastType.Warning;
+            TituloNotificacion = "Advertencia";
+            MensajeNotificacion = "El número de tarjeta solo debe contener dígitos.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
+
+            // Filtrar y mantener solo los números
+            tarjetaDto.NumeroTarjeta = string.Concat(valor.Where(char.IsDigit));
+        }
+    }
+
     private async Task Guardar()
     {
         try
@@ -107,18 +145,43 @@
 
             if (guardado)
             {
-                mensajeExito = "Tarjeta registrada con éxito!";
+                TipoNotificacion = ToastType.Success;
+                TituloNotificacion = "Enhorabuena";
+                MensajeNotificacion = "¡Se ha creado la tarjeta exitosamente!";
+                ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
                 tarjetaDto = new TarjetasDto { ClienteId = ClienteId };
             }
             else
             {
-                mensajeExito = "Error al guardar la tarjeta.";
+                TipoNotificacion = ToastType.Danger;
+                TituloNotificacion = "Error";
+                MensajeNotificacion = "Hubo un error al crear la membresia.";
+                ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
             }
         }
         catch (Exception ex)
         {
-            mensajeExito = $"Error: {ex.Message}";
-            Console.WriteLine($"Error: {ex.Message}");
+            TipoNotificacion = ToastType.Danger;
+            TituloNotificacion = "Error";
+            MensajeNotificacion = "Hubo un error al crear la membresia.";
+            ShowMessage(TipoNotificacion, TituloNotificacion, MensajeNotificacion);
         }
     }
+
+
+    // NOTIFICACIONES
+    public List<ToastMessage> Notificacion = new List<ToastMessage>();
+    public ToastType TipoNotificacion { get; set; }
+    public string MensajeNotificacion { get; set; } = string.Empty;
+    public string TituloNotificacion { get; set; } = string.Empty;
+
+    public void ShowMessage(ToastType toastType, string titulo, string cuerpo) => Notificacion.Add(CreateToastMessage(toastType, titulo, cuerpo));
+    private ToastMessage CreateToastMessage(ToastType toastType, string titulo, string cuerpo)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = $"{titulo}",
+            HelpText = $"{DateTime.Now}",
+            Message = $"{cuerpo}",
+        };
 }
