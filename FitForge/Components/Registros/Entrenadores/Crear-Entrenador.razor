@@ -78,59 +78,11 @@
 					</div>
 				</div>
 
-				<div class="col">
-					@*Campo Descripcion de la clase*@
-					<div class="form-floating mb-3">
-						<InputSelect @bind-Value="Input.DescripcionClase" class="form-control" aria-required="true">
-							<option selected disabled>--- Selecciona una clase ---</option>
-							@foreach (var clase in ListaClases)
-							{
-								<option value="@clase.ClaseId">@clase.Descripcion</option>
-							}
-						</InputSelect>
-						<label for="descripcion-clase"><strong>Clase a impartir...</strong></label>
-						<ValidationMessage For="() => Input.DescripcionClase" class="text-danger validation-message" />
-					</div>
-
-					<div class="row">
-						<div class="col">
-							@*Campo hora inicio*@
-							<div class="form-floating mb-3">
-								<input type="time" @bind="Input.HoraInicio" class="form-control" />
-								<label for="hora-inicio">Hora Inicio</label>
-								<ValidationMessage For="() => Input.HoraInicio" class="text-danger validation-message" />
-							</div>
-						</div>
-
-						<div class="col">
-							@*Campo hora fin*@
-							<div class="form-floating mb-3">
-								<input type="time" @bind="Input.HoraFin" class="form-control" />
-								<label for="hora-fin">Hora Inicio</label>
-								<ValidationMessage For="() => Input.HoraInicio" class="text-danger validation-message" />
-							</div>
-						</div>
-					</div>
-
-					@*Campo Dia*@
-					<div class="form-floating mb-3">
-						<InputSelect @bind-Value="Input.Dia" class="form-control" aria-required="true">
-							<option selected disabled>--- Selecciona un dia ---</option>
-							@foreach (var dia in ListaDias)
-							{
-								<option value="@dia.DiaId">@dia.Nombre</option>
-							}
-						</InputSelect>
-						<label for="dia"><strong>Dia de clase...</strong></label>
-						<ValidationMessage For="() => Input.Dia" class="text-danger validation-message" />
-					</div>
-
-					@*Campo Telefono*@
-					<div class="form-floating mb-3">
-						<InputText @bind-Value="Input.Telefono" class="form-control" aria-required="true" placeholder="555-555-5555" />
-						<label for="telefono">Telefono</label>
-						<ValidationMessage For="() => Input.Telefono" class="text-danger" />
-					</div>
+				@*Campo Telefono*@
+				<div class="form-floating mb-3">
+					<InputText @bind-Value="Input.Telefono" class="form-control" aria-required="true" placeholder="555-555-5555" />
+					<label for="telefono">Telefono</label>
+					<ValidationMessage For="() => Input.Telefono" class="text-danger" />
 				</div>
 			</div>
 
