@@ -24,6 +24,8 @@ public class Clientes
 	[Required(ErrorMessage = "Este campo es obligatorio")]
 	public string Cedula { get; set; }
 
+	public string Email { get; set; }
+
 
 	public int Pin { get; set; }
 
