@@ -35,7 +35,6 @@
 - Menú principal.
 - Consultar planes de Membresias.
 - Consultar clases disponibles.
-- Pagos de forma segura a través de tarjeta o efectivo.
 
 ---
 
